@@ -1,21 +1,18 @@
 extern crate job;
+extern crate chrono;
+mod common;
 
 
 /// This module tests the creation of a `JobPaths` struct via its `from_uploadfolder()` function
-mod jobpath_from_uploadfolder{
+mod from_uploadfolder{
     use job::JobPaths;
     use std::path::PathBuf;
+    use common;
 
     #[test]
     fn uploadpath() {
         // Create a path for uploaddir
-        let mut uploadbuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        uploadbuf.push("tests");
-        uploadbuf.push("resources");
-        uploadbuf.push("data");
-        uploadbuf.push("blendfiles");
-        uploadbuf.push("1be554e1f51b804637326e3faf41d2c9");
-        let uploadpath = format!("{:?}", uploadbuf).replace("\"", "");
+        let uploadpath = common::get_jobpath();
         // Run the actual folder
         let paths = JobPaths::from_uploadfolder(uploadpath.clone());
         println!("{}", paths);
@@ -25,13 +22,7 @@ mod jobpath_from_uploadfolder{
     #[test]
     fn datapath() {
         // Create a path for uploaddir
-        let mut uploadbuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        uploadbuf.push("tests");
-        uploadbuf.push("resources");
-        uploadbuf.push("data");
-        uploadbuf.push("blendfiles");
-        uploadbuf.push("1be554e1f51b804637326e3faf41d2c9");
-        let uploadpath = format!("{:?}", uploadbuf).replace("\"", "");
+        let uploadpath = common::get_jobpath();
         // Create a path for data.json
         let mut databuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         databuf.push("tests");
@@ -51,13 +42,7 @@ mod jobpath_from_uploadfolder{
     #[test]
     fn blendpath() {
         // Create a path for uploaddir
-        let mut uploadbuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        uploadbuf.push("tests");
-        uploadbuf.push("resources");
-        uploadbuf.push("data");
-        uploadbuf.push("blendfiles");
-        uploadbuf.push("1be554e1f51b804637326e3faf41d2c9");
-        let uploadpath = format!("{:?}", uploadbuf).replace("\"", "");
+        let uploadpath = common::get_jobpath();
         // Create a path for horizon_splash.blend
         let mut blendbuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         blendbuf.push("tests");
@@ -77,13 +62,7 @@ mod jobpath_from_uploadfolder{
     #[test]
     fn framepath() {
         // Create a path for uploaddir
-        let mut uploadbuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        uploadbuf.push("tests");
-        uploadbuf.push("resources");
-        uploadbuf.push("data");
-        uploadbuf.push("blendfiles");
-        uploadbuf.push("1be554e1f51b804637326e3faf41d2c9");
-        let uploadpath = format!("{:?}", uploadbuf).replace("\"", "");
+        let uploadpath = common::get_jobpath();
         // Create a path for frames
         let mut framebuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         framebuf.push("tests");
@@ -102,13 +81,7 @@ mod jobpath_from_uploadfolder{
     #[test]
     fn filename() {
         // Create a path for uploaddir
-        let mut uploadbuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        uploadbuf.push("tests");
-        uploadbuf.push("resources");
-        uploadbuf.push("data");
-        uploadbuf.push("blendfiles");
-        uploadbuf.push("1be554e1f51b804637326e3faf41d2c9");
-        let uploadpath = format!("{:?}", uploadbuf).replace("\"", "");
+        let uploadpath = common::get_jobpath();
         // Run the actualfolder
         let paths = JobPaths::from_uploadfolder(uploadpath.clone());
         println!("{}", paths);
@@ -119,20 +92,14 @@ mod jobpath_from_uploadfolder{
 
 
 /// This module tests additional functions specified within the JobPath object
-mod jobpath_functions{
+mod test_jobpath_functions{
     use job::JobPaths;
-    use std::path::PathBuf;
+    use common;
 
     #[test]
     fn get_id() {
         // Create a path for uploaddir
-        let mut uploadbuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        uploadbuf.push("tests");
-        uploadbuf.push("resources");
-        uploadbuf.push("data");
-        uploadbuf.push("blendfiles");
-        uploadbuf.push("1be554e1f51b804637326e3faf41d2c9");
-        let uploadpath = format!("{:?}", uploadbuf).replace("\"", "");
+        let uploadpath = common::get_jobpath();
         // Run the actualfolder
         let paths = JobPaths::from_uploadfolder(uploadpath.clone());
         println!("{}", paths);

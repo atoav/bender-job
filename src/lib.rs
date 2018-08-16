@@ -222,7 +222,8 @@ impl fmt::Display for JobTimes {
 /// A JobPath Struct holds all path-related data for the Job
 /// It can be created from a uploadfolder:
 /// ```
-/// let j = JobPath::from_uploadfolder("/data/blendfiles/1be554e1f51b804637326e3faf41d2c9");
+/// use job::JobPaths;
+/// let j = JobPaths::from_uploadfolder("/data/blendfiles/1be554e1f51b804637326e3faf41d2c9");
 /// ```
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct JobPaths{
@@ -340,7 +341,7 @@ mod tests {
     // fn print_request() {
     //      let r = Job {
     //         id: "245869245686258gtre9524".to_owned(),
-    //         paths:
+    //         paths: JobPaths::from
     //         email: "harold@harold.com".to_owned(),
     //         time: JobTimes {
     //             creationtime: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
