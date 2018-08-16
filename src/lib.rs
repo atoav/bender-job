@@ -107,7 +107,8 @@ impl Job{
 
     /// Creates a file from a `data.json`, like
     /// ```
-    /// let j = Job::from_datajson("some/path/to/data.json")
+    /// use job::Job;
+    /// let j = Job::from_datajson("some/path/to/data.json");
     /// ```
     pub fn from_datajson<S>(p: S) -> Result<Self, Box<Error>> where S: Into<String>{
         let p = PathBuf::from(&p.into()[..]);
