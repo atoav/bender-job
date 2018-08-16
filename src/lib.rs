@@ -4,16 +4,9 @@ extern crate serde;
 extern crate serde_json;
 extern crate chrono;
 
-
-
-
-
-
-
 use chrono::prelude::*;
 use chrono::Utc;
 use std::collections::HashMap;
-use serde_json::Error as SerdeJsonError;
 use std::str;
 use std::fmt;
 use std::fs;
@@ -21,12 +14,17 @@ use std::path::PathBuf;
 use std::error::Error;
 
 
+
+
 /* --------------------------------[ Job ]-------------------------------- */
 
 /// The Job struct holds all information about a job request for rendering
 /// it gets created simply by reading from its `data.json`.
 /// Ways to create a request are:
-///
+/// 1. from a data.json via `Job::from_datajson("some/path/to/data.json")`
+/// 2. deserialized from a string via `Job::deserialize(<String>)`
+/// 3. deserialization from bytes via `Job::deserialize_from_u8(&[u8])`
+/// 4. direct construction (see tests/common/mod.rs for example)
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Job {
     pub id: String,
@@ -41,6 +39,8 @@ pub struct Job {
 #[allow(dead_code)]
 impl Job{
     /// Add to the history of a Job
+    /// key is a DateTime constructed via `chrono::Utc::now()`
+    /// value can be any String
     pub fn add_history<S>(&mut self, text: S) where S: Into<String> {
         self.history.insert(Utc::now(), text.into());
     }
@@ -83,13 +83,24 @@ impl Job{
     }
 
     /// Write a serialized version of the Job to the path specified in `Job::paths::data`
-    /// **Warning:** _This must only be used within ONE service!_
+    /// **Warning:** _This must only be used within ONE service!_e
     pub fn write_to_file(&self) -> Result<(), Box<Error>> {
         // Step 1: Serialize
         let serialized = self.serialize()?;
         // Step 2: Write
         fs::write(&self.paths.data, serialized)?;
         Ok(())
+    }
+
+    /// Creates a file from a `data.json`, like
+    /// ```
+    /// let j = Job::from_datajson("some/path/to/data.json")
+    /// ```
+    pub fn from_datajson<S>(p: S) -> Result<Self, Box<Error>> where S: Into<String>{
+        let p = PathBuf::from(&p.into()[..]);
+        let bytes = &fs::read(p)?;
+        let job = Self::deserialize_from_u8(bytes)?;
+        Ok(job)
     }
 
     // TODO: Write function to check if the job changed in file

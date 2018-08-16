@@ -39,7 +39,6 @@ mod job_creation{
 mod job_serialize_deserialize{
     use common;
     use job::Job;
-    use std::path::PathBuf;
 
     #[test]
     fn roundtrip_via_string() {
@@ -97,7 +96,8 @@ mod job_serialize_deserialize{
         // write
         j.write_to_file().unwrap();
         // Deserialize via from &[u8]
-        let deserialized = Job::from(PathBuf::from(&j.paths.upload));
+        // let deserialized = Job::from(PathBuf::from(&j.paths.upload));
+        let deserialized = Job::from_datajson(&j.paths.data[..]).expect("Deserialization failed!");
         assert_eq!(deserialized, j);
     }
 }
