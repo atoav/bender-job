@@ -34,6 +34,7 @@ use std::error::Error;
 /// The Job struct holds all information about a job request for rendering
 /// it gets created simply by reading from its `data.json`.
 /// Ways to create a request are:
+///
 /// 1. from a data.json via `Job::from_datajson("some/path/to/data.json")`
 /// 2. deserialized from a string via `Job::deserialize(<String>)`
 /// 3. deserialization from bytes via `Job::deserialize_from_u8(&[u8])`
