@@ -5,6 +5,7 @@ authors = ["David Huss <dh@widerstandzwecklos.at>"]
 
 [lib]
 name = "job"
+path = "src/lib.rs"
 
 [dependencies]
 serde = "1.0"
