@@ -18,6 +18,7 @@ use std::str;
 use std::fmt;
 use std::fs;
 use std::path::PathBuf;
+use std::error::Error;
 
 
 /* --------------------------------[ Job ]-------------------------------- */
@@ -51,20 +52,28 @@ impl Job{
     }
 
     /// Serialize a Job into a String. Return a Error if this fails
-    pub fn serialize(&self) -> Result<String, SerdeJsonError> {
-        serde_json::to_string(&self)
+    pub fn serialize(&self) -> Result<String, Box<Error>> {
+        let string = serde_json::to_string(&self)?;
+        Ok(string)
+    }
+
+    /// Serialize a Job into a Vec<u8>. Return a Error if this fails
+    /// you might want to use this with a reference
+    pub fn serialize_to_u8(&self) -> Result<Vec<u8>, Box<Error>> {
+        let string = serde_json::to_string(&self)?;
+        Ok(string.into_bytes())
     }
 
     /// Deserialize something that fullfills Into<String> into a Job
-    pub fn deserialize<S>(s: S) -> Result<Self, SerdeJsonError> where S: Into<String> {
-        let deserialized: Job = serde_json::from_str(&s.into()[..]).expect("Deserialization failed");
+    pub fn deserialize<S>(s: S) -> Result<Self, Box<Error>> where S: Into<String> {
+        let deserialized: Job = serde_json::from_str(&s.into()[..])?;
         Ok(deserialized)
     }
 
     /// Deserialize something that fullfills Into<String> into a Job
-    pub fn deserialize_from_vec(v:&[u8]) -> Result<Self, SerdeJsonError> {
-        let s = str::from_utf8(v).expect("Couldn't deserialize Vec(u8) into valid utf8");
-        let deserialized: Job = serde_json::from_str(&s).expect("Deserialization failed");
+    pub fn deserialize_from_u8(v:&[u8]) -> Result<Self, Box<Error>> {
+        let s = str::from_utf8(v)?;
+        let deserialized: Job = serde_json::from_str(&s)?;
         Ok(deserialized)
     }
 
@@ -72,6 +81,18 @@ impl Job{
     pub fn id(&self) -> String{
         self.paths.get_id()
     }
+
+    /// Write a serialized version of the Job to the path specified in `Job::paths::data`
+    /// **Warning:** _This must only be used within ONE service!_
+    pub fn write_to_file(&self) -> Result<(), Box<Error>> {
+        // Step 1: Serialize
+        let serialized = self.serialize()?;
+        // Step 2: Write
+        fs::write(&self.paths.data, serialized)?;
+        Ok(())
+    }
+
+    // TODO: Write function to check if the job changed in file
 }
 
 /// Allows to create a Job by using `let request = Job::from(String);`
@@ -101,35 +122,16 @@ impl <'a>From<&'a str> for Job{
     }
 }
 
-/// Create a Job from a PathBuf like so: `let request = Job::from(pathbuf);`
-// impl From<PathBuf> for Job {
-//     fn from(p: PathBuf) -> Self {
-//         // Create a path to data.json
-//         let mut jsonbuf = PathBuf::new();
-//         jsonbuf.push(&p);
-//         // Add data.json to the end of string if it isn't there already
-//         if !p.ends_with("data.json"){ jsonbuf.push("data.json"); }
-//         let pathstring = jsonbuf.into_os_string().into_string()
-//         .expect("Error while creating Job from pathbuf");
-//         // Extract the id
-//         let mut idbuf = PathBuf::new();
-//         idbuf.push(&p);
-//         // Pop "data.json" from idbuf if idbuf has it to get proper ID
-//         if p.ends_with("data.json"){ idbuf.pop(); }
-//         // Return just the id (dirname of data.json's parent directory)
-//         let id = idbuf.into_os_string().into_string()
-//         .expect("Error while creating Job from pathbuf, couldn't parse id").split("/").last().unwrap().to_string();
-//         // Get the status
-//         let status = Job::update_status_by_path(&pathstring);
-//         // Create Job
-//         let request = Job {
-//             id: id,
-//             path: pathstring,
-//             status: status.expect("Couldn't get status"),
-//         };
-//         request
-//     }
-// }
+// TODO: This is very unsafe. better write something that fails gracefully!
+impl From<PathBuf> for Job{
+    fn from(p: PathBuf) -> Self{
+        let mut jsonbuf = PathBuf::from(&p);
+        // Add data.json to the end of string if it isn't there already
+        if !p.ends_with("data.json"){ jsonbuf.push("data.json"); }
+        Self::deserialize_from_u8(&fs::read(jsonbuf).expect("Fuck, couldn't read from data.json"))
+        .expect("Fuck, couldn't deserialize from data.json")
+    }
+}
 
 
 /// String formatting for Job
@@ -220,11 +222,12 @@ impl fmt::Display for JobTimes {
 /* ---------------------------[ JobPaths ]--------------------------- */
 
 /// A JobPath Struct holds all path-related data for the Job
-/// It can be created from a uploadfolder:
+/// It can be created from a uploadfolder
 /// ```
 /// use job::JobPaths;
 /// let j = JobPaths::from_uploadfolder("/data/blendfiles/1be554e1f51b804637326e3faf41d2c9");
 /// ```
+/// or by deserializing a `data.json`
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct JobPaths{
     pub upload:    String,
@@ -325,158 +328,11 @@ impl fmt::Display for JobPaths {
 
 
 
-/* --------------------------------[ TESTS ]--------------------------------- */
+/* ---------------------------[ WHITEBOX TESTS ]------------------------------ */
 
 
 
 #[cfg(test)]
 mod tests {
-    use chrono::prelude::*;
-    use chrono::Utc;
-    use std::collections::HashMap;
-    use std::path::PathBuf;
-
-
-    // #[test]
-    // fn print_request() {
-    //      let r = Job {
-    //         id: "245869245686258gtre9524".to_owned(),
-    //         paths: JobPaths::from
-    //         email: "harold@harold.com".to_owned(),
-    //         time: JobTimes {
-    //             creationtime: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
-    //             finishtime: None,
-    //             errortime: None
-    //         },
-    //         status: "request.untouched".to_owned(),
-    //         data: HashMap::new(),
-    //         history: HashMap::new()
-    //     };
-    //     let x = &format!("{}", r)[..];
-    //     assert_eq!("Job [id: 245869245686258gtre9524][status: request.untouched]", x);    
-    // }
-
-
-    // #[test]
-    // fn roundtrip_via_string() {
-    //     let r = Job {
-    //         id: "245869245686258gtre9524".to_owned(),
-    //         datapath: "blabla.json".to_owned(),
-    //         blendpath: "bla.jpg".to_owned(),
-    //         email: "harold@harold.com".to_owned(),
-    //         time: Time {
-    //             creationtime: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
-    //             finishtime: None,
-    //             errortime: None
-    //         },
-    //         status: "request.untouched".to_owned(),
-    //         queueposition: None,
-    //         history: HashMap::new()
-    //     };
-
-    //     // Serialize
-    //     let serialized = r.serialize().unwrap();
-    //     // Deserialize from String
-    //     let deserialized = Job::from(serialized.clone());
-    //     assert_eq!(deserialized, r);
-    // }
-
-    // #[test]
-    // fn roundtrip_via_refstring() {
-    //     let r = Job {
-    //         id: "245869245686258gtre9524".to_owned(),
-    //         datapath: "blabla.json".to_owned(),
-    //         blendpath: "bla.jpg".to_owned(),
-    //         email: "harold@harold.com".to_owned(),
-    //         time: Time {
-    //             creationtime: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
-    //             finishtime: None,
-    //             errortime: None
-    //         },
-    //         status: "request.untouched".to_owned(),
-    //         queueposition: None,
-    //         history: HashMap::new()
-    //     };
-
-    //     // Serialize
-    //     let serialized = r.serialize().unwrap();
-    //     // Deserialize from &String
-    //     let deserialized = Job::from(&serialized);
-    //     assert_eq!(deserialized, r);
-    // }
-
-    // #[test]
-    // fn roundtrip_via_str() {
-    //     let r = Job {
-    //         id: "245869245686258gtre9524".to_owned(),
-    //         datapath: "blabla.json".to_owned(),
-    //         blendpath: "bla.jpg".to_owned(),
-    //         email: "harold@harold.com".to_owned(),
-    //         time: Time {
-    //             creationtime: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
-    //             finishtime: None,
-    //             errortime: None
-    //         },
-    //         status: "request.untouched".to_owned(),
-    //         queueposition: None,
-    //         history: HashMap::new()
-    //     };
-
-    //     // Serialize
-    //     let serialized = r.serialize().unwrap();
-    //     // Deserialize from &str
-    //     let deserialized = Job::from(&serialized[..]);
-    //     assert_eq!(deserialized, r);
-    // }
-
-    // #[test]
-    // fn roundtrip_via_deserialize() {
-    //     let r = Job {
-    //         id: "245869245686258gtre9524".to_owned(),
-    //         datapath: "blabla.json".to_owned(),
-    //         blendpath: "bla.jpg".to_owned(),
-    //         email: "harold@harold.com".to_owned(),
-    //         time: Time {
-    //             creationtime: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
-    //             finishtime: None,
-    //             errortime: None
-    //         },
-    //         status: "request.untouched".to_owned(),
-    //         queueposition: None,
-    //         history: HashMap::new()
-    //     };
-
-    //     // Serialize
-    //     let serialized = r.serialize().unwrap();
-    //     // Deserialize via deserialize method
-    //     let deserialized = Job::deserialize(&serialized[..]).expect("Deserialization via ::deserialize() failed!");
-    //     assert_eq!(deserialized, r);
-    // }
-
-    // #[test]
-    // fn roundtrip_via_u8vec() {
-    //     let r = Job {
-    //         id: "245869245686258gtre9524".to_owned(),
-    //         datapath: "blabla.json".to_owned(),
-    //         blendpath: "bla.jpg".to_owned(),
-    //         email: "harold@harold.com".to_owned(),
-    //         time: Time {
-    //             creationtime: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
-    //             finishtime: None,
-    //             errortime: None
-    //         },
-    //         status: "request.untouched".to_owned(),
-    //         queueposition: None,
-    //         history: HashMap::new()
-    //     };
-
-    //     // Serialize
-    //     let serialize = r.serialize().unwrap();
-    //     let utf8stream = serialize.as_bytes();
-    //     // Deserialize via from &[u8]
-    //     let deserialized = Job::deserialize_from_vec(utf8stream).expect("Deserialization via ::deserialize_from_vec() failed!");
-    //     assert_eq!(deserialized, r);
-    // }
-
 
 }

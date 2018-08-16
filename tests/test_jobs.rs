@@ -17,10 +17,29 @@ mod job_functions{
 }
 
 
+
+mod job_creation{
+    use common;
+    use job::Job;
+    use std::path::PathBuf;
+
+    /// Test if the Job read from PathBuf is equal to a job created via 
+    /// the `common::get_job()` function
+    #[test]
+    fn from_pathbuf() {
+        let p = PathBuf::from(&common::get_jobpath());
+        let j = Job::from(p);
+        let job = common::get_job();
+        assert_eq!(j, job);
+    }
+}
+
+
 /// Test the serialization and deserialization of a job
 mod job_serialize_deserialize{
     use common;
     use job::Job;
+    use std::path::PathBuf;
 
     #[test]
     fn roundtrip_via_string() {
@@ -66,10 +85,19 @@ mod job_serialize_deserialize{
     fn roundtrip_via_u8vec() {
         let j = common::get_job();
         // Serialize
-        let serialize = j.serialize().unwrap();
-        let utf8stream = serialize.as_bytes();
+        let serialize = &(j.serialize_to_u8().unwrap());
         // Deserialize via from &[u8]
-        let deserialized = Job::deserialize_from_vec(utf8stream).expect("Deserialization via ::deserialize_from_vec() failed!");
+        let deserialized = Job::deserialize_from_u8(serialize).expect("Deserialization via ::deserialize_from_vec() failed!");
+        assert_eq!(deserialized, j);
+    }
+
+    #[test]
+    fn roundtrip_via_filesystem() {
+        let j = common::get_job();
+        // write
+        j.write_to_file().unwrap();
+        // Deserialize via from &[u8]
+        let deserialized = Job::from(PathBuf::from(&j.paths.upload));
         assert_eq!(deserialized, j);
     }
 }
