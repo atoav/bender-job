@@ -1,6 +1,6 @@
 # job
 
-blender-job is a rust library, that serializes and deserializes jobs
+bender-job is a rust library, that serializes and deserializes jobs
 from `data.json` files. The deserialization yields a Job struct.
 
 The libary is implemented with a extensive amount of tests to make

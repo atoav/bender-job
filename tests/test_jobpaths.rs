@@ -1,11 +1,11 @@
-extern crate job;
+extern crate bender_job;
 extern crate chrono;
 mod common;
 
 
 /// This module tests the creation of a `JobPaths` struct via its `from_uploadfolder()` function
 mod from_uploadfolder{
-    use job::JobPaths;
+    use bender_job::JobPaths;
     use std::path::PathBuf;
     use common;
 
@@ -93,7 +93,7 @@ mod from_uploadfolder{
 
 /// This module tests additional functions specified within the JobPath object
 mod test_jobpath_functions{
-    use job::JobPaths;
+    use bender_job::JobPaths;
     use common;
 
     #[test]

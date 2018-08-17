@@ -1,9 +1,9 @@
 extern crate chrono;
-extern crate job;
+extern crate bender_job;
 
 /// Commonly used functions
 use std::path::PathBuf;
-use job::{Job, JobPaths, JobTimes};
+use bender_job::{Job, JobPaths, JobTimes};
 use chrono::Utc;
 use chrono::prelude::*;
 use std::collections::HashMap;

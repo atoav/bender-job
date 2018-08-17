@@ -1,4 +1,4 @@
-//! blender-job is a rust library, that serializes and deserializes jobs
+//! bender-job is a rust library, that serializes and deserializes jobs
 //! from `data.json` files. The deserialization yields a Job struct.
 //!
 //! The libary is implemented with a extensive amount of tests to make
@@ -108,7 +108,7 @@ impl Job{
 
     /// Creates a file from a `data.json`, like
     /// ```
-    /// use job::Job;
+    /// use bender_job::Job;
     /// let j = Job::from_datajson("some/path/to/data.json");
     /// ```
     pub fn from_datajson<S>(p: S) -> Result<Self, Box<Error>> where S: Into<String>{
@@ -250,7 +250,7 @@ impl fmt::Display for JobTimes {
 /// A JobPath Struct holds all path-related data for the Job
 /// It can be created from a uploadfolder
 /// ```
-/// use job::JobPaths;
+/// use bender_job::JobPaths;
 /// let j = JobPaths::from_uploadfolder("/data/blendfiles/1be554e1f51b804637326e3faf41d2c9");
 /// ```
 /// or by deserializing a `data.json`
