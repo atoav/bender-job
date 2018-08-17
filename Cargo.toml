@@ -1,5 +1,5 @@
 [package]
-name = "job"
+name = "bender_job"
 version = "0.1.0"
 authors = ["David Huss <dh@widerstandzwecklos.at>"]
 

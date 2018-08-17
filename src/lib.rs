@@ -1,4 +1,3 @@
-//! # bender-job
 //! bender_job is a rust library, that serializes and deserializes jobs
 //! from `data.json` files. The deserialization yields a Job struct.
 //!
