@@ -25,8 +25,7 @@
 //! 
 
 
-#[macro_use]
-extern crate serde_derive;
+#[macro_use] extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate chrono;
@@ -42,6 +41,14 @@ use std::error::Error;
 
 
 
+#[derive(Debug)]
+struct AddError(String);
+impl fmt::Display for AddError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "The old value was the same as the new value: {}", self.0)
+    }
+}
+impl Error for AddError {}
 
 
 
@@ -97,8 +104,28 @@ impl Job{
     /// Add to the history of a Job
     /// key is a DateTime constructed via `chrono::Utc::now()`
     /// value can be any String
-    pub fn add_history<S>(&mut self, text: S) where S: Into<String> {
-        self.history.insert(Utc::now(), text.into());
+    pub fn add_history<S>(&mut self, value: S) where S: Into<String> {
+        self.history.insert(Utc::now(), value.into());
+    }
+
+    /// Add to the history of a job only if the added value changed from the last value
+    /// Return Ok(()) if the value has been added otherwise return a boxed error
+    pub fn add_history_debounced<S>(&mut self, value: S) -> Result<(), Box<Error>> where S: Into<String>{
+        let value = value.into();
+        let addtohistory =  match self.history.values().next_back(){
+            Some(oldvalue) => {
+                match &value  != oldvalue{
+                    true => true,
+                    false => false
+                }
+            },
+            None => true
+        };
+        if addtohistory{
+            Ok(self.add_history(value))
+        } else {
+            return Result::Err(Box::new(AddError("".to_owned())))
+        }
     }
 
     /// Append a key-value-pair to the data of a Job
@@ -106,6 +133,23 @@ impl Job{
     pub fn add_data<S>(&mut self, key: S, value: S) where S: Into<String> {
         self.data.insert(key.into(), value.into());
     }
+
+    /// Update data only if it changed, return an Error if the data was the same
+    pub fn add_data_debounced<S>(&mut self, key: S, value: S) -> Result<(), Box<Error>> where S: Into<String> {
+        // Insert returns Some(String) when the old value has been overwritten
+        // or None when there was no value, let's use that
+        let value = value.into();
+        match self.data.insert(key.into(), value.clone()){
+            Some(oldvalue) => {
+                match value != oldvalue{
+                    true => Ok(()),
+                    false => return Result::Err(Box::new(AddError("".to_owned())))
+                }
+            },
+            None => Ok(())
+        }
+    }
+
 
     /// Serialize a Job into a String. Return a Error if this fails
     pub fn serialize(&self) -> Result<String, Box<Error>> {
@@ -170,7 +214,24 @@ impl Job{
         self.status.split(".").collect::<Vec<&str>>()[0] == "job"
     }
 
-    // TODO: Write function to check if the job changed in file
+    /// Return Ok(true) when the data on disk is different than self
+    /// Return Ok(false) when the data is the same
+    /// Return Error when reading from disk failed
+    pub fn changed_on_disk(&self) -> Result<bool, Box<Error>> {
+        let datapath = self.paths.data.clone();
+        let on_disk = &Self::from_datajson(datapath)?;
+        Ok(self != on_disk)
+    }
+
+    /// Only write changes to data.json if there is a difference between the data
+    /// stored on disk and self, Return Error if something failed, otherwise Ok()
+    pub fn update_on_disk(&self) -> Result<(), Box<Error>>{
+        let shouldupdate = self.changed_on_disk()?;
+        if shouldupdate{
+            self.write_to_file()?;
+        }
+        Ok(())
+    }
 }
 
 /// Allows to create a Job by using `let request = Job::from(String);`
@@ -200,7 +261,7 @@ impl <'a>From<&'a str> for Job{
     }
 }
 
-// TODO: This is very unsafe. better write something that fails gracefully!
+/// This is very unsafe. Better use the `Job::from_datajson` method!
 impl From<PathBuf> for Job{
     fn from(p: PathBuf) -> Self{
         let mut jsonbuf = PathBuf::from(&p);
