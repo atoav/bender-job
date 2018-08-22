@@ -98,14 +98,14 @@ impl Job{
 
     /// Serialize a Job into a String. Return a Error if this fails
     pub fn serialize(&self) -> Result<String, Box<Error>> {
-        let string = serde_json::to_string(&self)?;
+        let string = serde_json::to_string_pretty(&self)?;
         Ok(string)
     }
 
     /// Serialize a Job into a Vec<u8>. Return a Error if this fails
     /// you might want to use this with a reference
     pub fn serialize_to_u8(&self) -> Result<Vec<u8>, Box<Error>> {
-        let string = serde_json::to_string(&self)?;
+        let string = serde_json::to_string_pretty(&self)?;
         Ok(string.into_bytes())
     }
 
