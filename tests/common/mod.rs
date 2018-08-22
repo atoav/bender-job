@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use bender_job::{Job, JobPaths, JobTimes};
 use chrono::Utc;
 use chrono::prelude::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
 
 
 
@@ -38,6 +38,6 @@ pub fn get_job() -> Job {
         },
         status: "request.untouched".to_owned(),
         data: HashMap::new(),
-        history: HashMap::new()
+        history: BTreeMap::new()
     } 
 }

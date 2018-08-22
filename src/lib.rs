@@ -1,10 +1,15 @@
 //! bender_job is a rust library, that serializes and deserializes jobs
-//! from `data.json` files. The deserialization yields a Job struct.
+//! from `data.json` files. The deserialization yields a Job struct.  
+//!
+//! It can be loaded in a rust library via the public git mirror:  
+//! ```ignore
+//! job = { git = "https://github.com/atoav/bender-job.git" }
+//! ```
 //!
 //! The libary is implemented with a extensive amount of tests to make
 //! sure that repeated deserialization/serialization won't introduce
 //! losses or glitches to the `data.json`. The tests can be run with
-//! `cargo test`
+//! `cargo test`  
 //! 
 //! 
 
@@ -17,7 +22,7 @@ extern crate chrono;
 
 use chrono::prelude::*;
 use chrono::Utc;
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
 use std::str;
 use std::fmt;
 use std::fs;
@@ -33,12 +38,38 @@ use std::error::Error;
 
 /// The Job struct holds all information about a job request for rendering
 /// it gets created simply by reading from its `data.json`.
-/// Ways to create a request are:
+/// 
+/// ## Create a Job
+/// ### 1. from a data.json 
+/// ```
+/// # use bender_job::Job;
+/// Job::from_datajson("some/path/to/data.json");
+/// ```
 ///
-/// 1. from a data.json via `Job::from_datajson("some/path/to/data.json")`
-/// 2. deserialized from a string via `Job::deserialize(<String>)`
-/// 3. deserialization from bytes via `Job::deserialize_from_u8(&[u8])`
-/// 4. direct construction (see tests/common/mod.rs for example)
+/// ### 2. deserialized from a string 
+/// ```
+/// # use bender_job::Job;
+/// Job::deserialize("myjsonstring".to_owned());
+/// ```
+///
+/// ### 3. deserialization from bytes: &[u8]
+/// ```
+/// # use bender_job::Job;
+/// let somebytes = "myjsonstring".as_bytes();
+/// Job::deserialize_from_u8(somebytes);
+/// ```
+///
+/// ### 4. direct construction 
+/// (see tests/common/mod.rs for example)
+/// 
+/// ## Fields
+/// - `Job::id: String` uniquely identifies a job, and stays the same always
+/// - `Job::paths: JobPaths` a struct that holds the Paths relevant for a job. Also see [JobPaths](struct.JobPaths.html)
+/// - `Job::email: String` stores the users email for updates on their job
+/// - `Job::times: JobTimes` a struct that holds all timestamps relevant for a job. Also see [JobTimes](struct.JobTimes.html)
+/// - `Job::status: String` the dot delimited Status of a job (e.g. "request.denied", "request.bouncer.finished", "job.done", etc)
+/// - `Job::data: HashMap<String, String>` a HashMap that holds arbitrary data for the job that cannot be known on startup (e.g. "frames: 250")
+/// - `Job::history: BTreeMap<DateTime<Utc>, String>` a ordered Treemap that acts as a timestampable Log for each Job.
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Job {
     pub id: String,
@@ -47,7 +78,7 @@ pub struct Job {
     pub times: JobTimes,
     pub status: String,
     pub data: HashMap<String, String>,
-    pub history: HashMap<DateTime<Utc>, String>
+    pub history: BTreeMap<DateTime<Utc>, String>
 }
 
 #[allow(dead_code)]
@@ -60,7 +91,7 @@ impl Job{
     }
 
     /// Append a key-value-pair to the data of a Job
-    /// e.g. `Job::append("watchdog.queueposition", "22")`
+    /// e.g. `Job::add_data("watchdog.queueposition", "22")`
     pub fn add_data<S>(&mut self, key: S, value: S) where S: Into<String> {
         self.data.insert(key.into(), value.into());
     }
@@ -108,7 +139,7 @@ impl Job{
 
     /// Creates a file from a `data.json`, like
     /// ```
-    /// use bender_job::Job;
+    /// # use bender_job::Job;
     /// let j = Job::from_datajson("some/path/to/data.json");
     /// ```
     pub fn from_datajson<S>(p: S) -> Result<Self, Box<Error>> where S: Into<String>{
