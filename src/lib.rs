@@ -134,7 +134,7 @@ impl Job{
         self.data.insert(key.into(), value.into());
     }
 
-    /// Update data only if it changed, return an Error if the data was the same
+    /// Update data only if it changed, return an Error if something failed else return Ok
     pub fn add_data_debounced<S>(&mut self, key: S, value: S) -> Result<(), Box<Error>> where S: Into<String> {
         // Insert returns Some(String) when the old value has been overwritten
         // or None when there was no value, let's use that
@@ -143,7 +143,7 @@ impl Job{
             Some(oldvalue) => {
                 match value != oldvalue{
                     true => Ok(()),
-                    false => return Result::Err(Box::new(AddError("".to_owned())))
+                    false => Ok(())
                 }
             },
             None => Ok(())

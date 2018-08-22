@@ -58,7 +58,6 @@ mod job_functions{
     }
 
     #[test]
-    #[should_panic]
     fn add_data_debounced1() {
         let mut j = common::get_job();
         j.add_data_debounced("somekey", "Something very complex").unwrap();
@@ -75,7 +74,7 @@ mod job_functions{
             Ok(()) => true,
             Err(_e) => false
         };
-        assert!(!result);
+        assert!(result);
         j.add_data_debounced("somekey", "Something very complex").unwrap();
         let value = j.data.get("somekey").unwrap();
         assert_eq!(value, "Something very complex");
