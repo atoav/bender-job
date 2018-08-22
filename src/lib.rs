@@ -154,6 +154,16 @@ impl Job{
         Ok(job)
     }
 
+    /// Check if self is a request
+    pub fn is_request(&self) -> bool{
+        self.status.split(".").collect::<Vec<&str>>()[0] == "request"
+    }
+
+    /// Check if self is a job
+    pub fn is_job(&self) -> bool{
+        self.status.split(".").collect::<Vec<&str>>()[0] == "job"
+    }
+
     // TODO: Write function to check if the job changed in file
 }
 
