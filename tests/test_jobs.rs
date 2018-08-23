@@ -24,29 +24,24 @@ mod job_functions{
         assert_eq!(value, "Something very complex");
     }
 
-    #[test]
-    #[should_panic]
-    fn add_history_debounced1() {
-        let mut j = common::get_job();
-        j.add_history_debounced("Something very complex").unwrap();
-        j.add_history_debounced("Something completely different").unwrap();
-        j.add_history_debounced("Something completely different").expect("This should return Error");
-    }
 
     #[test]
-    fn add_history_debounced2() {
+    fn add_history_debounced() {
         let mut j = common::get_job();
-        j.add_history_debounced("Something very complex").unwrap();
-        j.add_history_debounced("Something completely different").unwrap();
-        let result = match j.add_history_debounced("Something completely different"){
-            Ok(()) => true,
-            Err(_e) => false
-        };
-        assert!(!result);
-        j.add_history_debounced("Something very complex").unwrap();
-        // Get last element from history
+        j.add_history_debounced("Something very complex");
+        j.add_history_debounced("Something completely different");
+        j.add_history_debounced("Something completely different");
+        // Test if last element was actually added
         let (_key, value) = j.history.iter().next_back().unwrap();
+        assert_eq!(value, "Something completely different");
+        // Test if the element before the element is what we expect
+        let (_key, value) = j.history.iter().nth(j.history.len()-2).unwrap();
         assert_eq!(value, "Something very complex");
+
+        // j.add_history_debounced("Something very complex");
+        // // Get last element from history
+        // let (_key, value) = j.history.iter().next_back().unwrap();
+        // assert_eq!(value, "Something very complex");
     }
 
     #[test]
@@ -83,27 +78,29 @@ mod job_functions{
     /// Make sure this actually knows if a file changed on disk or not
     #[test]
     fn changed_on_disk() {
-        let j = common::get_job();
-        let mut x = common::get_job();
+        let j = common::get_random_job();
+        let mut x = j.clone();
         j.write_to_file().expect("Couldn't write to file!");
-        assert_eq!(j.changed_on_disk().unwrap(), false);
+        assert_eq!(j.changed_on_disk().expect("A"), false);
         x.add_data("somefield", "somedata");
         x.write_to_file().expect("Couldn't write to file!");
-        assert_eq!(j.changed_on_disk().unwrap(), true);
+        assert_eq!(j.changed_on_disk().expect("B"), true);
         // Clean up after yourself
         j.write_to_file().expect("Couldn't write to file!");
+        common::delete_random_job(j);
     }
 
     /// Make sure this works when there is no change on disk
     #[test]
     fn update_on_disk_no_change() {
-        let j = common::get_job();
+        let j = common::get_random_job();
         j.write_to_file().expect("Couldn't write to file!");
         let result = match j.update_on_disk(){
             Ok(()) => true,
             Err(_e) => false
         };
         assert_eq!(result, true);
+        common::delete_random_job(j);
     }
 
     /// Make sure this works when there is no change on disk

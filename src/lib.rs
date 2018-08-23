@@ -41,15 +41,6 @@ use std::error::Error;
 
 
 
-#[derive(Debug)]
-struct AddError(String);
-impl fmt::Display for AddError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "The old value was the same as the new value: {}", self.0)
-    }
-}
-impl Error for AddError {}
-
 
 
 /* --------------------------------[ Job ]-------------------------------- */
@@ -88,7 +79,7 @@ impl Error for AddError {}
 /// - `Job::status: String` the dot delimited Status of a job (e.g. "request.denied", "request.bouncer.finished", "job.done", etc)
 /// - `Job::data: HashMap<String, String>` a HashMap that holds arbitrary data for the job that cannot be known on startup (e.g. "frames: 250")
 /// - `Job::history: BTreeMap<DateTime<Utc>, String>` a ordered Treemap that acts as a timestampable Log for each Job.
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Job {
     pub id: String,
     pub paths: JobPaths,
@@ -110,7 +101,7 @@ impl Job{
 
     /// Add to the history of a job only if the added value changed from the last value
     /// Return Ok(()) if the value has been added otherwise return a boxed error
-    pub fn add_history_debounced<S>(&mut self, value: S) -> Result<(), Box<Error>> where S: Into<String>{
+    pub fn add_history_debounced<S>(&mut self, value: S) where S: Into<String>{
         let value = value.into();
         let addtohistory =  match self.history.values().next_back(){
             Some(oldvalue) => {
@@ -122,9 +113,7 @@ impl Job{
             None => true
         };
         if addtohistory{
-            Ok(self.add_history(value))
-        } else {
-            return Result::Err(Box::new(AddError("".to_owned())))
+            self.add_history(value);
         }
     }
 
@@ -292,7 +281,7 @@ impl fmt::Display for Job {
 
 /// JobTime is used by Job to timestamp different important timestamps throughout the life of a request
 /// Times can be updated with `JobTime::create()`, `JobTime::finish()`, and `JobTime::error()`
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct JobTime {
     pub creation: Option<DateTime<Utc>>,
     pub finish: Option<DateTime<Utc>>,
@@ -364,10 +353,10 @@ impl fmt::Display for JobTime {
 /// It can be created from a uploadfolder
 /// ```
 /// use bender_job::JobPaths;
-/// let j = JobPaths::from_uploadfolder("/data/blendfiles/1be554e1f51b804637326e3faf41d2c9");
+/// let j = JobPaths::from_uploadfolder("/data/blendfiles/5873c0033e78b222bec2cb2a221487cf");
 /// ```
 /// or by deserializing a `data.json`
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct JobPaths{
     pub upload:    String,
     pub data:      String,
@@ -380,18 +369,18 @@ impl JobPaths{
 
     /// You can create a JobPath via `JobPaths::from_uploadfolder`
     pub fn from_uploadfolder<S>(p: S) -> Self where S: Into<String>{
-        // lets say we have a path called "/data/blendfiles/1be554e1f51b804637326e3faf41d2c9"
+        // lets say we have a path called "/data/blendfiles/5873c0033e78b222bec2cb2a221487cf"
         let s = p.into();
         // Extract the id
         let id = PathBuf::from(&s);
-        let id = id.file_name().unwrap();
-        // Create a path to "/data/blendfiles/1be554e1f51b804637326e3faf41d2c9/data.json"
+        let id = id.file_name().expect("Error when aquiring id from path");
+        // Create a path to "/data/blendfiles/5873c0033e78b222bec2cb2a221487cf/data.json"
         let mut data = PathBuf::from(&s);
         data.push("data.json");
         // Find a blendfile in the uploadfolder
-        // e.g. "/data/blendfiles/1be554e1f51b804637326e3faf41d2c9/foo.blend"
-        let blend = Self::first_blend(&s[..]).unwrap();
-        // Return frames folder at "/data/frames/1be554e1f51b804637326e3faf41d2c9"
+        // e.g. "/data/blendfiles/5873c0033e78b222bec2cb2a221487cf/foo.blend"
+        let blend = Self::first_blend(&s[..]).expect("Error: no blendfile in the directory");
+        // Return frames folder at "/data/frames/5873c0033e78b222bec2cb2a221487cf"
         let mut frames = PathBuf::from(&s);
         frames.pop();
         frames.pop();
