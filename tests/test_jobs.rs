@@ -12,7 +12,7 @@ mod job_functions{
     fn display() {
         let j = common::get_job();
         let x = &format!("{}", j)[..];
-        assert_eq!("Job [id: 1be554e1f51b804637326e3faf41d2c9][status: request.untouched]", x);    
+        assert_eq!("Job [id: 5873c0033e78b222bec2cb2a221487cf][status: request.untouched]", x);    
     }
 
     #[test]

@@ -29,7 +29,7 @@ mod from_uploadfolder{
         databuf.push("resources");
         databuf.push("data");
         databuf.push("blendfiles");
-        databuf.push("1be554e1f51b804637326e3faf41d2c9");
+        databuf.push("5873c0033e78b222bec2cb2a221487cf");
         databuf.push("data.json");
         let datapath = format!("{:?}", databuf).replace("\"", "");
         // Run the actual folder
@@ -43,14 +43,14 @@ mod from_uploadfolder{
     fn blendpath() {
         // Create a path for uploaddir
         let uploadpath = common::get_jobpath();
-        // Create a path for horizon_splash.blend
+        // Create a path for untitled.blend
         let mut blendbuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         blendbuf.push("tests");
         blendbuf.push("resources");
         blendbuf.push("data");
         blendbuf.push("blendfiles");
-        blendbuf.push("1be554e1f51b804637326e3faf41d2c9");
-        blendbuf.push("horizon_splash.blend");
+        blendbuf.push("5873c0033e78b222bec2cb2a221487cf");
+        blendbuf.push("untitled.blend");
         let blendpath = format!("{:?}", blendbuf).replace("\"", "");
         // Run the actualfolder
         let paths = JobPaths::from_uploadfolder(uploadpath.clone());
@@ -69,7 +69,7 @@ mod from_uploadfolder{
         framebuf.push("resources");
         framebuf.push("data");
         framebuf.push("frames");
-        framebuf.push("1be554e1f51b804637326e3faf41d2c9");
+        framebuf.push("5873c0033e78b222bec2cb2a221487cf");
         let framepath = format!("{:?}", framebuf).replace("\"", "");
         // Run the actualfolder
         let paths = JobPaths::from_uploadfolder(uploadpath.clone());
@@ -86,7 +86,7 @@ mod from_uploadfolder{
         let paths = JobPaths::from_uploadfolder(uploadpath.clone());
         println!("{}", paths);
         assert_eq!(paths.upload, uploadpath);
-        assert_eq!(paths.filename, "horizon_splash.blend".to_owned());
+        assert_eq!(paths.filename, "untitled.blend".to_owned());
     }
 }
 
@@ -104,6 +104,6 @@ mod test_jobpath_functions{
         let paths = JobPaths::from_uploadfolder(uploadpath.clone());
         println!("{}", paths);
         assert_eq!(paths.upload, uploadpath);
-        assert_eq!(paths.get_id(), "1be554e1f51b804637326e3faf41d2c9".to_owned());
+        assert_eq!(paths.get_id(), "5873c0033e78b222bec2cb2a221487cf".to_owned());
     }
 }

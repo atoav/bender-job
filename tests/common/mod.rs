@@ -3,7 +3,7 @@ extern crate bender_job;
 
 /// Commonly used functions
 use std::path::PathBuf;
-use bender_job::{Job, JobPaths, JobTimes};
+use bender_job::{Job, JobPaths, JobTime};
 use chrono::Utc;
 use chrono::prelude::*;
 use std::collections::{HashMap, BTreeMap};
@@ -18,7 +18,7 @@ pub fn get_jobpath() -> String {
     uploadbuf.push("resources");
     uploadbuf.push("data");
     uploadbuf.push("blendfiles");
-    uploadbuf.push("1be554e1f51b804637326e3faf41d2c9");
+    uploadbuf.push("5873c0033e78b222bec2cb2a221487cf");
     format!("{:?}", uploadbuf).replace("\"", "")
 }
 
@@ -28,13 +28,14 @@ pub fn get_jobpath() -> String {
 pub fn get_job() -> Job {
     let uploadfolder = get_jobpath();
     Job {
-        id: "1be554e1f51b804637326e3faf41d2c9".to_owned(),
+        id: "5873c0033e78b222bec2cb2a221487cf".to_owned(),
         paths: JobPaths::from_uploadfolder(uploadfolder),
-        email: "harold@harold.com".to_owned(),
-        times: JobTimes {
-            creationtime: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
-            finishtime: None,
-            errortime: None
+        email: "dh@atoav.com".to_owned(),
+        time: JobTime {
+            creation: Some(Utc.ymd(2018, 8, 23)
+                .and_hms_micro(13, 48, 40, 176598)),
+            finish: None,
+            error: None
         },
         status: "request.untouched".to_owned(),
         data: HashMap::new(),
