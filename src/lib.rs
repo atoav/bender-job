@@ -84,7 +84,7 @@ impl Error for AddError {}
 /// - `Job::id: String` uniquely identifies a job, and stays the same always
 /// - `Job::paths: JobPaths` a struct that holds the Paths relevant for a job. Also see [JobPaths](struct.JobPaths.html)
 /// - `Job::email: String` stores the users email for updates on their job
-/// - `Job::times: JobTimes` a struct that holds all timestamps relevant for a job. Also see [JobTimes](struct.JobTimes.html)
+/// - `Job::time: JobTime` a struct that holds all timestamps relevant for a job. Also see [JobTime](struct.JobTime.html)
 /// - `Job::status: String` the dot delimited Status of a job (e.g. "request.denied", "request.bouncer.finished", "job.done", etc)
 /// - `Job::data: HashMap<String, String>` a HashMap that holds arbitrary data for the job that cannot be known on startup (e.g. "frames: 250")
 /// - `Job::history: BTreeMap<DateTime<Utc>, String>` a ordered Treemap that acts as a timestampable Log for each Job.
@@ -93,7 +93,7 @@ pub struct Job {
     pub id: String,
     pub paths: JobPaths,
     pub email: String,
-    pub times: JobTimes,
+    pub time: JobTime,
     pub status: String,
     pub data: HashMap<String, String>,
     pub history: BTreeMap<DateTime<Utc>, String>
@@ -286,73 +286,73 @@ impl fmt::Display for Job {
 
 
 
-/* ---------------------------[ JobTimes ]--------------------------- */
+/* ---------------------------[ JobTime ]--------------------------- */
 
 
 
-/// JobTimes is used by Job to timestamp different important timestamps throughout the life of a request
-/// Times can be updated with `JobTimes::create()`, `JobTimes::finish()`, and `JobTimes::error()`
+/// JobTime is used by Job to timestamp different important timestamps throughout the life of a request
+/// Times can be updated with `JobTime::create()`, `JobTime::finish()`, and `JobTime::error()`
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct JobTimes {
-    pub creationtime: Option<DateTime<Utc>>,
-    pub finishtime: Option<DateTime<Utc>>,
-    pub errortime: Option<DateTime<Utc>>
+pub struct JobTime {
+    pub creation: Option<DateTime<Utc>>,
+    pub finish: Option<DateTime<Utc>>,
+    pub error: Option<DateTime<Utc>>
 }
 
 
 
 #[allow(dead_code)]
-impl JobTimes{
+impl JobTime{
 
     pub fn new() -> Self{
-        JobTimes{ 
-            creationtime: None, 
-            finishtime: None, 
-            errortime: None
+        JobTime{ 
+            creation: None, 
+            finish: None, 
+            error: None
         }
     }
 
     /// Save time for
     pub fn create(&mut self){
-        match self.creationtime{
+        match self.creation{
             Some(t) => println!("Tried to set time of creation, but there already was a time set: {}", t),
-            None => self.creationtime = Some(Utc::now())
+            None => self.creation = Some(Utc::now())
         }
     }
 
     /// Save time for
     pub fn finish(&mut self){
-        match self.finishtime{
+        match self.finish{
             Some(t) => println!("Tried to set time of finishing, but there already was a time set: {}", t),
-            None => self.finishtime = Some(Utc::now())
+            None => self.finish = Some(Utc::now())
         }
     }
 
     /// Save time for
     pub fn error(&mut self){
-        match self.errortime{
+        match self.error{
             Some(t) => println!("Tried to set time of error, but there already was a time set: {}", t),
-            None => self.errortime = Some(Utc::now())
+            None => self.error = Some(Utc::now())
         }
     }
 }
 
-// String formatting for JobTimes
-impl fmt::Display for JobTimes {
+// String formatting for JobTime
+impl fmt::Display for JobTime {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        let ctime = match self.creationtime{
+        let ctime = match self.creation{
             Some(t) => format!("{}", t),
             None => "- ".to_owned()
         };
-        let ftime = match self.finishtime{
+        let ftime = match self.finish{
             Some(t) => format!("{}", t),
             None => "- ".to_owned()
         };
-        let etime = match self.errortime{
+        let etime = match self.error{
             Some(t) => format!("{}", t),
             None => "- ".to_owned()
         };
-        let st = &format!("[JobTimes]\n  ├╴[creationtime: {}]\n  ├╴[finishtime: {}]\n  └╴[errortime: {}]\n", ctime, ftime, etime)[..];
+        let st = &format!("[JobTime]\n  ├╴[creation: {}]\n  ├╴[finish: {}]\n  └╴[error: {}]\n", ctime, ftime, etime)[..];
         fmt.write_str(st)?;
         Ok(())
     }
