@@ -88,6 +88,7 @@ use std::error::Error;
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Job {
     pub id: String,
+    pub animation: bool,
     pub paths: JobPaths,
     pub email: String,
     pub time: JobTime,

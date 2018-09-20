@@ -49,6 +49,7 @@ pub fn get_job() -> Job {
     Job {
         id: "5873c0033e78b222bec2cb2a221487cf".to_owned(),
         paths: JobPaths::from_uploadfolder(jobfolder),
+        animation: false,
         email: "dh@atoav.com".to_owned(),
         time: JobTime {
             creation: Some(Utc.ymd(2018, 8, 23)
@@ -82,6 +83,7 @@ pub fn get_random_job() -> Job {
     let j = Job {
         id: id.to_string(),
         paths: JobPaths::from_uploadfolder(jobstring),
+        animation: false,
         email: "dh@atoav.com".to_owned(),
         time: JobTime {
             creation: Some(Utc.ymd(2018, 8, 23)
