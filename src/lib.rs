@@ -193,11 +193,20 @@ impl Job{
     /// # use bender_job::Job;
     /// let j = Job::from_datajson("some/path/to/data.json");
     /// ```
-    pub fn from_datajson<S>(p: S) -> Result<Self, Box<Error>> where S: Into<String>{
-        let p = PathBuf::from(&p.into()[..]);
+    pub fn from_datajson<S>(p: S) -> Result<Self, Box<Error>> where S: Into<PathBuf>{
+        let p = p.into();
         let bytes = &fs::read(p)?;
         let job = Self::deserialize_from_u8(bytes)?;
         Ok(job)
+    }
+
+    /// Convenience Function to create a Job from the path of a blend file.
+    /// This assumes the data.json is stored right besides the blend file!
+    pub fn from_blend<S>(p: S) -> Result<Self, Box<Error>> where S: Into<PathBuf>{
+        let mut p = p.into();
+        p.pop();
+        p.push("data.json");
+        Self::from_datajson(p)
     }
 
     /// Check if self is a request

@@ -22,6 +22,15 @@ pub fn get_blendpath() -> PathBuf {
     buf
 }
 
+/// Get the path to a example blend file
+#[allow(dead_code)]
+pub fn get_blendfile() -> PathBuf {
+    let mut p = get_blendpath();
+    p.push("5873c0033e78b222bec2cb2a221487cf");
+    p.push("untitled.blend");
+    p
+}
+
 /// Get a Jobpath to the thing in resources
 #[allow(dead_code)]
 pub fn get_jobpath() -> String {
