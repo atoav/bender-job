@@ -63,6 +63,7 @@ pub fn get_job() -> Job {
         time: JobTime {
             creation: Some(Utc.ymd(2018, 8, 23)
                 .and_hms_micro(13, 48, 40, 176598)),
+            start: None,
             finish: None,
             error: None
         },
@@ -97,6 +98,7 @@ pub fn get_random_job() -> Job {
         time: JobTime {
             creation: Some(Utc.ymd(2018, 8, 23)
                 .and_hms_micro(13, 48, 40, 176598)),
+            start: None,
             finish: None,
             error: None
         },

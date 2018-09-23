@@ -6,6 +6,7 @@ use ::*;
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct JobTime {
     pub creation: Option<DateTime<Utc>>,
+    pub start: Option<DateTime<Utc>>,
     pub finish: Option<DateTime<Utc>>,
     pub error: Option<DateTime<Utc>>
 }
@@ -18,6 +19,7 @@ impl JobTime{
     pub fn new() -> Self{
         JobTime{ 
             creation: None, 
+            start: None,
             finish: None, 
             error: None
         }
@@ -30,6 +32,15 @@ impl JobTime{
             None => self.creation = Some(Utc::now())
         }
     }
+
+    /// Save time for
+    pub fn start(&mut self){
+        match self.creation{
+            Some(t) => println!("Tried to set time of creation, but there already was a time set: {}", t),
+            None => self.start = Some(Utc::now())
+        }
+    }
+
 
     /// Save time for
     pub fn finish(&mut self){
@@ -55,6 +66,10 @@ impl fmt::Display for JobTime {
             Some(t) => format!("{}", t),
             None => "- ".to_owned()
         };
+        let stime = match self.start{
+            Some(t) => format!("{}", t),
+            None => "- ".to_owned()
+        };
         let ftime = match self.finish{
             Some(t) => format!("{}", t),
             None => "- ".to_owned()
@@ -63,7 +78,7 @@ impl fmt::Display for JobTime {
             Some(t) => format!("{}", t),
             None => "- ".to_owned()
         };
-        let st = &format!("[JobTime]\n  ├╴[creation: {}]\n  ├╴[finish: {}]\n  └╴[error: {}]\n", ctime, ftime, etime)[..];
+        let st = &format!("[JobTime]\n  ├╴[creation: {}]\n  ├╴[start: {}]\n  ├╴[finish: {}]\n  └╴[error: {}]\n", ctime, stime, ftime, etime)[..];
         fmt.write_str(st)?;
         Ok(())
     }

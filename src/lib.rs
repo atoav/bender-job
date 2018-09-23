@@ -45,11 +45,11 @@ use std::fs;
 use std::path::PathBuf;
 use std::error::Error;
 
-mod jobtime;
-use jobtime::JobTime;
+pub mod jobtime;
+pub use jobtime::JobTime;
 
-mod jobpaths;
-use jobpaths::JobPaths;
+pub mod jobpaths;
+pub use jobpaths::JobPaths;
 
 
 

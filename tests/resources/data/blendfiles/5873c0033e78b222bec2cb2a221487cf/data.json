@@ -11,6 +11,7 @@
   "email": "dh@atoav.com",
   "time": {
     "creation": "2018-08-23T13:48:40.176598Z",
+    "start": null,
     "finish": null,
     "error": null
   },
