@@ -19,5 +19,24 @@
   },
   "status": "request.untouched",
   "data": {},
-  "history": {}
+  "history": {},
+  "resolution": {
+    "x": 0,
+    "y": 0,
+    "scale": 0
+  },
+  "render": {
+    "renderer": "",
+    "cuda": false,
+    "device": "",
+    "image_format": "",
+    "uses_compositing": false,
+    "fps": 0
+  },
+  "frames": {
+    "start": 0,
+    "end": 0,
+    "current": 0,
+    "step": 0
+  }
 }

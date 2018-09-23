@@ -71,7 +71,10 @@ pub fn get_job() -> Job {
         },
         status: "request.untouched".to_owned(),
         data: HashMap::new(),
-        history: BTreeMap::new()
+        history: BTreeMap::new(),
+        resolution: Default::default(),
+        render: Default::default(),
+        frames: Default::default()
     } 
 }
 
@@ -108,7 +111,10 @@ pub fn get_random_job() -> Job {
         },
         status: "request.untouched".to_owned(),
         data: HashMap::new(),
-        history: BTreeMap::new()
+        history: BTreeMap::new(),
+        resolution: Default::default(),
+        render: Default::default(),
+        frames: Default::default()
     };
     // Create data.json
     j.write_to_file().expect("Couldn't write new random job to file!");
