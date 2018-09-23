@@ -13,7 +13,9 @@
     "creation": "2018-08-23T13:48:40.176598Z",
     "start": null,
     "finish": null,
-    "error": null
+    "error": null,
+    "abort": null,
+    "pause": null
   },
   "status": "request.untouched",
   "data": {},

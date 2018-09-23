@@ -65,7 +65,9 @@ pub fn get_job() -> Job {
                 .and_hms_micro(13, 48, 40, 176598)),
             start: None,
             finish: None,
-            error: None
+            error: None,
+            abort: None,
+            pause: None
         },
         status: "request.untouched".to_owned(),
         data: HashMap::new(),
@@ -100,7 +102,9 @@ pub fn get_random_job() -> Job {
                 .and_hms_micro(13, 48, 40, 176598)),
             start: None,
             finish: None,
-            error: None
+            error: None,
+            abort: None,
+            pause: None
         },
         status: "request.untouched".to_owned(),
         data: HashMap::new(),

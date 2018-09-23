@@ -8,7 +8,9 @@ pub struct JobTime {
     pub creation: Option<DateTime<Utc>>,
     pub start: Option<DateTime<Utc>>,
     pub finish: Option<DateTime<Utc>>,
-    pub error: Option<DateTime<Utc>>
+    pub error: Option<DateTime<Utc>>,
+    pub abort: Option<DateTime<Utc>>,
+    pub pause: Option<DateTime<Utc>>
 }
 
 
@@ -18,10 +20,12 @@ impl JobTime{
 
     pub fn new() -> Self{
         JobTime{ 
-            creation: None, 
+            creation: Some(Utc::now()), 
             start: None,
             finish: None, 
-            error: None
+            error: None,
+            abort: None,
+            pause: None
         }
     }
 
@@ -36,7 +40,7 @@ impl JobTime{
     /// Save time for
     pub fn start(&mut self){
         match self.creation{
-            Some(t) => println!("Tried to set time of creation, but there already was a time set: {}", t),
+            Some(t) => println!("Tried to set time of start, but there already was a time set: {}", t),
             None => self.start = Some(Utc::now())
         }
     }
@@ -55,6 +59,22 @@ impl JobTime{
         match self.error{
             Some(t) => println!("Tried to set time of error, but there already was a time set: {}", t),
             None => self.error = Some(Utc::now())
+        }
+    }
+
+    /// Save time for
+    pub fn abort(&mut self){
+        match self.abort{
+            Some(t) => println!("Tried to set time of abortion, but there already was a time set: {}", t),
+            None => self.abort = Some(Utc::now())
+        }
+    }
+
+    /// Save time for
+    pub fn pause(&mut self){
+        match self.pause{
+            Some(t) => println!("Tried to set time of pause, but there already was a time set: {}", t),
+            None => self.pause = Some(Utc::now())
         }
     }
 }
@@ -78,7 +98,15 @@ impl fmt::Display for JobTime {
             Some(t) => format!("{}", t),
             None => "- ".to_owned()
         };
-        let st = &format!("[JobTime]\n  ├╴[creation: {}]\n  ├╴[start: {}]\n  ├╴[finish: {}]\n  └╴[error: {}]\n", ctime, stime, ftime, etime)[..];
+        let atime = match self.abort{
+            Some(t) => format!("{}", t),
+            None => "- ".to_owned()
+        };
+        let ptime = match self.pause{
+            Some(t) => format!("{}", t),
+            None => "- ".to_owned()
+        };
+        let st = &format!("[JobTime]\n  ├╴[creation: {}]\n  ├╴[start: {}]\n  ├╴[finish: {}]\n  ├╴[error: {}]\n  ├╴[abort: {}]\n  └╴[pause: {}]\n", ctime, stime, ftime, etime, atime, ptime)[..];
         fmt.write_str(st)?;
         Ok(())
     }

@@ -51,6 +51,9 @@ pub use jobtime::JobTime;
 pub mod jobpaths;
 pub use jobpaths::JobPaths;
 
+pub mod task;
+pub use task::Task;
+
 
 
 
