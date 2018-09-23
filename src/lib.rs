@@ -51,8 +51,10 @@ pub use jobtime::JobTime;
 pub mod jobpaths;
 pub use jobpaths::JobPaths;
 
-pub mod task;
-pub use task::Task;
+
+
+type GenError = Box<std::error::Error>;
+type GenResult<T> = Result<T, GenError>;
 
 
 
@@ -140,7 +142,7 @@ impl Job{
     }
 
     /// Update data only if it changed, return an Error if something failed else return Ok
-    pub fn add_data_debounced<S>(&mut self, key: S, value: S) -> Result<(), Box<Error>> where S: Into<String> {
+    pub fn add_data_debounced<S>(&mut self, key: S, value: S) -> GenResult<()> where S: Into<String> {
         // Insert returns Some(String) when the old value has been overwritten
         // or None when there was no value, let's use that
         let value = value.into();
@@ -170,13 +172,13 @@ impl Job{
     }
 
     /// Deserialize something that fullfills Into<String> into a Job
-    pub fn deserialize<S>(s: S) -> Result<Self, Box<Error>> where S: Into<String> {
+    pub fn deserialize<S>(s: S) -> GenResult<Self> where S: Into<String> {
         let deserialized: Job = serde_json::from_str(&s.into()[..])?;
         Ok(deserialized)
     }
 
     /// Deserialize something that fullfills Into<String> into a Job
-    pub fn deserialize_from_u8(v:&[u8]) -> Result<Self, Box<Error>> {
+    pub fn deserialize_from_u8(v:&[u8]) -> GenResult<Self> {
         let s = str::from_utf8(v)?;
         let deserialized: Job = serde_json::from_str(&s)?;
         Ok(deserialized)
@@ -189,7 +191,7 @@ impl Job{
 
     /// Write a serialized version of the Job to the path specified in `Job::paths::data`
     /// **Warning:** _This must only be used within ONE service!_e
-    pub fn write_to_file(&self) -> Result<(), Box<Error>> {
+    pub fn write_to_file(&self) -> GenResult<()> {
         // Step 1: Serialize
         let serialized = self.serialize()?;
         // Step 2: Write
@@ -202,7 +204,7 @@ impl Job{
     /// # use bender_job::Job;
     /// let j = Job::from_datajson("some/path/to/data.json");
     /// ```
-    pub fn from_datajson<S>(p: S) -> Result<Self, Box<Error>> where S: Into<PathBuf>{
+    pub fn from_datajson<S>(p: S) -> GenResult<Self> where S: Into<PathBuf>{
         let p = p.into();
         let bytes = &fs::read(p)?;
         let job = Self::deserialize_from_u8(bytes)?;
@@ -211,7 +213,7 @@ impl Job{
 
     /// Convenience Function to create a Job from the path of a blend file.
     /// This assumes the data.json is stored right besides the blend file!
-    pub fn from_blend<S>(p: S) -> Result<Self, Box<Error>> where S: Into<PathBuf>{
+    pub fn from_blend<S>(p: S) -> GenResult<Self> where S: Into<PathBuf>{
         let mut p = p.into();
         p.pop();
         p.push("data.json");
@@ -231,7 +233,7 @@ impl Job{
     /// Return Ok(true) when the data on disk is different than self
     /// Return Ok(false) when the data is the same
     /// Return Error when reading from disk failed
-    pub fn changed_on_disk(&self) -> Result<bool, Box<Error>> {
+    pub fn changed_on_disk(&self) -> GenResult<bool> {
         let datapath = self.paths.data.clone();
         let on_disk = &Self::from_datajson(datapath)?;
         Ok(self != on_disk)
@@ -239,7 +241,7 @@ impl Job{
 
     /// Only write changes to data.json if there is a difference between the data
     /// stored on disk and self, Return Error if something failed, otherwise Ok()
-    pub fn update_on_disk(&self) -> Result<(), Box<Error>>{
+    pub fn update_on_disk(&self) -> GenResult<()>{
         let shouldupdate = self.changed_on_disk()?;
         if shouldupdate{
             self.write_to_file()?;
