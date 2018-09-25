@@ -309,9 +309,25 @@ impl Job{
 
     /// Convenience Function to create a Job from the path of a blend file.
     /// This assumes the data.json is stored right besides the blend file!
+    /// ```
+    /// # use bender_job::Job;
+    /// let j = Job::from_blend("some/path/to/some.blend");
+    /// ```
     pub fn from_blend<S>(p: S) -> GenResult<Self> where S: Into<PathBuf>{
         let mut p = p.into();
         p.pop();
+        p.push("data.json");
+        Self::from_datajson(p)
+    }
+
+    /// Convenience Function to create a Job from the directory containing a
+    /// data.json.
+    /// ```
+    /// # use bender_job::Job;
+    /// let j = Job::from_directory("some/path/to/blenddirectory");
+    /// ``` 
+    pub fn from_directory<S>(p: S) -> GenResult<Self> where S: Into<PathBuf>{
+        let mut p = p.into();
         p.push("data.json");
         Self::from_datajson(p)
     }
