@@ -54,6 +54,9 @@ pub use jobpaths::JobPaths;
 pub mod task;
 pub use task::Task;
 
+pub mod status;
+pub use status::{Status, JobStatus};
+
 
 
 type GenError = Box<std::error::Error>;
@@ -106,7 +109,7 @@ pub struct Job {
     pub paths: JobPaths,
     pub email: String,
     pub time: JobTime,
-    pub status: String,
+    pub status: Status,
     pub data: HashMap<String, String>,
     pub history: BTreeMap<DateTime<Utc>, String>,
     #[serde(default)]
@@ -334,12 +337,22 @@ impl Job{
 
     /// Check if self is a request
     pub fn is_request(&self) -> bool{
-        self.status.split(".").collect::<Vec<&str>>()[0] == "request"
+        self.status.is_request()
     }
+
+    /// Check if self is a invalid request
+    pub fn is_invalid(&self) -> bool{
+        self.status.is_invalid()
+    }
+
+    /// Check if self has been validated
+    pub fn is_valid(&self) -> bool{
+        self.status.is_invalid()
+    }   
 
     /// Check if self is a job
     pub fn is_job(&self) -> bool{
-        self.status.split(".").collect::<Vec<&str>>()[0] == "job"
+        self.status.is_job()
     }
 
     /// Return Ok(true) when the data on disk is different than self
