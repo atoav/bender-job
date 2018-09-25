@@ -144,11 +144,22 @@ mod job_creation{
     }
 
     /// Test if the job can also be created from a blendpath and is equal to a
-    /// job created with the `coomon::get_job()` function
+    /// job created with the `common::get_job()` function
     #[test]
     fn from_blend() {
         let p = common::get_blendfile();
         let j = Job::from_blend(p).expect("Job::from_blend() returned an error");
+        let job = common::get_job();
+        assert_eq!(j, job);
+    }
+
+    /// Test if the job can also be created from a blendpath and is equal to a
+    /// job created with the `common::get_job()` function
+    #[test]
+    fn from_directory() {
+        let mut p = common::get_blendfile();
+        p.pop();
+        let j = Job::from_directory(p).expect("Job::from_directory() returned an error");
         let job = common::get_job();
         assert_eq!(j, job);
     }
