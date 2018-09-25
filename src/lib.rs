@@ -55,7 +55,7 @@ pub mod task;
 pub use task::Task;
 
 pub mod status;
-pub use status::{Status, JobStatus};
+pub use status::{Status};
 
 
 
