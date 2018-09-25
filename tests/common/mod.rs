@@ -60,6 +60,7 @@ pub fn get_job() -> Job {
         paths: JobPaths::from_uploadfolder(jobfolder),
         animation: false,
         email: "dh@atoav.com".to_owned(),
+        version: "".to_owned(),
         time: JobTime {
             creation: Some(Utc.ymd(2018, 8, 23)
                 .and_hms_micro(13, 48, 40, 176598)),
@@ -100,6 +101,7 @@ pub fn get_random_job() -> Job {
         paths: JobPaths::from_uploadfolder(jobstring),
         animation: false,
         email: "dh@atoav.com".to_owned(),
+        version: "".to_owned(),
         time: JobTime {
             creation: Some(Utc.ymd(2018, 8, 23)
                 .and_hms_micro(13, 48, 40, 176598)),

@@ -98,16 +98,22 @@ type GenResult<T> = Result<T, GenError>;
 /// - `Job::id: String` uniquely identifies a job, and stays the same always
 /// - `Job::paths: JobPaths` a struct that holds the Paths relevant for a job. Also see [JobPaths](struct.JobPaths.html)
 /// - `Job::email: String` stores the users email for updates on their job
+/// - `Job::version: String` stores the version number of the blendfile, only set after validation in watchdog
 /// - `Job::time: JobTime` a struct that holds all timestamps relevant for a job. Also see [JobTime](struct.JobTime.html)
 /// - `Job::status: String` the dot delimited Status of a job (e.g. "request.denied", "request.bouncer.finished", "job.done", etc)
 /// - `Job::data: HashMap<String, String>` a HashMap that holds arbitrary data for the job that cannot be known on startup (e.g. "frames: 250")
 /// - `Job::history: BTreeMap<DateTime<Utc>, String>` a ordered Treemap that acts as a timestampable Log for each Job.
+/// - `Job::resolution: Resolution` stores x and y size, as well as the scale of the scene
+/// - `Job::render: Render` stores general values about the renderer, such as fps etc
+/// - `Job::frames: Frames` stores data related to the frame range
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Job {
     pub id: String,
     pub animation: bool,
     pub paths: JobPaths,
     pub email: String,
+    #[serde(default)]
+    pub version: String,
     pub time: JobTime,
     pub status: Status,
     pub data: HashMap<String, String>,
