@@ -22,6 +22,7 @@ mod status{
         assert_eq!(j.status.is_queued(), false);
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
+        assert_eq!(j.status.is_invalid(), false);
         j.validate();
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
@@ -35,6 +36,38 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.is_alive(), true);
+        assert_eq!(j.status.is_invalid(), false);
+    }
+
+    #[test]
+    fn deny() {
+        let mut j = common::get_job();
+        assert_eq!(j.status.is_untouched(), true);
+        assert_eq!(j.status.is_finished(), false);
+        assert_eq!(j.status.is_request(), true);
+        assert_eq!(j.status.is_job(), false);
+        assert_eq!(j.status.is_errored(), false);
+        assert_eq!(j.status.is_checked(), false);
+        assert_eq!(j.status.is_scanned(), false);
+        assert_eq!(j.status.is_atomized(), false);
+        assert_eq!(j.status.is_queued(), false);
+        assert_eq!(j.status.is_running(), false);
+        assert_eq!(j.status.is_canceled(), false);
+        assert_eq!(j.status.is_invalid(), false);
+        j.deny();
+        assert_eq!(j.status.is_finished(), false);
+        assert_eq!(j.status.is_untouched(), false);
+        assert_eq!(j.status.is_request(), true);
+        assert_eq!(j.status.is_job(), false);
+        assert_eq!(j.status.is_errored(), false);
+        assert_eq!(j.status.is_checked(), false);
+        assert_eq!(j.status.is_scanned(), false);
+        assert_eq!(j.status.is_atomized(), false);
+        assert_eq!(j.status.is_queued(), false);
+        assert_eq!(j.status.is_running(), false);
+        assert_eq!(j.status.is_canceled(), false);
+        assert_eq!(j.status.is_alive(), false);
+        assert_eq!(j.status.is_invalid(), true);
     }
 
     #[test]
@@ -54,6 +87,7 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.is_alive(), false);
+        assert_eq!(j.status.is_invalid(), false);
     }
 
     #[test]
@@ -73,6 +107,7 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.is_alive(), true);
+        assert_eq!(j.status.is_invalid(), false);
     }
 
     #[test]
@@ -93,6 +128,7 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.is_alive(), true);
+        assert_eq!(j.status.is_invalid(), false);
     }
 
     #[test]
@@ -114,6 +150,7 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.is_alive(), true);
+        assert_eq!(j.status.is_invalid(), false);
     }
 
     #[test]
@@ -136,6 +173,7 @@ mod status{
         assert_eq!(j.status.is_running(), true);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.is_alive(), true);
+        assert_eq!(j.status.is_invalid(), false);
     }
 
     #[test]
@@ -159,6 +197,7 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), true);
         assert_eq!(j.status.has_ended(), true);
+        assert_eq!(j.status.is_invalid(), false);
     }
 
     #[test]
@@ -182,6 +221,7 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.has_ended(), true);
+        assert_eq!(j.status.is_invalid(), false);
     }
 
 

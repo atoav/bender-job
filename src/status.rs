@@ -167,6 +167,7 @@ impl Status{
             Status::Job(JobStatus::Errored) => true,
             Status::Job(JobStatus::Finished) => true,
             Status::Request(RequestStatus::Errored) => true,
+            Status::Request(RequestStatus::Invalid) => true,
             _ => false
         }
     }

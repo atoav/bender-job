@@ -400,6 +400,20 @@ impl Job{
         }
     }
 
+    /// Deny the self and log it to history, log errors
+    pub fn deny(&mut self){
+        match self.status.deny(){
+            Ok(_) => {
+                let message = format!("Denied Blendfile as invalid");
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::deny() failed: {}", err);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+
     /// Error self and log it to history, log errors
     pub fn error<S>(&mut self, error_message: S) where S: Into<String>{
         let error_message = error_message.into();
