@@ -341,26 +341,6 @@ impl Job{
         Self::from_datajson(p)
     }
 
-    /// Check if self is a request
-    pub fn is_request(&self) -> bool{
-        self.status.is_request()
-    }
-
-    /// Check if self is a invalid request
-    pub fn is_invalid(&self) -> bool{
-        self.status.is_invalid()
-    }
-
-    /// Check if self has been validated
-    pub fn is_valid(&self) -> bool{
-        self.status.is_invalid()
-    }   
-
-    /// Check if self is a job
-    pub fn is_job(&self) -> bool{
-        self.status.is_job()
-    }
-
     /// Return Ok(true) when the data on disk is different than self
     /// Return Ok(false) when the data is the same
     /// Return Error when reading from disk failed
@@ -380,6 +360,146 @@ impl Job{
         Ok(())
     }
 }
+
+// State Checks
+impl Job{
+    /// Check if self is a request
+    pub fn is_request(&self) -> bool{
+        self.status.is_request()
+    }
+
+    /// Check if self is a invalid request
+    pub fn is_invalid(&self) -> bool{
+        self.status.is_invalid()
+    }
+
+    /// Check if self has been validated
+    pub fn is_valid(&self) -> bool{
+        self.status.is_invalid()
+    }   
+
+    /// Check if self is a job
+    pub fn is_job(&self) -> bool{
+        self.status.is_job()
+    }
+}
+
+// State Setters
+impl Job{
+    /// Validate the self and log it to history, log errors
+    pub fn validate(&mut self){
+        match self.status.validate(){
+            Ok(_) => {
+                let message = format!("Validated with version: {}", self.version);
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::validate() failed: {}", err);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+
+    /// Error self and log it to history, log errors
+    pub fn error<S>(&mut self, error_message: S) where S: Into<String>{
+        let error_message = error_message.into();
+        match self.status.error(){
+            Ok(_) => {
+                let message = format!("Error: {}", error_message);
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::validate() failed with: {}\nat Error:{}", err, error_message);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+
+    /// Scan self and log it to history, log errors
+    pub fn scan(&mut self){
+        match self.status.scan(){
+            Ok(_) => {
+                let message = format!("Scanning finished");
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::scan() failed: {}", err);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+
+    /// Atomize self and log it to history, log errors
+    pub fn atomize(&mut self){
+        match self.status.atomize(){
+            Ok(_) => {
+                let message = format!("Atomization finished");
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::atomize() failed: {}", err);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+
+    /// Queue self and log it to history, log errors
+    pub fn queue(&mut self){
+        match self.status.queue(){
+            Ok(_) => {
+                let message = format!("Queued Job");
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::queue() failed: {}", err);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+
+    /// Run self and log it to history, log errors
+    pub fn run(&mut self){
+        match self.status.run(){
+            Ok(_) => {
+                let message = format!("running Job");
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::run() failed: {}", err);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+
+    /// Finish self and log it to history, log errors
+    pub fn finish(&mut self){
+        match self.status.finish(){
+            Ok(_) => {
+                let message = format!("Finished Job");
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::finish() failed: {}", err);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+
+    /// Cancel self and log it to history, log errors
+    pub fn cancel(&mut self){
+        match self.status.cancel(){
+            Ok(_) => {
+                let message = format!("Canceled Job");
+                self.add_history(message.as_str());
+            },
+            Err(err) => {
+                let message = format!("Error: Job::status::cancel() failed: {}", err);
+                self.add_history(message.as_str());
+            }
+        }
+    }
+}
+
 
 /// Allows to create a Job by using `let request = Job::from(String);`
 /// Only use this when you are 100% sure it will work, otherwise use Job::deserialize()

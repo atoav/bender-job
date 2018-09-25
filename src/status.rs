@@ -141,22 +141,24 @@ impl Status{
 
     pub fn is_finished(&self) -> bool{
         match self{
-            Status::Job(JobStatus::Canceled) => true,
+            Status::Job(JobStatus::Finished) => true,
             _ => false
         }
     }
 
     // =============== Check Meta States ===============
-    pub fn is_invalidated(&self) -> bool{
+    pub fn is_validated(&self) -> bool{
         match self{
             Status::Request(RequestStatus::Checked) => true,
+            Status::Request(RequestStatus::Scanned) => true,
+            Status::Request(RequestStatus::Atomized) => true,
             Status::Job(_) => true,
             _ => false
         }
     }
 
-    pub fn is_validated(&self) -> bool{
-        !self.is_invalidated()
+    pub fn is_invalidated(&self) -> bool{
+        !self.is_validated()
     }
 
     pub fn has_ended(&self) -> bool{
