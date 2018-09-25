@@ -4,7 +4,7 @@ extern crate rand;
 
 /// Commonly used functions
 use std::path::PathBuf;
-use bender_job::{Job, JobPaths, JobTime};
+use bender_job::{Job, JobPaths, JobTime, Status};
 use chrono::Utc;
 use chrono::prelude::*;
 use std::collections::{HashMap, BTreeMap};
@@ -69,7 +69,7 @@ pub fn get_job() -> Job {
             abort: None,
             pause: None
         },
-        status: "request.untouched".to_owned(),
+        status: Status::new(),
         data: HashMap::new(),
         history: BTreeMap::new(),
         resolution: Default::default(),
@@ -109,7 +109,7 @@ pub fn get_random_job() -> Job {
             abort: None,
             pause: None
         },
-        status: "request.untouched".to_owned(),
+        status: Status::new(),
         data: HashMap::new(),
         history: BTreeMap::new(),
         resolution: Default::default(),

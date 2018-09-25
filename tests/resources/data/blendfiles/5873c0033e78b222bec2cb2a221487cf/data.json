@@ -17,7 +17,9 @@
     "abort": null,
     "pause": null
   },
-  "status": "request.untouched",
+  "status": {
+    "Request": "Untouched"
+  },
   "data": {},
   "history": {},
   "resolution": {
