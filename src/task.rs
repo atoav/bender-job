@@ -9,11 +9,11 @@ use ::*;
 ///
 /// This is basically a wrapper around a command, that allows us to keep track of
 /// a Tasks status, its start and end times etc. It consists of:
-/// - a _Status_ which manages the States of a Task and the allowed transitions between it \
+/// - a [Status](enum.Status.html) which manages the States of a Task and the allowed transitions between it \
 /// (e.g. a finished task cannot be aborted, a errored task cannot start etc.)
-/// - a _JobTime_ which allows to keep track of _when_ a certain state change has occured, as \
-/// well as the calculation of durations (the same construct is used for Job)
-/// - a _Command_ which allows to abstract CLI commands to be executed on the worker machines \
+/// - a [JobTime](struct.JobTime.html) which allows to keep track of _when_ a certain state change has occured, as \
+/// well as the calculation of durations (the same construct is used for [Job](struct.Job.html))
+/// - a [Command](struct.Command.html) which allows to abstract CLI commands to be executed on the worker machines \
 /// in such way, that we don't need to know input and output paths beforehand
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Task{
@@ -162,7 +162,7 @@ impl Task{
 
 
 
-/// A Tasks Status describes the different states a Task can be in and allows
+/// A Tasks Status describes the different states a [Task](struct.Task.html) can be in and allows
 /// the Task to manage all possible transitions between them. Invalid transitions
 /// are just ignored.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

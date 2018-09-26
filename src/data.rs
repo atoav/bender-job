@@ -1,5 +1,10 @@
 use ::*;
 
+
+/// The Render struct stores the render related data of a [Job](struct.Job.html). \
+/// Typically it is deserialized by the Job with empty default values until \
+/// the information is read via the Jobs [gaffer](trait.Gaffer.html) trait using \
+/// its scan_and_optimize() method.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct Render{
     pub renderer: String,
@@ -22,8 +27,10 @@ impl Render{
     }
 }
 
-/// Represents the Frames section of the MiscInfo Struct. This is important for
-/// generating the commands with the generate_commands function
+/// The Frames struct stores frame related data of a [Job](struct.Job.html) (like start, end, current, step and fps). \
+/// Typically it is deserialized by the Job with empty default values until \
+/// the information is read via the Jobs [gaffer](trait.Gaffer.html) trait using \
+/// its scan_and_optimize() method.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct Frames {
     pub start: usize,
@@ -55,7 +62,10 @@ impl Frames {
 }
 
 
-/// Stores the Resolution data
+/// The Resolution struct stores and calculates resolution related data of a [Job](struct.Job.html). \
+/// Typically it is deserialized by the Job with empty default values until \
+/// the information is read via the Jobs [gaffer](trait.Gaffer.html) trait using \
+/// its scan_and_optimize() method.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct Resolution {
     pub x: usize,
@@ -85,8 +95,13 @@ impl Resolution {
     }
 }
 
-/// Represents any Resource (Objects, Textures, Materials, ...) in the blend that
-/// have been removed because they were unused.
+
+
+/// Represents any Resource (Objects, Textures, Materials, ...) in the blendfile that
+/// have been removed because they were unused. This is ultimately stored in a [Job](struct.Job.html). \
+/// Typically it is deserialized by the Job with empty default values until \
+/// the information is read via the Jobs [gaffer](trait.Gaffer.html) trait using \
+/// its scan_and_optimize() method.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Resource {
     pub n: usize,
