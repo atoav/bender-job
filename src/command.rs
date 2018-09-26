@@ -70,6 +70,14 @@ impl Command{
             Command::Blender(c) => c.construct_command(input, output)
         }
     }
+
+    /// Returns true if the Command is a blender command
+    pub fn is_blender(&self) -> bool{
+        match self{
+            Command::Basic(_) => false,
+            Command::Blender(_) => true
+        }
+    }
 }
 
 
