@@ -13,7 +13,6 @@ pub trait Gaffer{
 
 
 impl Gaffer for Job{
-
     /// Execute the jobs blendfile with optimize_blend.py, gather data and optimize settings
     fn scan_and_optimize(&mut self){
         // Use the local file for debug builds, use the installed file for release builds
@@ -31,6 +30,7 @@ impl Gaffer for Job{
                         match MiscInfo::deserialize(&output[..]){
                             Ok(info) => {
                                 self.incorporate_info(info);
+                                self.scan();
                             },
                             Err(err) => {
                                 let error_message = format!("Error: failed to deserialize output to MiscInfo:\n{}\nOutput:\n{}", err, output);

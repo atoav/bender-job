@@ -63,6 +63,9 @@ pub use data::{Render, Frames, Resolution};
 pub mod gaffer;
 pub use gaffer::{Gaffer};
 
+pub mod command;
+pub use command::Command;
+
 
 
 pub type GenError = Box<std::error::Error>;
