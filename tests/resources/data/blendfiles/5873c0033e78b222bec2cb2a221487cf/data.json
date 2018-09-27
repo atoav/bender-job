@@ -41,5 +41,6 @@
     "current": 0,
     "step": 0,
     "fps": 0
-  }
+  },
+  "tasks": []
 }

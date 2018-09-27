@@ -82,7 +82,8 @@ pub fn get_job() -> Job {
         history: BTreeMap::new(),
         resolution: Default::default(),
         render: Default::default(),
-        frames: Default::default()
+        frames: Default::default(),
+        tasks: Default::default()
     } 
 }
 
@@ -124,7 +125,8 @@ pub fn get_random_job() -> Job {
         history: BTreeMap::new(),
         resolution: Default::default(),
         render: Default::default(),
-        frames: Default::default()
+        frames: Default::default(),
+        tasks: Default::default()
     };
     // Create data.json
     j.write_to_file().expect("Couldn't write new random job to file!");

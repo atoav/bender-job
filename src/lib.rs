@@ -44,6 +44,7 @@ use std::fmt;
 use std::fs;
 use std::path::PathBuf;
 use std::error::Error;
+use std::collections::VecDeque;
 
 pub mod jobtime;
 pub use jobtime::JobTime;
@@ -65,6 +66,9 @@ pub use gaffer::{Gaffer};
 
 pub mod command;
 pub use command::Command;
+
+pub mod atomizer;
+pub use atomizer::Atomizer;
 
 
 
@@ -134,7 +138,9 @@ pub struct Job {
     #[serde(default)]
     pub render: Render,
     #[serde(default)]
-    pub frames: Frames
+    pub frames: Frames,
+    #[serde(default)]
+    pub tasks: VecDeque<Task>
 }
 
 
@@ -384,7 +390,7 @@ impl Job{
     pub fn atomize(&mut self){
         match self.status.atomize(){
             Ok(_) => {
-                let message = format!("Atomization finished");
+                let message = format!("Atomization finished: created {} atomic tasks", self.tasks.len());
                 self.add_history(message.as_str());
             },
             Err(err) => {
