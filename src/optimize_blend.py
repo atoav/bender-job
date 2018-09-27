@@ -15,10 +15,7 @@ def now():
     return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
 
 history = {}
-
 history[now()] = "optimize_blend.py: Sucessfully started blender with optimize_blend.py"
-
-
 
 # Get current Scene
 scene = bpy.context.scene

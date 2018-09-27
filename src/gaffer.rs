@@ -4,22 +4,27 @@ use std::process::Command;
 use std::path::Path;
 
 
-
+/// A thing that implements the Gaffer trait can scan and optimize its own job \
+/// run a path with a python file and incorporate the gathered info in it self. \
+/// The most important struct implementing this trait is the [Job](struct;Job.html).
 pub trait Gaffer{
     fn scan_and_optimize(&mut self);
-    fn run_with_python<S>(blend_path: S, python_path: S) -> GenResult<String>where S: Into<String>;
+    fn run_with_python<S>(path: S, python_path: S) -> GenResult<String>where S: Into<String>;
     fn incorporate_info(&mut self, info: MiscInfo);
 }
 
-
+/// The Gaffer trait is implemented by the [Job](struct;Job.html).
+/// It gives the job the ability to scan its own blendfile for basic information \
+/// about resolution, frames and renderer by executing the blendfile with \
+/// a python script (optimize_blend.py)
 impl Gaffer for Job{
-    /// Execute the jobs blendfile with optimize_blend.py, gather data and optimize settings
+    /// Execute the jobs blendfile with optimize_blend.py, gather data and optimize settings.
     fn scan_and_optimize(&mut self){
         // Use the local file for debug builds, use the installed file for release builds
         let python_path = if cfg!(debug_assertions) {
             format!("{}/src/optimize_blend.py", env!("CARGO_MANIFEST_DIR"))
         }else{
-            "/usr/bin/optimize_blend.py".to_string()
+            "/usr/local/bin/optimize_blend.py".to_string()
         };
         if Path::new(&python_path).exists() {
             if self.status.is_validated(){
@@ -59,14 +64,14 @@ impl Gaffer for Job{
 
 
     /// Execute the checked blend-file at blend_path with the python file at python_path
-    fn run_with_python<S>(blend_path: S, python_path: S) -> GenResult<String>where S: Into<String>{
-        let blend_path = blend_path.into();
+    fn run_with_python<S>(path: S, python_path: S) -> GenResult<String>where S: Into<String>{
+        let path = path.into();
         let python_path = python_path.into();
         // Pass variables as environment variables, let blender run optimize_blend.py
         // to set some things straight and save a new file
         let command = Command::new("blender")
                 .arg("-b")
-                .arg(blend_path)
+                .arg(path)
                 .arg("--disable-autoexec")
                 .arg("--python")
                 .arg(python_path)
