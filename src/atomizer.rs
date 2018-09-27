@@ -9,10 +9,12 @@ pub trait Atomizer{
 }
 
 impl Atomizer for Job{
-    /// Create Tasks for the Job
-    /// 
+    /// Genenerate Tasks for the command. The chunk size controls how many \
+    /// Frames are grouped together if `job::animation == true`.
     fn atomize(&mut self){
-        self.tasks = self.generate_commands(1)
+        let chunk_size = 1;
+        self.tasks = self.generate_commands(chunk_size);
+        self.atomize();
     }
 
     fn generate_commands(&self, chunk_size: usize) -> VecDeque<Task>{
