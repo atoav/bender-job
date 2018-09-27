@@ -21,12 +21,12 @@ use ::*;
 /// let mut c = Command::new_blender_single(121, "PNG");
 ///
 /// // Construct the command with a input and a output path
-/// c.construct_command("some/blendfile.blend", "/data/render/here");
+/// c.construct("some/blendfile.blend", "/data/render/here");
 ///
 /// // Now we can get the constructed String with
 /// c.to_string().unwrap();
 /// ```
-/// Note: if we would have forgotten to call construct_command() before converting
+/// Note: if we would have forgotten to call construct() before converting
 /// the command to string, the unwrap would have raised a panic
 /// 
 /// The above to_string() calls would result in two Strings
@@ -53,7 +53,7 @@ impl Command{
     }
 
     /// Convert the Command to a String and return a Result<String> (Error if,
-    /// construct_command() was needed and not called)
+    /// construct() was needed and not called)
     pub fn to_string(&self) -> GenResult<String>{
         match self{
             Command::Basic(c) => c.to_string(),
@@ -62,12 +62,12 @@ impl Command{
     }
 
     /// Construct the Command (useful to update the paths on a different system)
-    pub fn construct_command<S>(&mut self, input: S, output: S) where S: Into<String>{
+    pub fn construct<S>(&mut self, input: S, output: S) where S: Into<String>{
         let input = input.into();
         let output = output.into();
         match self{
             Command::Basic(_) => (),
-            Command::Blender(c) => c.construct_command(input, output)
+            Command::Blender(c) => c.construct(input, output)
         }
     }
 
@@ -139,18 +139,18 @@ impl BlenderCommand{
     }
 
     /// Construct the command with the given paths
-    pub fn construct_command<S>(&mut self, blendfile: S, outpath: S) where S: Into<String>{
+    pub fn construct<S>(&mut self, blendfile: S, outpath: S) where S: Into<String>{
         self.blendfile = Some(blendfile.into());
         self.outpath = Some(outpath.into());
         let framestring = self.frame.to_flags();
         self.command = Some(format!("blender -b --disable-autoexec {} {} -o {} -F {}", self.blendfile.clone().unwrap(), framestring, self.outpath.clone().unwrap(), self.image_format));
     }
 
-    /// Convert the command to String, return Error if Self::construct_command() hasn't been called before
+    /// Convert the command to String, return Error if Self::construct() hasn't been called before
     pub fn to_string(&self) -> GenResult<String>{
         match self.command{
             Some(ref command) => Ok(command.clone()),
-            None => Err(From::from("Error: Couldn't convert Blender Command to_string(). Forgot to call construct_command() first?"))
+            None => Err(From::from("Error: Couldn't convert Blender Command to_string(). Forgot to call construct() first?"))
         }
     }
 }
