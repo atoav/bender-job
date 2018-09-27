@@ -15,6 +15,25 @@ use ::*;
 /// well as the calculation of durations (the same construct is used for [Job](struct.Job.html))
 /// - a [Command](struct.Command.html) which allows to abstract CLI commands to be executed on the worker machines \
 /// in such way, that we don't need to know input and output paths beforehand
+/// 
+/// Construct a new basic task like this:
+/// ```
+/// # extern crate bender_job;
+/// use bender_job::Task;
+/// 
+/// // Create a basic task that lists files
+/// let basic_task = Task::new_basic("ls -a");
+///
+/// // Create a blender task for a single frame (121. with PNG as image format)
+/// let mut single_frame_task = Task::new_blender_single(121, "PNG");
+///
+/// // Create a blender task for a range of frames (1 to 250, with a step size of 1)
+/// let mut range_frame_task = Task::new_blender_range(1, 250, 1, "PNG");
+///
+/// // Tasks with a blender command must be constructed with paths before usage:
+/// single_frame_task.command.construct("my/blend/file.blend", "some/out/folder/####.png");
+/// range_frame_task.command.construct("my/blend/file.blend", "some/out/folder/####.png");
+/// ```
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Task{
     pub status: Status,
