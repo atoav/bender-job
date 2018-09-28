@@ -326,6 +326,11 @@ impl Job{
     pub fn is_job(&self) -> bool{
         self.status.is_job()
     }
+
+    /// Return true if self is queued
+    pub fn is_queued(&self) -> bool{
+        self.status.is_queued()
+    }
 }
 
 
