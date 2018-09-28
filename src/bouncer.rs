@@ -16,9 +16,9 @@ impl Bouncer for Job{
         match bender_bouncer::check_blend(self.paths.blend.as_str()){
         Ok(version) => {
             self.version = version;
-            self.validate();
+            self.set_validate();
         },
-        Err(_err) => self.deny()
+        Err(_err) => self.set_deny()
     }
     }
 }

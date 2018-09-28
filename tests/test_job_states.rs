@@ -23,7 +23,7 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.is_invalid(), false);
-        j.validate();
+        j.set_validate();
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), true);
@@ -54,7 +54,7 @@ mod status{
         assert_eq!(j.status.is_running(), false);
         assert_eq!(j.status.is_canceled(), false);
         assert_eq!(j.status.is_invalid(), false);
-        j.deny();
+        j.set_deny();
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), true);
@@ -73,8 +73,8 @@ mod status{
     #[test]
     fn error_request() {
         let mut j = common::get_job();
-        j.validate();
-        j.error("Some message");
+        j.set_validate();
+        j.set_error("Some message");
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), true);
@@ -93,8 +93,8 @@ mod status{
     #[test]
     fn scan() {
         let mut j = common::get_job();
-        j.validate();
-        j.scan();
+        j.set_validate();
+        j.set_scan();
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), true);
@@ -113,9 +113,9 @@ mod status{
     #[test]
     fn atomize() {
         let mut j = common::get_job();
-        j.validate();
-        j.scan();
-        j.atomize();
+        j.set_validate();
+        j.set_scan();
+        j.set_atomize();
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), true);
@@ -134,10 +134,10 @@ mod status{
     #[test]
     fn queue() {
         let mut j = common::get_job();
-        j.validate();
-        j.scan();
-        j.atomize();
-        j.queue();
+        j.set_validate();
+        j.set_scan();
+        j.set_atomize();
+        j.set_queue();
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), false);
@@ -156,11 +156,11 @@ mod status{
     #[test]
     fn run() {
         let mut j = common::get_job();
-        j.validate();
-        j.scan();
-        j.atomize();
-        j.queue();
-        j.run();
+        j.set_validate();
+        j.set_scan();
+        j.set_atomize();
+        j.set_queue();
+        j.set_run();
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), false);
@@ -179,12 +179,12 @@ mod status{
     #[test]
     fn cancel() {
         let mut j = common::get_job();
-        j.validate();
-        j.scan();
-        j.atomize();
-        j.queue();
-        j.run();
-        j.cancel();
+        j.set_validate();
+        j.set_scan();
+        j.set_atomize();
+        j.set_queue();
+        j.set_run();
+        j.set_cancel();
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), false);
@@ -203,12 +203,12 @@ mod status{
     #[test]
     fn error_job() {
         let mut j = common::get_job();
-        j.validate();
-        j.scan();
-        j.atomize();
-        j.queue();
-        j.run();
-        j.error("Some error message");
+        j.set_validate();
+        j.set_scan();
+        j.set_atomize();
+        j.set_queue();
+        j.set_run();
+        j.set_error("Some error message");
         assert_eq!(j.status.is_finished(), false);
         assert_eq!(j.status.is_untouched(), false);
         assert_eq!(j.status.is_request(), false);

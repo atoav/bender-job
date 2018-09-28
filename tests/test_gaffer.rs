@@ -22,7 +22,7 @@ mod gaffer{
     #[test]
     fn scan() {
         let mut j = common::get_random_job();
-        j.validate();
+        j.set_validate();
         assert_eq!(j.status.is_validated(), true);
         j.scan_and_optimize();
         assert_eq!(j.status.is_errored(), false);
@@ -56,7 +56,7 @@ mod gaffer{
         };
 
         let mut j = common::get_random_job();
-        j.validate();
+        j.set_validate();
         assert_eq!(j.status.is_validated(), true);
         j.scan_and_optimize();
         assert_eq!(j.frames, frames);
@@ -70,7 +70,7 @@ mod gaffer{
     #[test]
     fn integrate_history(){
         let mut j = common::get_random_job();
-        j.validate();
+        j.set_validate();
         assert_eq!(j.status.is_validated(), true);
         j.scan_and_optimize();
         assert_eq!(j.history.iter().any(|(_, value)| value.starts_with("optimize_blend.py")), true);

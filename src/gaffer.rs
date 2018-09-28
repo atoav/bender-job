@@ -35,30 +35,30 @@ impl Gaffer for Job{
                         match MiscInfo::deserialize(&output[..]){
                             Ok(info) => {
                                 self.incorporate_info(info);
-                                self.scan();
+                                self.set_scan();
                             },
                             Err(err) => {
                                 let error_message = format!("Error: failed to deserialize output to MiscInfo:\n{}\nOutput:\n{}", err, output);
                                 println!("{}", error_message);
-                                self.error(error_message);
+                                self.set_error(error_message);
                             }
                         }
                     },
                     Err(err) =>{
                         let error_message = format!("Error: while running with {}: {}", python_path, err);
                         println!("{}", error_message);
-                        self.error(error_message);
+                        self.set_error(error_message);
                     }
                 }
             }else{
                 let error_message = format!("Warning: Couldn't scan_and_optimize() because job wasn't validated");
                 println!("{}", error_message);
-                self.error(error_message);
+                self.set_error(error_message);
             }
         }else{
             let error_message = format!("Error: Didn't find optimize_blend.py at {}\nYou might try to reinstall.", python_path);
             println!("{}", error_message); 
-            self.error(error_message);
+            self.set_error(error_message);
         }
     }
 

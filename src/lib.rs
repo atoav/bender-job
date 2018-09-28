@@ -329,11 +329,18 @@ impl Job{
 }
 
 
+impl Job {
+    pub fn validate(&mut self){
+        self.check();
+    }
+}
+
+
 
 // =============================== State Setters ===============================
 impl Job{
     /// Validate the self and log it to history, log errors
-    pub fn validate(&mut self){
+    pub fn set_validate(&mut self){
         match self.status.validate(){
             Ok(_) => {
                 let message = format!("Validated with version: {}", self.version);
@@ -347,7 +354,7 @@ impl Job{
     }
 
     /// Deny the self and log it to history, log errors
-    pub fn deny(&mut self){
+    pub fn set_deny(&mut self){
         match self.status.deny(){
             Ok(_) => {
                 let message = format!("Denied Blendfile as invalid");
@@ -361,7 +368,7 @@ impl Job{
     }
 
     /// Error self and log it to history, log errors
-    pub fn error<S>(&mut self, error_message: S) where S: Into<String>{
+    pub fn set_error<S>(&mut self, error_message: S) where S: Into<String>{
         let error_message = error_message.into();
         match self.status.error(){
             Ok(_) => {
@@ -377,7 +384,7 @@ impl Job{
     }
 
     /// Scan self and log it to history, log errors
-    pub fn scan(&mut self){
+    pub fn set_scan(&mut self){
         match self.status.scan(){
             Ok(_) => {
                 let message = format!("Scanning finished");
@@ -391,7 +398,7 @@ impl Job{
     }
 
     /// Atomize self and log it to history, log errors
-    pub fn atomize(&mut self){
+    pub fn set_atomize(&mut self){
         match self.status.atomize(){
             Ok(_) => {
                 let message = format!("Atomization finished: created {} atomic tasks", self.tasks.len());
@@ -405,7 +412,7 @@ impl Job{
     }
 
     /// Queue self and log it to history, log errors
-    pub fn queue(&mut self){
+    pub fn set_queue(&mut self){
         match self.status.queue(){
             Ok(_) => {
                 let message = format!("Queued Job");
@@ -419,7 +426,7 @@ impl Job{
     }
 
     /// Run self and log it to history, log errors
-    pub fn run(&mut self){
+    pub fn set_run(&mut self){
         match self.status.run(){
             Ok(_) => {
                 let message = format!("running Job");
@@ -434,7 +441,7 @@ impl Job{
     }
 
     /// Finish self and log it to history, log errors
-    pub fn finish(&mut self){
+    pub fn set_finish(&mut self){
         match self.status.finish(){
             Ok(_) => {
                 let message = format!("Finished Job");
@@ -449,7 +456,7 @@ impl Job{
     }
 
     /// Cancel self and log it to history, log errors
-    pub fn cancel(&mut self){
+    pub fn set_cancel(&mut self){
         match self.status.cancel(){
             Ok(_) => {
                 let message = format!("Canceled Job");

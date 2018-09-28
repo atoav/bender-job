@@ -13,7 +13,7 @@ mod bouncer{
     fn allow() {
         let mut j = common::get_job();
         assert_eq!(j.status.is_untouched(), true);
-        j.check();
+        j.validate();
         assert_eq!(j.status.is_validated(), true);
     }
 
@@ -21,7 +21,7 @@ mod bouncer{
     fn deny() {
         let mut j = common::get_invalid_job();
         assert_eq!(j.status.is_untouched(), true);
-        j.check();
+        j.validate();
         assert_eq!(j.status.is_invalid(), true);
     }
 }
