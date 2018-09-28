@@ -35,6 +35,7 @@
 extern crate serde;
 extern crate serde_json;
 extern crate chrono;
+extern crate bender_bouncer;
 
 use chrono::prelude::*;
 use chrono::Utc;
@@ -69,6 +70,9 @@ pub use command::Command;
 
 pub mod atomizer;
 pub use atomizer::Atomizer;
+
+pub mod bouncer;
+pub use bouncer::Bouncer;
 
 
 
