@@ -7,7 +7,6 @@ mod common;
 /// Test the Gaffer trait
 mod bouncer{
     use common;
-    use bender_job::{Bouncer};
 
     #[test]
     fn allow() {
