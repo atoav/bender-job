@@ -88,6 +88,37 @@ pub fn get_job() -> Job {
 }
 
 
+/// Get a invalid Job
+#[allow(dead_code)]
+pub fn get_invalid_job() -> Job {
+    let jobfolder = get_jobpath();
+    Job {
+        id: "9ac9b18f5e6d4f329acda411e3de8cde".to_owned(),
+        paths: JobPaths::from_uploadfolder(jobfolder),
+        animation: false,
+        email: "dh@atoav.com".to_owned(),
+        version: "".to_owned(),
+        time: JobTime {
+            creation: Some(Utc.ymd(2018, 8, 23)
+                .and_hms_micro(13, 48, 40, 176598)),
+            start: None,
+            finish: None,
+            error: None,
+            abort: None,
+            pause: None
+        },
+        status: Status::new(),
+        data: HashMap::new(),
+        history: BTreeMap::new(),
+        resolution: Default::default(),
+        render: Default::default(),
+        frames: Default::default(),
+        tasks: Default::default()
+    } 
+}
+
+
+
 
 /// Generate a random job
 #[allow(dead_code)]

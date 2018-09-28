@@ -1,0 +1,46 @@
+{
+  "id": "9ac9b18f5e6d4f329acda411e3de8cde",
+  "animation": false,
+  "paths": {
+    "upload": "/home/atoav/Blender/bender-job/tests/resources/data/blendfiles/9ac9b18f5e6d4f329acda411e3de8cde",
+    "data": "/home/atoav/Blender/bender-job/tests/resources/data/blendfiles/9ac9b18f5e6d4f329acda411e3de8cde/data.json",
+    "blend": "/home/atoav/Blender/bender-job/tests/resources/data/blendfiles/9ac9b18f5e6d4f329acda411e3de8cde/invalid.blend",
+    "frames": "/home/atoav/Blender/bender-job/tests/resources/data/frames/9ac9b18f5e6d4f329acda411e3de8cde",
+    "filename": "untitled.blend"
+  },
+  "email": "dh@atoav.com",
+  "version": "",
+  "time": {
+    "creation": "2018-08-23T13:48:40.176598Z",
+    "start": null,
+    "finish": null,
+    "error": null,
+    "abort": null,
+    "pause": null
+  },
+  "status": {
+    "Request": "Untouched"
+  },
+  "data": {},
+  "history": {},
+  "resolution": {
+    "x": 0,
+    "y": 0,
+    "scale": 0
+  },
+  "render": {
+    "renderer": "",
+    "cuda": false,
+    "device": "",
+    "image_format": "",
+    "uses_compositing": false
+  },
+  "frames": {
+    "start": 0,
+    "end": 0,
+    "current": 0,
+    "step": 0,
+    "fps": 0
+  },
+  "tasks": []
+}
