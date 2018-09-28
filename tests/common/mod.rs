@@ -44,6 +44,13 @@ pub fn get_jobpath() -> String {
 }
 
 
+/// Get a Jobpath to a invalid blendfile
+#[allow(dead_code)]
+pub fn get_invalid_jobpath() -> String {
+    let mut buf = get_blendpath();
+    buf.push("9ac9b18f5e6d4f329acda411e3de8cde");
+    format!("{:?}", buf).replace("\"", "")
+}
 
 // Return a random id
 #[allow(dead_code)]
@@ -91,7 +98,7 @@ pub fn get_job() -> Job {
 /// Get a invalid Job
 #[allow(dead_code)]
 pub fn get_invalid_job() -> Job {
-    let jobfolder = get_jobpath();
+    let jobfolder = get_invalid_jobpath();
     Job {
         id: "9ac9b18f5e6d4f329acda411e3de8cde".to_owned(),
         paths: JobPaths::from_uploadfolder(jobfolder),
