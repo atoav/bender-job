@@ -318,8 +318,8 @@ impl Job{
     }
 
     /// Check if self has been validated
-    pub fn is_valid(&self) -> bool{
-        self.status.is_invalid()
+    pub fn is_validated(&self) -> bool{
+        self.status.is_validated()
     }   
 
     /// Check if self is a job
