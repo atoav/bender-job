@@ -329,9 +329,44 @@ impl Job{
 }
 
 
+
+
+// ============================= Process Functions =============================
 impl Job {
     pub fn validate(&mut self){
-        self.check();
+        self.check_with_bouncer();
+    }
+
+    pub fn deny(&mut self){
+        self.set_deny();
+    }
+
+    pub fn error<S>(&mut self, error_message: S) where S: Into<String>{
+        self.set_error(error_message.into());
+    }
+
+    pub fn scan(&mut self){
+        self.scan_and_optimize();
+    }
+
+    pub fn atomize(&mut self){
+        self.atomize_to_tasks();
+    }
+
+    pub fn queue(&mut self){
+        self.set_queue();
+    }
+
+    pub fn run(&mut self){
+        self.set_run();
+    }
+
+    pub fn finish(&mut self){
+        self.set_finish();
+    }
+
+    pub fn cancel(&mut self){
+        self.set_cancel();
     }
 }
 

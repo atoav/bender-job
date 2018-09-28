@@ -4,19 +4,20 @@ use std::iter::FromIterator;
 /// This Trait is implemented by a [Job](struct.Job.html) and deals with atomizing (aka splitting)
 /// the Jobs blendfile into [Tasks](struct.Task.html).
 pub trait Atomizer{
-    fn atomize(&mut self);
+    fn atomize_to_tasks(&mut self);
     fn generate_commands(&self, chunk_size: usize) -> VecDeque<Task>;
 }
 
 impl Atomizer for Job{
     /// Genenerate Tasks for the command. The chunk size controls how many \
     /// Frames are grouped together if `job::animation == true`.
-    fn atomize(&mut self){
+    fn atomize_to_tasks(&mut self){
         let chunk_size = 1;
         self.tasks = self.generate_commands(chunk_size);
-        self.atomize();
+        self.set_atomize();
     }
 
+    /// Generate a list of commands for a Job
     fn generate_commands(&self, chunk_size: usize) -> VecDeque<Task>{
         let mut frames = Vec::new();
         let iformat = &self.render.image_format;
