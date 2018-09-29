@@ -33,6 +33,25 @@ pub fn get_blendfile() -> PathBuf {
     p
 }
 
+/// Get the path to a invalid example blend file
+#[allow(dead_code)]
+pub fn get_invalid_blendfile() -> PathBuf {
+    let mut p = get_blendpath();
+    p.push("9ac9b18f5e6d4f329acda411e3de8cde");
+    p.push("invalid.blend");
+    p
+}
+
+/// Get the path to a different example blend file
+#[allow(dead_code)]
+pub fn get_other_blendfile() -> PathBuf {
+    let mut p = get_blendpath();
+    p.push("7841becc23339d86ef0ec0a18e312ba1");
+    p.push("a.blend");
+    p
+}
+
+
 
 
 /// Get a Jobpath to the thing in resources
@@ -43,7 +62,6 @@ pub fn get_jobpath() -> String {
     format!("{:?}", buf).replace("\"", "")
 }
 
-
 /// Get a Jobpath to a invalid blendfile
 #[allow(dead_code)]
 pub fn get_invalid_jobpath() -> String {
@@ -51,6 +69,15 @@ pub fn get_invalid_jobpath() -> String {
     buf.push("9ac9b18f5e6d4f329acda411e3de8cde");
     format!("{:?}", buf).replace("\"", "")
 }
+
+/// Get a Jobpath to a different blendfile
+#[allow(dead_code)]
+pub fn get_other_jobpath() -> String {
+    let mut buf = get_blendpath();
+    buf.push("7841becc23339d86ef0ec0a18e312ba1");
+    format!("{:?}", buf).replace("\"", "")
+}
+
 
 // Return a random id
 #[allow(dead_code)]
@@ -171,6 +198,52 @@ pub fn get_random_job() -> Job {
     
     j
 }
+
+/// Generate a random job
+#[allow(dead_code)]
+pub fn get_other_random_job() -> Job {
+    let id = random_id();
+    let mut jobpath = get_blendpath();
+    jobpath.push(&id);
+    let jobstring = jobpath.clone().into_os_string().into_string().expect("Unwrapping pathbuf in random job failed");
+    // Create a directory for the random job
+    fs::create_dir(&jobpath).expect("Couldn't create directory for random Job..");
+    // Copy a.blend there
+    let mut blendfile = get_blendpath();
+    blendfile.push("7841becc23339d86ef0ec0a18e312ba1");
+    blendfile.push("a.blend");
+    jobpath.push("a.blend");
+    fs::copy(blendfile, jobpath).expect("Couldn't copy blendfile for random Job..");
+    // Create a job struct
+    let j = Job {
+        id: id.to_string(),
+        paths: JobPaths::from_uploadfolder(jobstring),
+        animation: false,
+        email: "dh@atoav.com".to_owned(),
+        version: "".to_owned(),
+        time: JobTime {
+            creation: Some(Utc.ymd(2018, 8, 23)
+                .and_hms_micro(13, 48, 40, 176598)),
+            start: None,
+            finish: None,
+            error: None,
+            abort: None,
+            pause: None
+        },
+        status: Status::new(),
+        data: HashMap::new(),
+        history: BTreeMap::new(),
+        resolution: Default::default(),
+        render: Default::default(),
+        frames: Default::default(),
+        tasks: Default::default()
+    };
+    // Create data.json
+    j.write_to_file().expect("Couldn't write new random job to file!");
+    
+    j
+}
+
 
 
 

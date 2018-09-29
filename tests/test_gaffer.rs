@@ -29,6 +29,17 @@ mod gaffer{
         common::delete_random_job(j);
     }
 
+    /// Test if scan_and_optimize() fails with an unexpected error
+    #[test]
+    fn scan_other() {
+        let mut j = common::get_other_random_job();
+        j.set_validate();
+        assert_eq!(j.status.is_validated(), true);
+        j.scan_and_optimize();
+        assert_eq!(j.status.is_errored(), false);
+        common::delete_random_job(j);
+    }
+
     /// Check if the gathered info matches the info in the blendfile at
     /// 5873c0033e78b222bec2cb2a221487cf/untitled.blend
     #[test]

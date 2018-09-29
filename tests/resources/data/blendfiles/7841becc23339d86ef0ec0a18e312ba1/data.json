@@ -1,0 +1,25 @@
+{
+  "id": "7841becc23339d86ef0ec0a18e312ba1",
+  "animation": true,
+  "paths": {
+    "upload": "/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1",
+    "data": "/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1/data.json",
+    "blend": "/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1/a.blend",
+    "frames": "/data/frames/7841becc23339d86ef0ec0a18e312ba1",
+    "filename": "a.blend"
+  },
+  "email": "dh@atoav.com",
+  "time": {
+    "creation": "2018-09-26T01:44:35.165835+02:00",
+    "start": null,
+    "finish": null,
+    "error": null,
+    "abort": null,
+    "pause": null
+  },
+  "status": {
+    "Request": "Untouched"
+  },
+  "data": {},
+  "history": {}
+}
