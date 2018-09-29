@@ -22,9 +22,9 @@ mod gaffer{
     #[test]
     fn scan() {
         let mut j = common::get_random_job();
-        j.set_validate();
+        j.validate();
         assert_eq!(j.status.is_validated(), true);
-        j.scan_and_optimize();
+        j.scan();
         assert_eq!(j.status.is_errored(), false);
         common::delete_random_job(j);
     }
@@ -33,9 +33,9 @@ mod gaffer{
     #[test]
     fn scan_other() {
         let mut j = common::get_other_random_job();
-        j.set_validate();
+        j.validate();
         assert_eq!(j.status.is_validated(), true);
-        j.scan_and_optimize();
+        j.scan();
         assert_eq!(j.status.is_errored(), false);
         common::delete_random_job(j);
     }
