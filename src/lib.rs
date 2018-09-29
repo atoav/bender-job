@@ -441,7 +441,10 @@ impl Job{
     pub fn set_atomize(&mut self){
         match self.status.atomize(){
             Ok(_) => {
-                let message = format!("Atomization finished: created {} atomic tasks", self.tasks.len());
+                let message = match self.animation{
+                    true => format!("Atomization finished: created {} atomic tasks (for {} frames)", self.tasks.len(), self.frames.count()),
+                    false => format!("Atomization finished: created {} atomic task (for current frame {})", self.tasks.len(), self.frames.current)
+                };
                 self.add_history(message.as_str());
             },
             Err(err) => {
