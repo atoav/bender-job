@@ -1,5 +1,8 @@
-echo 'Starting to install bender-job\n'
-echo 'Build finished.'
-echo 'Attempting to copy optimize_blend.py to /usr/local/bin:'
-sudo cp ./src/optimize_blend.py /usr/local/bin/optimize_blend.py
-echo 'Installed optimize_blend.py to /usr/local/bin'
+#!/bin/bash
+echo 'Starting to install bender-job'
+echo
+
+read -e -p "
+Copy optimize_blend.py to /usr/local/lib/optimize_blend.py? [Y/n] " YN
+
+[[ $YN == "y" || $YN == "Y" || $YN == "" ]] && sudo cp ./src/optimize_blend.py /usr/local/lib/optimize_blend.py

@@ -24,7 +24,7 @@ impl Gaffer for Job{
         let python_path = if cfg!(debug_assertions) {
             format!("{}/src/optimize_blend.py", env!("CARGO_MANIFEST_DIR"))
         }else{
-            "/usr/local/bin/optimize_blend.py".to_string()
+            "/usr/local/lib/optimize_blend.py".to_string()
         };
         if Path::new(&python_path).exists() {
             if self.status.is_validated(){
