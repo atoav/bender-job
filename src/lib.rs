@@ -1,10 +1,10 @@
 //! bender_job is a rust library, that serializes and deserializes jobs
 //! from `data.json` files. The deserialization yields a Job struct.  
 //!
-//! It can be loaded in a rust library via the public git mirror by putting this in your Cargo.toml:  
+//! It can be loaded into a rust project via git by putting this in your Cargo.toml:  
 //! ```ignore
 //! [dependencies]
-//! bender_job = { git = "https://github.com/atoav/bender-job.git" }
+//! bender_job = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-job.git" }
 //! ```
 //! To update this run
 //! ```ignore
