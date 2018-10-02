@@ -183,6 +183,11 @@ impl Job{
         }
     }
 
+    /// Return a string for the last event in the history
+    pub fn last_event(&self) -> String{
+        self.history.format_last()
+    }
+
     /// Append a other history to the self.history
     pub fn incorporate_alternate_history(&mut self, other_history: &mut History){
         self.history.append(other_history);
