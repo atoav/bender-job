@@ -74,13 +74,13 @@ pub use atomizer::Atomizer;
 pub mod bouncer;
 pub use bouncer::Bouncer;
 
+pub mod history;
+pub use history::History;
+
 
 
 pub type GenError = Box<std::error::Error>;
 pub type GenResult<T> = Result<T, GenError>;
-
-
-pub type History = BTreeMap<DateTime<Utc>, String>;
 
 
 
