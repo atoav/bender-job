@@ -75,7 +75,7 @@ pub mod bouncer;
 pub use bouncer::Bouncer;
 
 pub mod history;
-pub use history::History;
+pub use history::{History, HistoryMethods};
 
 
 
