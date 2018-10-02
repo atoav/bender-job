@@ -52,6 +52,30 @@ impl fmt::Display for Status {
     }
 }
 
+impl Status{
+    /// Returns a String describing the primary status (e.g. "Job" or "Request")
+    pub fn format_primary(&self) -> String{
+        match self{
+            Status::Request(_) => "Request".to_string(),
+            Status::Job(_) => "Job".to_string()
+        }
+    }
+
+    /// Returns a String describing the secondary status (e.g. "untouched")
+    pub fn format_secondary(&self) -> String{
+        match self{
+            Status::Request(secondary) => {
+                let s = format!("{:?}", secondary).to_lowercase();
+                s
+            },
+            Status::Job(secondary) => {
+                let s = format!("{:?}", secondary).to_lowercase();
+                s
+            }
+        }
+    }
+}
+
 
 
 impl Status{
