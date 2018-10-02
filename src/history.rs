@@ -11,6 +11,7 @@ pub type Event = (DateTime<Utc>, String);
 pub trait HistoryMethods{
     fn last(&self) -> Option<Event>;
     fn format_last(&self) -> String;
+    fn last_message(&self) -> String;
 }
 
 impl HistoryMethods for History{
@@ -27,6 +28,12 @@ impl HistoryMethods for History{
             None => "".to_string()
         }
     }
+    fn last_message(&self) -> String{
+        match self.last(){
+            Some(event) => event.message(),
+            None => "".to_string()
+        }
+    }
 }
 
 pub trait EventMethods{
@@ -37,5 +44,9 @@ pub trait EventMethods{
 impl EventMethods for Event{
     fn format(&self) -> String{
         format!("[{}]: {}", self.0.to_string(), self.1)
+    }
+
+    fn message(&self) -> String{
+        self.1
     }
 }
