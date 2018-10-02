@@ -49,7 +49,7 @@ pub struct Task{
     pub status: Status,
     pub time: JobTime,
     pub command: Command,
-    pub delivery_tag: Option<String>
+    pub delivery_tag: Option<u64>
 }
 
 
