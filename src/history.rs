@@ -38,6 +38,7 @@ impl HistoryMethods for History{
 
 pub trait EventMethods{
     fn format(&self) -> String;
+    fn message(&self) -> String;
 }
 
 
@@ -47,6 +48,6 @@ impl EventMethods for Event{
     }
 
     fn message(&self) -> String{
-        self.1
+        self.1.clone()
     }
 }
