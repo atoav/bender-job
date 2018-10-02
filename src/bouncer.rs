@@ -18,7 +18,7 @@ impl Bouncer for Job{
             self.version = version;
             self.set_validate();
         },
-        Err(_err) => self.set_deny()
+        Err(_err) => self.deny()
     }
     }
 }
