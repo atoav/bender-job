@@ -112,8 +112,8 @@ pub struct BlenderCommand{
     image_format: String,
     blendfile: Option<String>,
     outpath: Option<String>,
-    command: Option<String>,
-    delivery_tag: Option<String>
+    command: Option<String>
+    
 }
 
 impl BlenderCommand{
@@ -124,8 +124,7 @@ impl BlenderCommand{
             image_format: image_format.into(),
             blendfile: None,
             outpath: None,
-            command: None,
-            delivery_tag: None
+            command: None
         }
     }
 
@@ -136,8 +135,7 @@ impl BlenderCommand{
             image_format: image_format.into(),
             blendfile: None,
             outpath: None,
-            command: None,
-            delivery_tag: None
+            command: None
         }
     }
 
