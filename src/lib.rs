@@ -35,6 +35,9 @@
 extern crate serde;
 extern crate serde_json;
 extern crate chrono;
+extern crate blake2;
+extern crate hex;
+extern crate bender_config;
 extern crate bender_bouncer;
 
 use chrono::prelude::*;
@@ -46,6 +49,8 @@ use std::fs;
 use std::path::PathBuf;
 use std::error::Error;
 use std::collections::VecDeque;
+use blake2::Blake2b;
+use bender_config::Config;
 
 pub mod jobtime;
 pub use jobtime::JobTime;

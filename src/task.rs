@@ -22,13 +22,13 @@ use ::*;
 /// use bender_job::Task;
 /// 
 /// // Create a basic task that lists files
-/// let basic_task = Task::new_basic("ls -a");
+/// let basic_task = Task::new_basic("ls -a", "Group A");
 ///
 /// // Create a blender task for a single frame (121. with PNG as image format)
-/// let mut single_frame_task = Task::new_blender_single(121, "PNG");
+/// let mut single_frame_task = Task::new_blender_single(121, "PNG", "Group A");
 ///
 /// // Create a blender task for a range of frames (1 to 250, with a step size of 1)
-/// let mut range_frame_task = Task::new_blender_range(1, 250, 1, "PNG");
+/// let mut range_frame_task = Task::new_blender_range(1, 250, 1, "PNG", "Group A");
 ///
 /// // Tasks with a blender command must be constructed with paths before usage. 
 /// single_frame_task.construct("my/blend/file.blend", "some/out/folder/####.png");
@@ -49,7 +49,8 @@ pub struct Task{
     pub status: Status,
     pub time: JobTime,
     pub command: Command,
-    pub delivery_tag: Option<u64>
+    pub delivery_tag: Option<u64>,
+    pub group: String
 }
 
 
@@ -60,14 +61,15 @@ impl Task{
     /// # extern crate bender_job;
     /// use bender_job::Task;
     /// // Create a new Task with the command ls -a
-    /// let t = Task::new_basic("ls -a");
+    /// let t = Task::new_basic("ls -a", "GroupA");
     /// ```
-    pub fn new_basic<S>(command: S) -> Self where S: Into<String>{
+    pub fn new_basic<S>(command: S, group: S) -> Self where S: Into<String>{
         Self{
             status: Status::Waiting,
             time: JobTime::new(),
             command: Command::new(command.into()),
-            delivery_tag: None
+            delivery_tag: None,
+            group: group.into()
         }
     }
 
@@ -76,14 +78,15 @@ impl Task{
     /// # extern crate bender_job;
     /// # use bender_job::Task;
     /// // Create a new blender task that renders frame 1 as PNG
-    /// let t = Task::new_blender_single(1, "PNG");
+    /// let t = Task::new_blender_single(1, "PNG", "GroupA");
     /// ```
-    pub fn new_blender_single<S>(frame: usize, image_format: S) -> Self where S: Into<String>{
+    pub fn new_blender_single<S>(frame: usize, image_format: S, group: S) -> Self where S: Into<String>{
         Self{
             status: Status::Waiting,
             time: JobTime::new(),
             command: Command::new_blender_single(frame, image_format.into()),
-            delivery_tag: None
+            delivery_tag: None,
+            group: group.into()
         }
     }
 
@@ -92,14 +95,15 @@ impl Task{
     /// # extern crate bender_job;
     /// # use bender_job::Task;
     /// // Create a Task that renders every 10th frame from 1 to 250)
-    /// let t = Task::new_blender_range(1, 250, 10, "PNG");
+    /// let t = Task::new_blender_range(1, 250, 10, "PNG", "GroupA");
     /// ```
-    pub fn new_blender_range<S>(start: usize, end: usize, step: usize, image_format: S) -> Self where S: Into<String>{
+    pub fn new_blender_range<S>(start: usize, end: usize, step: usize, image_format: S, group: S) -> Self where S: Into<String>{
         Self{
             status: Status::Waiting,
             time: JobTime::new(),
             command: Command::new_blender_range(start, end, step, image_format.into()),
-            delivery_tag: None
+            delivery_tag: None,
+            group: group.into()
         }
     }
 
@@ -108,7 +112,7 @@ impl Task{
     /// # extern crate bender_job;
     /// # use bender_job::Task;
     /// // Create a Task that renders frame 121 to a PNG file
-    /// let t = Task::new_blender_single(121, "PNG");
+    /// let t = Task::new_blender_single(121, "PNG", "GroupA");
     ///
     /// // Let's serialize the Task and pretend we send it to another machine:
     /// let serialized = t.serialize_to_u8().expect("Serialization failed!");
@@ -139,7 +143,7 @@ impl Task{
     /// # extern crate bender_job;
     /// # use bender_job::Task;
     /// // Create a Task with the command ls -a
-    /// let t = Task::new_basic("ls -a");
+    /// let t = Task::new_basic("ls -a", "GroupA");
     ///
     /// // Convert it to a string and unwrap the Result (this will never panic for a basic task)
     /// let command = t.to_string().unwrap();
@@ -181,10 +185,10 @@ impl Task{
     /// # extern crate bender_job;
     /// # use bender_job::Task;
     /// // Create a Task with the command ls -a
-    /// let basic_task = Task::new_basic("ls -a");
+    /// let basic_task = Task::new_basic("ls -a", "GroupA");
     ///
     /// // Create a BlenderTask that renders frame 121 as a PNG
-    /// let blender_task = Task::new_blender_single(121, "PNG");
+    /// let blender_task = Task::new_blender_single(121, "PNG", "GroupA");
     /// 
     /// // Let's check for a blend file
     /// assert_eq!(basic_task.is_blender(), false);
@@ -294,7 +298,7 @@ mod tests {
     use task::{Task, Status}; 
     #[test]
     fn initial_status() {
-        let t = Task::new_basic("ls -a");
+        let t = Task::new_basic("ls -a", "GroupA");
         assert_eq!(t.status, Status::Waiting);
         assert_eq!(t.time.start, None);
         assert_eq!(t.time.finish, None);
@@ -303,7 +307,7 @@ mod tests {
 
     #[test]
     fn serialize_deserialze() {
-        let t1 = Task::new_basic("ls -a");
+        let t1 = Task::new_basic("ls -a", "GroupA");
         match t1.serialize(){
             Ok(serialized) => {
                 if let Ok(t2) = Task::deserialize(serialized) {
@@ -316,7 +320,7 @@ mod tests {
 
     #[test]
     fn serialize_deserialze_u8() {
-        let t1 = Task::new_basic("ls -a");
+        let t1 = Task::new_basic("ls -a", "GroupA");
         match t1.serialize_to_u8(){
             Ok(serialized) => {
                 if let Ok(t2) = Task::deserialize_from_u8(&serialized) {
@@ -329,9 +333,9 @@ mod tests {
 
     #[test]
     fn is_blender(){
-        let t = Task::new_blender_single(121, "PNG");
+        let t = Task::new_blender_single(121, "PNG", "GroupA");
         assert_eq!(t.is_blender(), true);
-        let t = Task::new_basic("ls -a");
+        let t = Task::new_basic("ls -a", "GroupA");
         assert_eq!(t.is_blender(), false);
     }
 
