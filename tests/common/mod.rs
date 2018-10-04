@@ -236,13 +236,13 @@ pub fn get_other_random_job() -> Job {
     jobpath.push(&id);
     let jobstring = jobpath.clone().into_os_string().into_string().expect("Unwrapping pathbuf in random job failed");
     // Create a directory for the random job
-    fs::create_dir(&jobpath).expect("Couldn't create directory for random Job..");
+    fs::create_dir(&jobpath).expect("Couldn't create directory for other random Job..");
     // Copy a.blend there
     let mut blendfile = get_blendpath();
     blendfile.push("7841becc23339d86ef0ec0a18e312ba1");
     blendfile.push("a.blend");
     jobpath.push("a.blend");
-    fs::copy(blendfile, jobpath).expect("Couldn't copy blendfile for random Job..");
+    fs::copy(blendfile, jobpath).expect("Couldn't copy blendfile for other random Job..");
     // Create a job struct
     let j = Job {
         id: id.to_string(),
