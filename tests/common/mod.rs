@@ -121,6 +121,35 @@ pub fn get_job() -> Job {
     } 
 }
 
+/// Get a Job
+#[allow(dead_code)]
+pub fn get_other_job() -> Job {
+    let jobfolder = get_jobpath();
+    Job {
+        id: "7841becc23339d86ef0ec0a18e312ba1".to_owned(),
+        paths: JobPaths::from_uploadfolder(jobfolder),
+        animation: false,
+        email: "dh@atoav.com".to_owned(),
+        version: "".to_owned(),
+        time: JobTime {
+            creation: Some(Utc.ymd(2018, 8, 23)
+                .and_hms_micro(13, 48, 40, 176598)),
+            start: None,
+            finish: None,
+            error: None,
+            abort: None,
+            pause: None
+        },
+        status: Status::new(),
+        data: HashMap::new(),
+        history: BTreeMap::new(),
+        resolution: Default::default(),
+        render: Default::default(),
+        frames: Default::default(),
+        tasks: Default::default()
+    } 
+}
+
 
 /// Get a invalid Job
 #[allow(dead_code)]

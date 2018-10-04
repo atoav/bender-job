@@ -182,8 +182,28 @@ mod job_serialize_deserialize{
     }
 
     #[test]
+    fn roundtrip_via_string_other() {
+        let j = common::get_other_job();
+        // Serialize
+        let serialized = j.serialize().unwrap();
+        // Deserialize from String
+        let deserialized = Job::from(serialized.clone());
+        assert_eq!(deserialized, j);
+    }
+
+    #[test]
     fn roundtrip_via_refstring() {
         let j = common::get_job();
+        // Serialize
+        let serialized = j.serialize().unwrap();
+        // Deserialize from &String
+        let deserialized = Job::from(&serialized);
+        assert_eq!(deserialized, j);
+    }
+
+    #[test]
+    fn roundtrip_via_refstring_other() {
+        let j = common::get_other_job();
         // Serialize
         let serialized = j.serialize().unwrap();
         // Deserialize from &String
@@ -202,8 +222,28 @@ mod job_serialize_deserialize{
     }
 
     #[test]
+    fn roundtrip_via_str_other() {
+        let j = common::get_other_job();
+        // Serialize
+        let serialized = j.serialize().unwrap();
+        // Deserialize from &str
+        let deserialized = Job::from(&serialized[..]);
+        assert_eq!(deserialized, j);
+    }
+
+    #[test]
     fn roundtrip_via_deserialize() {
         let j = common::get_job();
+        // Serialize
+        let serialized = j.serialize().unwrap();
+        // Deserialize via deserialize method
+        let deserialized = Job::deserialize(&serialized[..]).expect("Deserialization via ::deserialize() failed!");
+        assert_eq!(deserialized, j);
+    }
+
+    #[test]
+    fn roundtrip_via_deserialize_other() {
+        let j = common::get_other_job();
         // Serialize
         let serialized = j.serialize().unwrap();
         // Deserialize via deserialize method
@@ -222,8 +262,29 @@ mod job_serialize_deserialize{
     }
 
     #[test]
+    fn roundtrip_via_u8vec_other() {
+        let j = common::get_other_job();
+        // Serialize
+        let serialize = &(j.serialize_to_u8().unwrap());
+        // Deserialize via from &[u8]
+        let deserialized = Job::deserialize_from_u8(serialize).expect("Deserialization via ::deserialize_from_vec() failed!");
+        assert_eq!(deserialized, j);
+    }
+
+    #[test]
     fn roundtrip_via_filesystem() {
         let j = common::get_job();
+        // write
+        j.write_to_file().unwrap();
+        // Deserialize via from &[u8]
+        // let deserialized = Job::from(PathBuf::from(&j.paths.upload));
+        let deserialized = Job::from_datajson(&j.paths.data[..]).expect("Deserialization failed!");
+        assert_eq!(deserialized, j);
+    }
+
+    #[test]
+    fn roundtrip_via_filesystem_other() {
+        let j = common::get_other_job();
         // write
         j.write_to_file().unwrap();
         // Deserialize via from &[u8]

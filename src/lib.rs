@@ -19,6 +19,8 @@
 //! ```ignore
 //! cargo test
 //! ```
+//! *Note:* some tests might fail on your system, because the test jobs use absolute \
+//! paths. Run `cargo test` a _second_ time to test with updated paths
 //!
 //! ## Documentation
 //! If you want to view the documentation run

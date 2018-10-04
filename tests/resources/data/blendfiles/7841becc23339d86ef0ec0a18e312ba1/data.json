@@ -2,10 +2,10 @@
   "id": "7841becc23339d86ef0ec0a18e312ba1",
   "animation": true,
   "paths": {
-    "upload": "/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1",
-    "data": "/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1/data.json",
-    "blend": "/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1/a.blend",
-    "frames": "/data/frames/7841becc23339d86ef0ec0a18e312ba1",
+    "upload": "tests/resources/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1",
+    "data": "tests/resources/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1/data.json",
+    "blend": "tests/resources/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1/a.blend",
+    "frames": "tests/resources/data/frames/7841becc23339d86ef0ec0a18e312ba1",
     "filename": "a.blend"
   },
   "email": "dh@atoav.com",
