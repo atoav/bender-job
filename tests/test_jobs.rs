@@ -78,7 +78,7 @@ mod job_functions{
     /// Make sure this actually knows if a file changed on disk or not
     #[test]
     fn changed_on_disk() {
-        let j = common::get_random_job();
+        let (j, tempdir) = common::get_random_job();
         let mut x = j.clone();
         j.write_to_file().expect("Couldn't write to file!");
         assert_eq!(j.changed_on_disk().expect("A"), false);
@@ -87,20 +87,20 @@ mod job_functions{
         assert_eq!(j.changed_on_disk().expect("B"), true);
         // Clean up after yourself
         j.write_to_file().expect("Couldn't write to file!");
-        common::delete_random_job(j);
+        tempdir.close().expect("Couldn't close tempdir");
     }
 
     /// Make sure this works when there is no change on disk
     #[test]
     fn update_on_disk_no_change() {
-        let j = common::get_random_job();
+        let (j, tempdir) = common::get_random_job();
         j.write_to_file().expect("Couldn't write to file!");
         let result = match j.update_on_disk(){
             Ok(()) => true,
             Err(_e) => false
         };
         assert_eq!(result, true);
-        common::delete_random_job(j);
+        tempdir.close().expect("Couldn't close tempdir");
     }
 
     /// Make sure this works when there is no change on disk

@@ -2,6 +2,7 @@ use ::*;
 use data::Resource;
 use std::process::Command;
 use std::path::Path;
+use regex::Regex;
 
 
 /// A thing that implements the Gaffer trait can scan and optimize its own job \
@@ -26,37 +27,43 @@ impl Gaffer for Job{
         }else{
             "/usr/local/lib/optimize_blend.py".to_string()
         };
-        if Path::new(&python_path).exists() {
-            if self.status.is_validated(){
-                // Run Blend with Python
-                match Self::run_with_python(self.paths.blend.clone(), python_path.clone()){
-                    Ok(output) =>{
-                        // Deserialize from blender output
-                        match MiscInfo::deserialize(&output[..]){
-                            Ok(info) => {
-                                self.incorporate_info(info);
-                                self.set_scan();
-                            },
-                            Err(err) => {
-                                let error_message = format!("Error: failed to deserialize output to MiscInfo:\n{}\nOutput:\n{}", err, output);
-                                println!("{}", error_message);
-                                self.set_error(error_message);
+        if Path::new(&self.paths.blend).exists(){
+            if Path::new(&python_path).exists(){
+                if self.status.is_validated(){
+                    // Run Blend with Python
+                    match Self::run_with_python(self.paths.blend.as_str(), python_path.as_str()){
+                        Ok(output) =>{
+                            // Deserialize from blender output
+                            match MiscInfo::deserialize(&output[..]){
+                                Ok(info) => {
+                                    self.incorporate_info(info);
+                                    self.set_scan();
+                                },
+                                Err(err) => {
+                                    let error_message = format!("Error: failed to deserialize output to MiscInfo: {}\nOutput was: \"{}\"", err, output);
+                                    println!("{}", error_message);
+                                    self.set_error(error_message);
+                                }
                             }
+                        },
+                        Err(err) =>{
+                            let error_message = format!("Error: while running with {}: {}", python_path, err);
+                            println!("{}", error_message);
+                            self.set_error(error_message);
                         }
-                    },
-                    Err(err) =>{
-                        let error_message = format!("Error: while running with {}: {}", python_path, err);
-                        println!("{}", error_message);
-                        self.set_error(error_message);
                     }
+                }else{
+                    let error_message = format!("Warning: Couldn't scan_and_optimize() because job wasn't validated");
+                    println!("{}", error_message);
+                    self.set_error(error_message);
                 }
             }else{
-                let error_message = format!("Warning: Couldn't scan_and_optimize() because job wasn't validated");
-                println!("{}", error_message);
+                let error_message = format!("Error: Didn't find optimize_blend.py at {}\nYou might try to reinstall.", python_path);
+                println!("{}", error_message); 
                 self.set_error(error_message);
             }
         }else{
-            let error_message = format!("Error: Didn't find optimize_blend.py at {}\nYou might try to reinstall.", python_path);
+            let error_message = format!("Error: Didn't find blendfile at {}", self.paths.blend);
             println!("{}", error_message); 
             self.set_error(error_message);
         }
@@ -71,6 +78,13 @@ impl Gaffer for Job{
     fn run_with_python<S>(path: S, python_path: S) -> GenResult<String>where S: Into<String>{
         let path = path.into();
         let python_path = python_path.into();
+
+        // Compile the pattern lazy, so we don't need to generate a pattern every
+        // time rum_with_python() gets a call
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r#"\{"render""#).unwrap();
+        }
+
         // Pass variables as environment variables, let blender run optimize_blend.py
         // to set some things straight and save a new file
         let command = Command::new("blender")
@@ -83,12 +97,16 @@ impl Gaffer for Job{
                 .output()?;
 
         // Collect all lines starting with "{" for JSON
-        let output: String = String::from_utf8(command.stdout)?
+        let output: String = String::from_utf8(command.stdout.clone())?
             .lines()
-            .filter(|line|line.starts_with("{"))
+            .filter(|line|RE.is_match(line))
             .collect();
 
-        Ok(output)
+        // Error on empty string
+        match output == "".to_string(){
+            true => Err(From::from(String::from_utf8(command.stdout).unwrap())),
+            false => Ok(output)
+        }
     }
 
 

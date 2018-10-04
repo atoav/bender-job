@@ -38,6 +38,8 @@ extern crate serde;
 extern crate serde_json;
 extern crate chrono;
 extern crate bender_bouncer;
+extern crate regex;
+#[macro_use] extern crate lazy_static;
 
 use chrono::prelude::*;
 use chrono::Utc;
