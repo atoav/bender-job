@@ -128,7 +128,7 @@ pub fn get_other_job() -> Job {
     Job {
         id: "7841becc23339d86ef0ec0a18e312ba1".to_owned(),
         paths: JobPaths::from_uploadfolder(jobfolder),
-        animation: false,
+        animation: true,
         email: "dh@atoav.com".to_owned(),
         version: "".to_owned(),
         time: JobTime {

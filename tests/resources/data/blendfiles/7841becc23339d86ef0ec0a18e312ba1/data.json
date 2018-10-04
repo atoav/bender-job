@@ -1,6 +1,6 @@
 {
   "id": "7841becc23339d86ef0ec0a18e312ba1",
-  "animation": false,
+  "animation": true,
   "paths": {
     "upload": "/home/atoav/Blender/bender-job/tests/resources/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1",
     "data": "/home/atoav/Blender/bender-job/tests/resources/data/blendfiles/7841becc23339d86ef0ec0a18e312ba1/data.json",
