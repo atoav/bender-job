@@ -2,12 +2,12 @@
 //! from `data.json` files. The deserialization yields a Job struct.  
 //!
 //! It can be loaded into a rust project via git by putting this in your Cargo.toml:  
-//! ```ignore
+//! ```text
 //! [dependencies]
 //! bender_job = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-job.git" }
 //! ```
 //! To update this run
-//! ```ignore
+//! ```text
 //! cargo clean
 //! cargo update
 //! ```
@@ -16,7 +16,7 @@
 //! The libary is implemented with a extensive amount of tests to make
 //! sure that repeated deserialization/serialization won't introduce
 //! losses or glitches to the `data.json`. The tests can be run with
-//! ```ignore
+//! ```text
 //! cargo test
 //! ```
 //! *Note:* some tests might fail on your system, because the test jobs use absolute \
@@ -24,7 +24,7 @@
 //!
 //! ## Documentation
 //! If you want to view the documentation run
-//! ```ignore
+//! ```text
 //! cargo doc --no-deps --open
 //! ```
 //! 

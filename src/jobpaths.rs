@@ -3,7 +3,7 @@ use ::*;
 
 /// A JobPath Struct holds all path-related data for the Job
 /// It can be created from a uploadfolder
-/// ```ignore
+/// ```no run
 /// use bender_job::JobPaths;
 /// let j = JobPaths::from_uploadfolder("/data/blendfiles/5873c0033e78b222bec2cb2a221487cf");
 /// ```
