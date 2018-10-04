@@ -124,7 +124,7 @@ pub fn get_job() -> Job {
 /// Get a Job
 #[allow(dead_code)]
 pub fn get_other_job() -> Job {
-    let jobfolder = get_jobpath();
+    let jobfolder = get_other_jobpath();
     Job {
         id: "7841becc23339d86ef0ec0a18e312ba1".to_owned(),
         paths: JobPaths::from_uploadfolder(jobfolder),

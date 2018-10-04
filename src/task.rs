@@ -48,8 +48,7 @@ use ::*;
 pub struct Task{
     pub status: Status,
     pub time: JobTime,
-    pub command: Command,
-    pub delivery_tag: Option<u64>
+    pub command: Command
 }
 
 
@@ -66,8 +65,7 @@ impl Task{
         Self{
             status: Status::Waiting,
             time: JobTime::new(),
-            command: Command::new(command.into()),
-            delivery_tag: None
+            command: Command::new(command.into())
         }
     }
 
@@ -82,8 +80,7 @@ impl Task{
         Self{
             status: Status::Waiting,
             time: JobTime::new(),
-            command: Command::new_blender_single(frame, image_format.into()),
-            delivery_tag: None
+            command: Command::new_blender_single(frame, image_format.into())
         }
     }
 
@@ -98,8 +95,7 @@ impl Task{
         Self{
             status: Status::Waiting,
             time: JobTime::new(),
-            command: Command::new_blender_range(start, end, step, image_format.into()),
-            delivery_tag: None
+            command: Command::new_blender_range(start, end, step, image_format.into())
         }
     }
 
