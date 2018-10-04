@@ -1,12 +1,11 @@
 extern crate bender_job;
 extern crate chrono;
-mod common;
 
 
 
 /// Test a Jobs functions
 mod status{
-    use common;
+    use bender_job::common;
 
     #[test]
     fn validate() {

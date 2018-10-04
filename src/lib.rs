@@ -81,6 +81,8 @@ pub use bouncer::Bouncer;
 pub mod history;
 pub use history::{History, HistoryMethods};
 
+pub mod common;
+
 
 
 pub type GenError = Box<std::error::Error>;

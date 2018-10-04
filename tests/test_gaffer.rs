@@ -1,13 +1,11 @@
 extern crate bender_job;
 extern crate chrono;
-mod common;
 
 
 
 /// Test the Gaffer trait
 mod gaffer{
-    use common;
-    use bender_job::{Gaffer, Render, Frames, Resolution};
+    use bender_job::{Gaffer, Render, Frames, Resolution, common};
 
     /// Test if scan_and_optimize() errors when passed a unverified job
     #[test]

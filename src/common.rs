@@ -1,13 +1,11 @@
+use ::*;
 extern crate chrono;
-extern crate bender_job;
 extern crate rand;
 extern crate tempdir;
 
 /// Commonly used functions
 use std::path::PathBuf;
-use bender_job::{Job, JobPaths, JobTime, Status};
 use chrono::Utc;
-use chrono::prelude::*;
 use std::collections::{HashMap, BTreeMap};
 use self::rand::{thread_rng, Rng};
 use std::fs;

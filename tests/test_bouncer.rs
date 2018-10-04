@@ -1,12 +1,11 @@
 extern crate bender_job;
 extern crate chrono;
-mod common;
 
 
 
 /// Test the Gaffer trait
 mod bouncer{
-    use common;
+    use bender_job::common;
 
     #[test]
     fn allow() {

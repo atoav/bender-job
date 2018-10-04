@@ -1,12 +1,12 @@
 extern crate bender_job;
 extern crate chrono;
-mod common;
+
 
 
 
 /// Test a Jobs functions
 mod job_functions{
-    use common;
+    use bender_job::common;
 
     #[test]
     fn display() {
@@ -129,8 +129,7 @@ mod job_functions{
 
 
 mod job_creation{
-    use common;
-    use bender_job::Job;
+    use bender_job::{Job, common};
     use std::path::PathBuf;
 
     /// Test if the Job read from PathBuf is equal to a job created via 
@@ -168,8 +167,7 @@ mod job_creation{
 
 /// Test the serialization and deserialization of a job
 mod job_serialize_deserialize{
-    use common;
-    use bender_job::Job;
+    use bender_job::{Job, common};
 
     #[test]
     fn roundtrip_via_string() {
