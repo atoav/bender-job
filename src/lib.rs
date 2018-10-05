@@ -51,6 +51,8 @@ use std::path::PathBuf;
 use std::error::Error;
 use std::collections::VecDeque;
 
+
+// Modules Structure
 pub mod jobtime;
 pub use jobtime::JobTime;
 
@@ -87,7 +89,7 @@ pub mod job;
 pub use job::Job;
 
 
-
+// Generic Error Types
 pub type GenError = Box<std::error::Error>;
 pub type GenResult<T> = Result<T, GenError>;
 
