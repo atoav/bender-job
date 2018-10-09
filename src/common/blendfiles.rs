@@ -3,6 +3,32 @@ use common::path::get_resourcepath;
 use std::fs;
 
 
+pub type Jobs = HashMap<String, Job>;
+
+pub trait JobManager{
+    /// Return a clone of self
+    fn all(&self) -> Jobs;
+
+    /// Filter all Jobs out that contain this string in their name
+    fn filter_by_name<S>(&self, name: S) -> Jobs where S: Into<String>;
+}
+
+impl JobManager for Jobs{
+    fn all(&self) -> Jobs{
+        self.clone()
+    }
+
+    fn filter_by_name<S>(&self, name: S) -> Jobs where S: Into<String> {
+        let name = name.into();
+        self.iter()
+            .filter(|&(_path, job)| job.paths.filename.to_lowercase().contains(name.to_lowercase().as_str()))
+            .map(|(k, v)|(k.clone(), v.clone()))
+            .collect()
+    }
+}
+
+
+
 
 /// Get Blendfiles in ./tests/resources/blendfiles
 fn get_blendfiles() -> Vec<PathBuf>{
@@ -20,9 +46,10 @@ fn get_blendfiles() -> Vec<PathBuf>{
 
 
 
-
-fn get_jobmap() -> HashMap<String, Job>{
-    let mut h = HashMap::new();
+/// Put all jobs found by the get_blendfiles() function into a HashMap with the
+/// path as key and the Job as value.
+fn get_jobmap() -> Jobs{
+    let mut h = Jobs::new();
     let paths = get_blendfiles();
     paths.iter()
          .for_each(|path|{
@@ -38,3 +65,4 @@ fn get_jobmap() -> HashMap<String, Job>{
         });
     h
 }
+
