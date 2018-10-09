@@ -1,7 +1,7 @@
 use ::*;
 extern crate chrono;
 extern crate rand;
-extern crate tempdir;
+extern crate tempfile;
 
 /// Commonly used functions
 use std::path::PathBuf;
@@ -9,13 +9,15 @@ use chrono::Utc;
 use std::collections::{HashMap, BTreeMap};
 use self::rand::{thread_rng, Rng};
 use std::fs;
-use self::tempdir::TempDir;
+use self::tempfile::{Builder, TempDir};
 
 pub mod path;
 pub use self::path::*;
 
 pub mod blendfiles;
 pub use self::blendfiles::*;
+
+
 
 // Return a random id
 #[allow(dead_code)]
@@ -138,14 +140,20 @@ pub fn get_other_random_job() -> (Job, TempDir) {
 pub fn get_random_job_from<S>(source_id: S, source_filename: S) -> (Job, TempDir) where S: Into<String>{
     let source_id = source_id.into();
     let source_filename = source_filename.into();
+    
     // Create a random ID
     let id = random_id();
     let mut jobpath = get_data_blendfilespath();
     jobpath.push(&id);
+    
     // Create a temp dir
     let jobpath: PathBuf = jobpath.to_path_buf();
     let jobpath = jobpath.into_os_string().into_string().unwrap();
-    let tempdir = TempDir::new(jobpath.as_str()).expect("Couldn't create directory for other random Job..");
+    let tempdir = Builder::new()
+            .prefix(jobpath.as_str())
+            .tempdir()
+            .expect("Couldn't create directory for random Job..");
+
     // Copy blendfile
     let mut source_file_path = get_data_blendfilespath();
     source_file_path.push(source_id.as_str());
@@ -153,6 +161,7 @@ pub fn get_random_job_from<S>(source_id: S, source_filename: S) -> (Job, TempDir
     let temp_blendfile = tempdir.path().join(source_filename.as_str());
     let error_message = format!("Couldn't copy blendfile for random Job from {:?} to {:?}", source_file_path, temp_blendfile);
     fs::copy(&source_file_path, &temp_blendfile).expect(error_message.as_str()); 
+    
     // Copy data.json
     let mut source_file_path = get_data_blendfilespath();
     source_file_path.push(source_id.as_str());
@@ -160,11 +169,13 @@ pub fn get_random_job_from<S>(source_id: S, source_filename: S) -> (Job, TempDir
     let temp_datafile = tempdir.path().join("data.json");
     let error_message = format!("Couldn't copy blendfile for random Job from {:?} to {:?}", source_file_path, temp_datafile);
     fs::copy(&source_file_path, &temp_datafile).expect(error_message.as_str()); 
-    // Create uploadfolder
+
+    // Get a string representing the uploadfolder
     let uploadfolder: PathBuf = tempdir.path().to_path_buf();
     let uploadfolder: String = uploadfolder.into_os_string().into_string().unwrap();
-    // Create a job struct
-    let j = Job {
+
+    // Construct Job with fixed creation time (for comparison)
+    let job = Job {
         id: id.to_string(),
         paths: JobPaths::from_uploadfolder(uploadfolder.as_str()),
         animation: false,
@@ -187,8 +198,9 @@ pub fn get_random_job_from<S>(source_id: S, source_filename: S) -> (Job, TempDir
         frames: Default::default(),
         tasks: Default::default()
     };
+
     // Create data.json
-    j.write_to_file().expect("Couldn't write new random job to file!");
+    job.write_to_file().expect("Couldn't write new random job to file!");
     
-    (j, tempdir)
+    (job, tempdir)
 }

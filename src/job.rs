@@ -199,6 +199,50 @@ impl Job{
         Self::from_datajson(p)
     }
 
+
+
+    // #[serde(default)]
+    // pub version: String,
+    // pub time: JobTime,
+    // pub status: Status,
+    // pub data: HashMap<String, String>,
+    // pub history: History,
+    // #[serde(default)]
+    // pub resolution: Resolution,
+    // #[serde(default)]
+    // pub render: Render,
+    // #[serde(default)]
+    // pub frames: Frames,
+    // #[serde(default)]
+    // pub tasks: VecDeque<Task>    
+
+    pub fn new<S>(blendpath: S, email: S, animation: bool) -> Job 
+    where S: Into<String>{
+        let blendpath = blendpath.into();
+        let email = email.into();
+        let mut id = PathBuf::from(&blendpath);
+        id.pop();
+        let id = id.file_name().expect("Error when aquiring id from path");
+        let id = id.to_os_string().into_string().unwrap();
+
+        Job{
+            id: id,
+            animation: animation,
+            email: email,
+            paths: JobPaths::from_blendpath(blendpath),
+            version: "".to_string(),
+            time: JobTime::new(),
+            status: Status::default(),
+            data: HashMap::<String, String>::new(),
+            history: History::new(),
+            resolution: Resolution::default(),
+            render: Render::default(),
+            frames: Frames::default(),
+            tasks: VecDeque::<Task>::new()
+
+        }
+    }
+
     /// Convenience Function to create a Job from the directory containing a
     /// data.json.
     /// ```
