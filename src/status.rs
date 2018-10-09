@@ -76,6 +76,12 @@ impl Status{
     }
 }
 
+impl Default for Status {
+    fn default() -> Status {
+        Status::new()
+    }
+}
+
 
 
 impl Status{
