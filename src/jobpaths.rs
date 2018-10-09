@@ -19,7 +19,7 @@ pub struct JobPaths{
 
 impl JobPaths{
 
-    /// You can create a JobPath via `JobPaths::from_uploadfolder`
+    /// You can create a JobPath via `JobPaths::from_uploadfolder("data/<id>")`
     pub fn from_uploadfolder<S>(p: S) -> Self where S: Into<String>{
         // lets say we have a path called "/data/blendfiles/5873c0033e78b222bec2cb2a221487cf"
         let s = p.into();
@@ -49,6 +49,39 @@ impl JobPaths{
             frames: frames.into_os_string().into_string().unwrap(),
             filename: filename.to_os_string().into_string().unwrap()
         }
+    }
+
+    /// You can create a JobPath via `JobPaths::from_blendpath("data/<id>/foo.blend")`
+    pub fn from_blendpath<S>(blend: S) -> JobPaths where S: Into<String>{
+        let blend = blend.into();
+        // Upload folder
+        let mut uploadfolder = PathBuf::from(&blend);
+        uploadfolder.pop();
+        // Path for folder
+        let mut id = PathBuf::from(&blend);
+        id.pop();
+        let id = id.file_name().expect("Error when aquiring id from path");
+        // Creata a path to the data.json (assume it is called "data.json")
+        let mut data = PathBuf::from(&blend);
+        data.push("data.json");
+        // Create frames (assume it is ../../frames/<id> relative to the blendfile)
+        let mut frames = PathBuf::from(&blend);
+        frames.pop();
+        frames.pop();
+        frames.push("frames");
+        frames.push(id);
+        // Return filename of the blend
+        let filename = PathBuf::from(&blend);
+        let filename = filename.file_name().unwrap();
+
+        JobPaths{
+            upload: uploadfolder.into_os_string().into_string().unwrap(),
+            data: data.into_os_string().into_string().unwrap(),
+            blend: blend,
+            frames: frames.into_os_string().into_string().unwrap(),
+            filename: filename.to_os_string().into_string().unwrap()
+        }
+
     }
 
     /// Returns the ID used in the uploaddirectory by returning the last element of the upload path
