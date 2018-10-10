@@ -17,6 +17,9 @@ pub use self::path::*;
 pub mod blendfiles;
 pub use self::blendfiles::*;
 
+pub mod queue;
+pub use self::queue::*;
+
 
 
 // Return a random id

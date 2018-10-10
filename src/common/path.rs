@@ -45,6 +45,24 @@ pub fn get_blendfiles() -> Vec<PathBuf>{
     vec
 }
 
+/// Get a Blendfile from `./tests/resources/blendfiles` by name, return a \
+/// Option<PathBuf> for the file found. This is case sensitive!
+pub fn get_blendfile_by_name<S>(name: S) -> Option<PathBuf> where S: Into<String>{
+    let name = name.into();
+    let blendfiles = get_blendfiles();
+    // Find a blendfile with `name` in its filename and a Option<PathBuf> for the
+    // first match
+    blendfiles.into_iter()
+              .filter(|path| path.file_name()
+                                .unwrap()
+                                .to_string_lossy()
+                                .contains(name.as_str()))
+              .collect::<Vec<PathBuf>>()
+              .first()
+              .cloned()
+
+}
+
 
 /// Get the path to a example blend file
 #[allow(dead_code)]
