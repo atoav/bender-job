@@ -1,7 +1,11 @@
+//! The common module contains all kind of functionality used by tests
+
+
 use ::*;
 extern crate chrono;
 extern crate rand;
 extern crate tempfile;
+
 
 /// Commonly used functions
 use std::path::PathBuf;
@@ -22,7 +26,7 @@ pub use self::queue::*;
 
 
 
-// Return a random id
+/// Generate a cryptographically random id with 32 alphanumeric characters
 #[allow(dead_code)]
 pub fn random_id() -> String {
     const CHARSET: &[u8] = b"abcdefghijklmnopqrstuvwxyz0123456789";

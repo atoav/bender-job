@@ -1,3 +1,10 @@
+//! The path module provides common path functions for the rest of the common \
+//! modules. This mainly involves getting paths from the `./tests/resources`
+//! directory
+//!
+//! 
+
+
 use ::*;
 
 

@@ -1,10 +1,10 @@
 extern crate bender_job;
 
-use bender_job::common::blendfiles::temporary::random::multi::{create_n_completely_random_jobs};
+use bender_job::common::blendfiles::temporary;
 
 
 fn main(){
-    let jobs = create_n_completely_random_jobs(10);
+    let jobs = temporary::random::multi::create_n_jobs(10);
     for job in jobs {
         println!("{:#?}", job);
         println!("\n\n\n\n-------------------------------------------------------------\n\n\n\n")
