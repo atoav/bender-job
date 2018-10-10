@@ -10,6 +10,7 @@ pub fn get_resourcepath() -> PathBuf {
     buf
 }
 
+
 /// Get a path to the blendfiles folder in ./tests/resources
 #[allow(dead_code)]
 pub fn get_blendfilespath() -> PathBuf {
@@ -29,6 +30,21 @@ pub fn get_data_blendfilespath() -> PathBuf {
 }
 
 
+/// Get all the Blendfiles in `./tests/resources/blendfiles` and return a 
+/// Vector of PathBufs
+pub fn get_blendfiles() -> Vec<PathBuf>{
+    let blendfilespath = get_blendfilespath();
+    let paths = fs::read_dir(blendfilespath).unwrap();
+    let mut vec = Vec::new();
+    for entry in paths{
+        let path = entry.expect("Unwrapping Entry failed").path();
+        if path.is_file() {
+            vec.push(path);
+        }
+    }
+    vec
+}
+
 
 /// Get the path to a example blend file
 #[allow(dead_code)]
@@ -39,6 +55,7 @@ pub fn get_blendfile() -> PathBuf {
     p
 }
 
+
 /// Get the path to a invalid example blend file
 #[allow(dead_code)]
 pub fn get_invalid_blendfile() -> PathBuf {
@@ -47,6 +64,7 @@ pub fn get_invalid_blendfile() -> PathBuf {
     p.push("invalid.blend");
     p
 }
+
 
 /// Get the path to a different example blend file
 #[allow(dead_code)]
@@ -68,6 +86,7 @@ pub fn get_jobpath() -> String {
     format!("{:?}", buf).replace("\"", "")
 }
 
+
 /// Get a Jobpath to a invalid blendfile
 #[allow(dead_code)]
 pub fn get_invalid_jobpath() -> String {
@@ -75,6 +94,7 @@ pub fn get_invalid_jobpath() -> String {
     buf.push("9ac9b18f5e6d4f329acda411e3de8cde");
     format!("{:?}", buf).replace("\"", "")
 }
+
 
 /// Get a Jobpath to a different blendfile
 #[allow(dead_code)]
