@@ -21,9 +21,6 @@ pub use self::path::*;
 pub mod blendfiles;
 pub use self::blendfiles::*;
 
-pub mod queue;
-pub use self::queue::*;
-
 
 
 /// Generate a cryptographically random id with 32 alphanumeric characters

@@ -8,13 +8,11 @@
 //! via bender-config. They are _not_ deleted automatically, so you have to clean \
 //! up yourself.  
 //!
-//! **Deterministic**  
 //! Deterministic jobs are jobs with defined deterministic parameters, so you can \
 //! compare test results in a easy and meaningful way:  
 //! [permanent::deterministic::single](blendfiles/permanent/deterministic/single/index.html)  
 //! [permanent::deterministic::multi](blendfiles/permanent/deterministic/multi/index.html)  
 //!
-//! **Random**  
 //! Random jobs use a set of randomized parameters and are not deterministic in \
 //! the exact values beeing used:  
 //! [permanent::random::single](blendfiles/permanent/random/single/index.html)  
@@ -24,17 +22,51 @@
 //! Temporary jobs are created in `./tests/resources/blendfiles`. They should \
 //! get automatically deleted after going out of scope.  
 //!
-//! **Deterministic**  
 //! Deterministic jobs are jobs with defined deterministic parameters, so you can \
 //! compare test results in a easy and meaningful way: 
 //! [temporary::deterministic::single](blendfiles/temporary/deterministic/single/index.html)  
 //! [temporary::deterministic::multi](blendfiles/temporary/deterministic/multi/index.html)  
 //! 
-//! **Random**  
 //! Random jobs use a set of randomized parameters and are not deterministic in \
 //! the exact values beeing used:  
 //! [temporary::random::single](blendfiles/temporary/random/single/index.html)  
 //! [temporary::random::multi](blendfiles/temporary/random/multi/index.html)  
+//!
+//! # Creation
+//! You can use the following functions to generate permanent deterministic jobs \
+//! (from files):  
+//! [permanent::deterministic::single::get_job(job_selector, id)]()  
+//! [permanent::deterministic::multi::get_all_jobs()]()  
+//! [permanent::deterministic::multi::get_valid_jobs()]()  
+//! [permanent::deterministic::multi::get_invalid_jobs()]()  
+//! [permanent::deterministic::multi::get_qu()]()  
+//! [permanent::deterministic::multi::get_qu_imbalanced()]()  
+//!
+//! You can use the following functions to generate permanent random jobs \
+//! (from files):  
+//! [permanent::random::single::get_job()]()  
+//! [permanent::random::single::get_still_job()]()  
+//! [permanent::random::single::get_animation_job()]()  
+//! [permanent::random::multi::create_n_jobs(n)]()  
+//! [permanent::random::multi::create_n_still_jobs(n)]()  
+//! [permanent::random::multi::create_n_animation_jobs(n)]()  
+//!
+//! Or following functions to generate temporary jobs (from files):  
+//! [temporary::deterministic::single::get_job(job_selector, id)]()  
+//! [temporary::deterministic::multi::get_all_jobs()]()  
+//! [temporary::deterministic::multi::get_valid_jobs()]()  
+//! [temporary::deterministic::multi::get_invalid_jobs()]()  
+//! [temporary::deterministic::multi::get_qu()]()  
+//! [temporary::deterministic::multi::get_qu_imbalanced()]()  
+//!
+//! You can use the following functions to generate temporary random jobs \
+//! (from files):  
+//! [temporary::random::single::get_job()]()  
+//! [temporary::random::single::get_still_job()]()  
+//! [temporary::random::single::get_animation_job()]()  
+//! [temporary::random::multi::create_n_jobs(n)]()  
+//! [temporary::random::multi::create_n_still_jobs(n)]()  
+//! [temporary::random::multi::create_n_animation_jobs(n)]()  
 
 extern crate bender_config;
 use job::Job;
@@ -120,6 +152,22 @@ fn get_deterministic_job(job_selector: String, id: String, f: &Fn(String, String
             if !id_defined { id = "250frameforcycleswith20sperframe".to_string(); }
             apply_job_function("qu_1-250_20s_1080p_x0.5.blend", id.as_str(), "dh@atoav.com", true, f)
         },
+        "qu 1s B" =>{
+            if !id_defined { id = "250framesforcycleswith1sperfrbbb".to_string(); }
+            apply_job_function("qu_1-250_1s_1080p_x0.25.blend", id.as_str(), "foo@bar.com", true, f)
+        },
+        "qu 5s B" =>{
+            if !id_defined { id = "250framesforcycleswith5sperfrbbb".to_string(); }
+            apply_job_function("qu_1-250_5s_1080p_x0.5.blend", id.as_str(), "foo@bar.com", true, f)
+        },
+        "qu 11s B" =>{
+            if !id_defined { id = "250frameforcycleswith11sperfrbbb".to_string(); }
+            apply_job_function("qu_1-250_11s_1080p_x0.5.blend", id.as_str(), "foo@bar.com", true, f)
+        },
+        "qu 20s B" =>{
+            if !id_defined { id = "250frameforcycleswith20sperfrbbb".to_string(); }
+            apply_job_function("qu_1-250_20s_1080p_x0.5.blend", id.as_str(), "foo@bar.com", true, f)
+        },
         _ => {
             // Default job if everything fails
             apply_job_function("cycles_1-250.blend", random_id().as_str(), "dh@atoav.com", true, f)
@@ -143,7 +191,8 @@ pub mod permanent{
     use std::fs;
     use std::collections::{HashMap, BTreeMap};
 
-
+    /// functions regarding the creation of permanent deterministic jobs (single 
+    /// or multi) with a non-temporary direcory beeing created
     pub mod deterministic{
         /// Creation of permanent deterministic jobs
         pub mod single{
@@ -164,19 +213,174 @@ pub mod permanent{
 
         /// Creation of Vectors filled with n ...
         pub mod multi{
-            // pub fn 
+            use job::Job;
+            use common::blendfiles::permanent::deterministic;
+
+            /// Create all jobs defined in the get_deterministic_job function.
+            /// This includes invalid jobs
+            pub fn create_all_jobs() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("animation", ""));
+                vec.push(deterministic::single::get_job("still", ""));
+                vec.push(deterministic::single::get_job("step10", ""));
+                vec.push(deterministic::single::get_job("invalid", ""));
+                vec.push(deterministic::single::get_job("packed", ""));
+                vec.push(deterministic::single::get_job("blenderrender", ""));
+                vec.push(deterministic::single::get_job("highres", ""));
+                vec.push(deterministic::single::get_job("video", ""));
+                vec.push(deterministic::single::get_job("twoscenes", ""));
+                vec.push(deterministic::single::get_job("qu 1s", ""));
+                vec.push(deterministic::single::get_job("qu 5s", ""));
+                vec.push(deterministic::single::get_job("qu 11s", ""));
+                vec.push(deterministic::single::get_job("qu 20s", ""));
+                vec
+            }
+
+            /// Create all valid jobs defined in the get_deterministic_job function.
+            pub fn create_valid_jobs() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("animation", ""));
+                vec.push(deterministic::single::get_job("still", ""));
+                vec.push(deterministic::single::get_job("step10", ""));
+                vec.push(deterministic::single::get_job("packed", ""));
+                vec.push(deterministic::single::get_job("blenderrender", ""));
+                vec.push(deterministic::single::get_job("highres", ""));
+                vec.push(deterministic::single::get_job("video", ""));
+                vec.push(deterministic::single::get_job("twoscenes", ""));
+                vec.push(deterministic::single::get_job("qu 1s", ""));
+                vec.push(deterministic::single::get_job("qu 5s", ""));
+                vec.push(deterministic::single::get_job("qu 11s", ""));
+                vec.push(deterministic::single::get_job("qu 20s", ""));
+                vec
+            }
+
+            /// Create invalid jobs defined in the get_deterministic_job function.
+            pub fn create_invalid_jobs() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("invalid", ""));
+                vec
+            }
+
+            /// Create a simple queue with two people and two jobs
+            pub fn create_qu() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("qu 1s", ""));
+                vec.push(deterministic::single::get_job("qu 1s B", ""));
+                vec
+            }
+
+            /// Create a simple queue with two people and two jobs (imbalanced)
+            pub fn create_qu_imbalanced() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("qu 5s", ""));
+                vec.push(deterministic::single::get_job("qu 1s B", ""));
+                vec
+            }
         }
     }
 
+    /// functions regarding the creation of permanent random jobs (single or multi)
+    /// with a temp directory beeing created
     pub mod random{
         /// Creation of permanent random jobs
         pub mod single{
-            // use ::*;
+            use ::*;
+            use common::random_id;
+            use common::blendfiles::permanent;
+            use common::rand::{thread_rng, Rng};
+
+            /// Create a randomized job
+            pub fn get_job<S>(source_path: S) -> Job where S: Into<String>{
+                let source_path = source_path.into();
+                let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
+                let mut rng = thread_rng();
+                let email = rng.choose(&emails).unwrap().to_string();
+                let id = random_id();
+                let animation = rng.gen_bool(0.5);
+                permanent::from_blendfile(source_path, id, email, animation)
+            }
+
+
+            /// Create a randomized job (still)
+            pub fn get_still_job<S>(source_path: S) -> Job where S: Into<String>{
+                let source_path = source_path.into();
+                let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
+                let mut rng = thread_rng();
+                let email = rng.choose(&emails).unwrap().to_string();
+                let id = random_id();
+                permanent::from_blendfile(source_path, id, email, false)
+            }
+
+
+            /// Create a randomized job (animation)
+            pub fn get_animation_job<S>(source_path: S) -> Job where S: Into<String>{
+                let source_path = source_path.into();
+                let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
+                let mut rng = thread_rng();
+                let email = rng.choose(&emails).unwrap().to_string();
+                let id = random_id();
+                permanent::from_blendfile(source_path, id, email, true)
+            }
         }
 
         /// Creation of Vectors filled with n ...
         pub mod multi{
-            // use ::*;
+            use ::*;
+            use common::blendfiles::permanent;
+            use common::path;
+            use common::rand::{thread_rng, Rng};
+
+            /// Create n jobs that are completely random. That means they are either valid or
+            /// invalid, still or animation and have random email adresses
+            pub fn create_n_jobs(n: usize) -> Vec<Job>{
+                let mut vec = Vec::<Job>::with_capacity(n);
+                let blendfiles = path::get_blendfiles();
+                let mut rng = thread_rng();
+                for _ in 0 .. n{
+                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
+                    vec.push(permanent::random::single::get_job(blendfile));
+                }
+                vec
+            }
+
+            /// Create n random still jobs. That means they have random email adresses
+            pub fn create_n_still_jobs(n: usize) -> Vec<Job>{
+                let mut vec = Vec::<Job>::with_capacity(n);
+                let blendfiles = path::get_blendfiles();
+
+                // Filter all files containing invalid in their filename
+                let blendfiles: Vec<PathBuf> = blendfiles.iter()
+                    .filter(|path| path.file_name().unwrap().to_string_lossy().contains("invalid"))
+                    .cloned()
+                    .collect();
+                let mut rng = thread_rng();
+                for _ in 0 .. n{
+                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
+                    vec.push(permanent::random::single::get_still_job(blendfile));
+                }
+                vec
+            }
+
+            /// Create n random animation jobs. That means they have random email adresses
+            pub fn create_n_animation_jobs(n: usize) -> Vec<Job>{
+                let mut vec = Vec::<Job>::with_capacity(n);
+                let blendfiles = path::get_blendfiles();
+
+                // Filter all files containing invalid in their filename
+                let blendfiles: Vec<PathBuf> = blendfiles.iter()
+                    .filter(|path| path.file_name().unwrap().to_string_lossy().contains("invalid"))
+                    .cloned()
+                    .collect();
+                let mut rng = thread_rng();
+                for _ in 0 .. n{
+                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
+                    vec.push(permanent::random::single::get_animation_job(blendfile));
+                }
+                vec
+            }
         }
     }
 
@@ -263,8 +467,8 @@ pub mod temporary{
     use common::tempfile::Builder;
 
 
-    /// Creation of temporary deterministic Jobs (with a temporary direcory 
-    /// beeing created)
+    /// functions regarding the creation of temporary random jobs (single or 
+    /// multi) with a non-temporary direcory beeing created
     pub mod deterministic{
 
         /// Creation of temporary deterministic _single_ jobs
@@ -282,14 +486,76 @@ pub mod temporary{
 
         /// Creation of Vectors filled with n deterministic temporary jobs
         pub mod multi{
-            // TODO: Not needed now, implement later
+            use job::Job;
+            use common::blendfiles::temporary::deterministic;
 
+            /// Create all jobs defined in the get_deterministic_job function.
+            /// This includes invalid jobs
+            pub fn create_all_jobs() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("animation"));
+                vec.push(deterministic::single::get_job("still"));
+                vec.push(deterministic::single::get_job("step10"));
+                vec.push(deterministic::single::get_job("invalid"));
+                vec.push(deterministic::single::get_job("packed"));
+                vec.push(deterministic::single::get_job("blenderrender"));
+                vec.push(deterministic::single::get_job("highres"));
+                vec.push(deterministic::single::get_job("video"));
+                vec.push(deterministic::single::get_job("twoscenes"));
+                vec.push(deterministic::single::get_job("qu 1s"));
+                vec.push(deterministic::single::get_job("qu 5s"));
+                vec.push(deterministic::single::get_job("qu 11s"));
+                vec.push(deterministic::single::get_job("qu 20s"));
+                vec
+            }
+
+            /// Create all valid jobs defined in the get_deterministic_job function.
+            pub fn create_valid_jobs() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("animation"));
+                vec.push(deterministic::single::get_job("still"));
+                vec.push(deterministic::single::get_job("step10"));
+                vec.push(deterministic::single::get_job("packed"));
+                vec.push(deterministic::single::get_job("blenderrender"));
+                vec.push(deterministic::single::get_job("highres"));
+                vec.push(deterministic::single::get_job("video"));
+                vec.push(deterministic::single::get_job("twoscenes"));
+                vec.push(deterministic::single::get_job("qu 1s"));
+                vec.push(deterministic::single::get_job("qu 5s"));
+                vec.push(deterministic::single::get_job("qu 11s"));
+                vec.push(deterministic::single::get_job("qu 20s"));
+                vec
+            }
+
+            /// Create invalid jobs defined in the get_deterministic_job function.
+            pub fn create_invalid_jobs() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("invalid"));
+                vec
+            }
+
+            /// Create a simple queue with two people and two jobs
+            pub fn create_qu() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("qu 1s"));
+                vec.push(deterministic::single::get_job("qu 1s B"));
+                vec
+            }
+
+            /// Create a simple queue with two people and two jobs (imbalanced)
+            pub fn create_qu_imbalanced() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("qu 5s"));
+                vec.push(deterministic::single::get_job("qu 1s B"));
+                vec
+            }
         }
 
     }
 
 
-    /// Creation of temporary random Jobs (with a temp directory beeing created)
+    /// functions regarding the creation of temporary random jobs (single or multi) \
+    /// with a temp directory beeing created
     pub mod random {
 
         /// Creation of temporary random _single_ jobs
