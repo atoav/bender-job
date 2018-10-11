@@ -1,3 +1,6 @@
+//! The data module defines multiple Structs used by the job to store data. E.g. \
+//! Render, Frames and Resolution
+
 use ::*;
 
 

@@ -1,3 +1,5 @@
+//! The history module defines functionality related to a Jobs history logging capabilities
+
 use ::*;
 
 

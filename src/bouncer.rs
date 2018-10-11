@@ -1,3 +1,7 @@
+//! The bouncer module extends Job with the functionality to run a quick binary \
+//! check on its blendfile, without the need for a installed blender  
+//!
+//! It does so by defining the Bouncer trait which then is implemented for Job
 use ::*;
 
 /// This trait implements the binary file checking from the `bender-bouncer` \

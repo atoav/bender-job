@@ -1,3 +1,6 @@
+//! The status module defines the Status Struct that describes both the current \
+//! position of a job within its lifecycle and the valid transitions between them.
+
 use ::*;
 use std::fmt;
 

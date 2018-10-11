@@ -1,3 +1,5 @@
+//! The job is the core data structure holding all information, including paths, \
+//! job history, job status, tasks, etc. For details check the Job Struct.
 use ::*;
 
 

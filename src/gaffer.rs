@@ -1,3 +1,11 @@
+//! The gaffer module extends Job with the functionality to scan its own blendfile \
+//! for additional information. It does so by opening the blendfile in blender  
+//!
+//! The Gaffer trait implemented for Job works as follows:  
+//! 1. open the blendfile stored in Job with blender and the script optimize_blend.py
+//! 2. read out basic information and optimize settings. Return all data as json on stdout
+//! 3. deserialize the received json into Rust structs and incorporate it into the Job
+
 use ::*;
 use data::Resource;
 use std::process::Command;

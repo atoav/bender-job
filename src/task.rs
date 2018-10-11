@@ -1,11 +1,12 @@
+//! The task module defines the Task Structholding the atomized units of work which \
+//! are distributed among the workers
 use ::*;
 
 
 
 
-/// A Task is what gets passed from watchdog to qu and from qu to worker. Tasks
-/// are essentially atomic units of work, broken down so they can be fairly managed
-/// by the queue.
+/// A Task is what gets passed from qu to worker. Tasks are essentially atomic \
+/// units of work, broken down so they can be fairly managed by the queue.
 ///
 /// This is basically a wrapper around a command, that allows us to keep track of
 /// a Tasks status, its start and end times etc. It consists of:

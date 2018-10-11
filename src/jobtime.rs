@@ -1,3 +1,8 @@
+//! The jobtime module defines the JobTime Struct that holds timing information \
+//! for the job. It defines convenience functions for storing and measuring age.
+//!
+//! It also defines serialization and deserialization.
+
 use ::*;
 
 

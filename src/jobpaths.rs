@@ -1,3 +1,7 @@
+//! The jobpaths module defines a JobPath struct that deals with all relevant \
+//! filepaths of the job. It also defines serialization and deserialization.
+
+
 use ::*;
 
 

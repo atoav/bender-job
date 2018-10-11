@@ -1,3 +1,8 @@
+//! The atomizer module is responsible for extending Job with the functionality \
+//! to generate its own tasks (by splitting the render job into atomic units of \
+//! work)  
+//!
+//! It does so by creating the Atomizer trait
 use ::*;
 use std::iter::FromIterator;
 
