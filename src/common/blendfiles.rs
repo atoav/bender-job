@@ -397,13 +397,10 @@ pub mod permanent{
         let id = id.into();
         let email = email.into();
 
-        // Create a Path for the job
-        let mut jobpath = PathBuf::from(data_blendfilespath.clone());
-        jobpath.push(id.as_str());
-        let jobpath = jobpath.into_os_string().into_string().unwrap();
-
-        // Create a Temp dir
-        let jobpathbuf = PathBuf::from(jobpath.as_str());
+        // Create a Path for the job (e.g. /data/blendfiles/<id>)
+        let mut jobpathbuf = PathBuf::from(data_blendfilespath.clone());
+        jobpathbuf.push(id.as_str());
+        let jobpath = jobpathbuf.clone().into_os_string().into_string().unwrap();
 
         fs::create_dir_all(jobpath.as_str()).expect("Couldn't create directory for permanent Job..");
         
@@ -411,18 +408,15 @@ pub mod permanent{
         let source_filename = source_path.clone();
         let source_filename = source_filename.file_name().unwrap();
         let source_filename = source_filename.to_os_string().into_string().unwrap();
-        let temp_blendfile = jobpathbuf.join(source_filename.as_str());
-        let error_message = format!("Couldn't copy blendfile for permanent Job from {:?} to {:?}", source_path, temp_blendfile);
-        fs::copy(&source_path, &temp_blendfile).expect(error_message.as_str());
-
-        // Get a string representing the uploadfolder
-        let uploadfolder: PathBuf = jobpathbuf.to_path_buf();
-        let uploadfolder: String = uploadfolder.into_os_string().into_string().unwrap();
+        let mut target_blendfile = jobpathbuf.clone();
+        target_blendfile.push(source_filename.as_str());
+        let error_message = format!("Couldn't copy blendfile for permanent Job from {:?} to {:?}", source_path, target_blendfile);
+        fs::copy(&source_path, &target_blendfile).expect(error_message.as_str());
 
         // Construct Job with fixed creation time (for comparison)
         let job = Job {
             id: id,
-            paths: JobPaths::from_uploadfolder(uploadfolder.as_str()),
+            paths: JobPaths::from_uploadfolder(jobpath.as_str()),
             animation: animation,
             email: email,
             version: "".to_owned(),
