@@ -401,6 +401,7 @@ pub mod permanent{
         let mut jobpathbuf = PathBuf::from(data_blendfilespath.clone());
         jobpathbuf.push(id.as_str());
         let jobpath = jobpathbuf.clone().into_os_string().into_string().unwrap();
+        println!("JOBPATH {}", jobpath);
 
         fs::create_dir_all(jobpath.as_str()).expect("Couldn't create directory for permanent Job..");
         
