@@ -1,3 +1,6 @@
+//! The command module defines the Command enum, which is either a BasicCommand \
+//! or a BlenderCommand. For details check the Command Enum documentation.
+
 use ::*;
 /// A command is a command line callable enum. There are currently two types of
 /// commands: Basic and Blender.  
