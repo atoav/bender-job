@@ -36,11 +36,11 @@
 //! You can use the following functions to generate permanent deterministic jobs \
 //! (from files):  
 //! [permanent::deterministic::single::get_job(job_selector, id)]()  
-//! [permanent::deterministic::multi::get_all_jobs()]()  
-//! [permanent::deterministic::multi::get_valid_jobs()]()  
-//! [permanent::deterministic::multi::get_invalid_jobs()]()  
-//! [permanent::deterministic::multi::get_qu()]()  
-//! [permanent::deterministic::multi::get_qu_imbalanced()]()  
+//! [permanent::deterministic::multi::create_all_jobs()]()  
+//! [permanent::deterministic::multi::create_valid_jobs()]()  
+//! [permanent::deterministic::multi::create_invalid_jobs()]()  
+//! [permanent::deterministic::multi::create_qu()]()  
+//! [permanent::deterministic::multi::create_qu_imbalanced()]()  
 //!
 //! You can use the following functions to generate permanent random jobs \
 //! (from files):  
@@ -53,11 +53,11 @@
 //!
 //! Or following functions to generate temporary jobs (from files):  
 //! [temporary::deterministic::single::get_job(job_selector, id)]()  
-//! [temporary::deterministic::multi::get_all_jobs()]()  
-//! [temporary::deterministic::multi::get_valid_jobs()]()  
-//! [temporary::deterministic::multi::get_invalid_jobs()]()  
-//! [temporary::deterministic::multi::get_qu()]()  
-//! [temporary::deterministic::multi::get_qu_imbalanced()]()  
+//! [temporary::deterministic::multi::create_all_jobs()]()  
+//! [temporary::deterministic::multi::create_valid_jobs()]()  
+//! [temporary::deterministic::multi::create_invalid_jobs()]()  
+//! [temporary::deterministic::multi::create_qu()]()  
+//! [temporary::deterministic::multi::create_qu_imbalanced()]()  
 //!
 //! You can use the following functions to generate temporary random jobs \
 //! (from files):  
