@@ -98,7 +98,7 @@ where S: Into<String>{
 /// 
 fn get_deterministic_job(job_selector: String, id: String, f: &Fn(String, String, String, bool) -> Job) -> Job{
     let mut id = id;
-    let id_defined = id == "".to_string();
+    let id_defined = id != "".to_string();
     match job_selector.as_ref(){
         "animation" =>{
             if !id_defined { id = "aaaaaaacycles1to250xxxanimationa".to_string(); }
@@ -401,8 +401,8 @@ pub mod permanent{
         let mut jobpathbuf = PathBuf::from(data_blendfilespath.clone());
         jobpathbuf.push(id.as_str());
         let jobpath = jobpathbuf.clone().into_os_string().into_string().unwrap();
-        println!("JOBPATH {}", jobpath);
 
+        // Create the directory
         fs::create_dir_all(jobpath.as_str()).expect("Couldn't create directory for permanent Job..");
         
         // Copy the file from blendfile to the temp folder
