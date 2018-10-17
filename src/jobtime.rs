@@ -4,6 +4,7 @@
 //! It also defines serialization and deserialization.
 
 use ::*;
+use chrono::Duration;
 
 
 /// JobTime is used by Job to timestamp different important timestamps throughout the life of a request
@@ -81,6 +82,18 @@ impl JobTime{
             Some(t) => println!("Tried to set time of pause, but there already was a time set: {}", t),
             None => self.pause = Some(Utc::now())
         }
+    }
+
+
+    /// Return the age of self as a chrono duration
+    pub fn age(&self) -> Duration{
+        let now = Utc::now();
+        now - self.creation.unwrap()
+    }
+
+    /// Return the age of self in seconds
+    pub fn age_seconds(&self) -> usize{
+        self.age().num_seconds() as usize
     }
 }
 
