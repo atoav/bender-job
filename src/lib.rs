@@ -37,6 +37,7 @@
 extern crate serde;
 extern crate serde_json;
 extern crate chrono;
+extern crate chrono_humanize;
 extern crate bender_bouncer;
 extern crate regex;
 #[macro_use] extern crate lazy_static;

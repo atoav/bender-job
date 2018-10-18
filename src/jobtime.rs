@@ -5,6 +5,7 @@
 
 use ::*;
 use chrono::Duration;
+use chrono_humanize::{Accuracy, HumanTime, Tense};
 
 
 /// JobTime is used by Job to timestamp different important timestamps throughout the life of a request
@@ -85,15 +86,27 @@ impl JobTime{
     }
 
 
-    /// Return the age of self as a chrono duration
+    /// Return the age (duration since creation) of Job as a chrono duration
     pub fn age(&self) -> Duration{
         let now = Utc::now();
         now - self.creation.unwrap()
     }
 
-    /// Return the age of self in seconds
+    /// Return the age (duration since creation) of Job in seconds
     pub fn age_seconds(&self) -> usize{
         self.age().num_seconds() as usize
+    }
+
+    /// Return the Jobs age (duration since creation) in rough human time
+    pub fn age_human(&self) -> String{
+        let ht = HumanTime::from(self.age());
+        ht.to_text_en(Accuracy::Rough, Tense::Present)
+    }
+
+    /// Return the Jobs age (duration since creation) in precise human time
+    pub fn age_human_precise(&self) -> String{
+        let ht = HumanTime::from(self.age());
+        ht.to_text_en(Accuracy::Precise, Tense::Present)
     }
 }
 
