@@ -176,24 +176,27 @@ fn get_deterministic_job(job_selector: String, id: String, f: &Fn(String, String
 }
 
 
-
+// ================================= PERMANENT =================================
 /// Permanent Jobs are beeing created in the blend directory specified via \
 /// indrectly via bender-config. Permanent Jobs are _no_ deleted automatically, \
 /// you have to deal with them yourself.
 pub mod permanent{
-    use common::blendfiles::bender_config::Config;
-    use job::Job;
-    use jobpaths::JobPaths;
-    use jobtime::JobTime;
-    use status::Status;
-    use chrono::{Utc, TimeZone};
-    use std::path::PathBuf;
-    use std::fs;
-    use std::collections::{HashMap, BTreeMap};
 
+    // ======================== PERMANENT::DETERMINISTIC =======================
     /// functions regarding the creation of permanent deterministic jobs (single 
     /// or multi) with a non-temporary direcory beeing created
     pub mod deterministic{
+        use common::blendfiles::bender_config::Config;
+        use job::Job;
+        use jobpaths::JobPaths;
+        use jobtime::JobTime;
+        use status::Status;
+        use chrono::{Utc, TimeZone};
+        use std::path::PathBuf;
+        use std::fs;
+        use std::collections::{HashMap, BTreeMap};
+
+        // ================== PERMANENT::DETERMINISTIC::SINGLE =================
         /// Creation of permanent deterministic jobs
         pub mod single{
             use ::*;
@@ -206,11 +209,12 @@ pub mod permanent{
             pub fn get_job<S>(job_selector: S, id: S) -> Job where S: Into<String>{
                 let job_selector = job_selector.into();
                 let id = id.into();
-                blendfiles::get_deterministic_job(job_selector, id, &permanent::from_blendfile)
+                blendfiles::get_deterministic_job(job_selector, id, &permanent::deterministic::from_blendfile)
             }
 
         }
 
+        // ================== PERMANENT::DETERMINISTIC::MULTI ==================
         /// Creation of Vectors filled with n ...
         pub mod multi{
             use job::Job;
@@ -277,11 +281,84 @@ pub mod permanent{
                 vec
             }
         }
+
+        // ---------------------- PERMANENT::DETERMINISTIC ---------------------
+        /// Create a Job from a existing blendfile and copy it to a new folder in
+        /// the data directory specified in the config. This is the base
+        /// function creating _all_ permanent jobs within `common::blendfiles::permanent`
+        pub fn from_blendfile<P, S>(source_path: P, id: S, email: S, animation: bool) -> Job 
+        where P: Into<PathBuf>, S: Into<String>{
+            let config = Config::from_file(Config::location()).unwrap();
+            let data_blendfilespath = config.paths.blend();
+            // Common variables
+            let source_path = source_path.into();
+            let id = id.into();
+            let email = email.into();
+
+            // Create a Path for the job (e.g. /data/blendfiles/<id>)
+            let mut jobpathbuf = PathBuf::from(data_blendfilespath.clone());
+            jobpathbuf.push(id.as_str());
+            let jobpath = jobpathbuf.clone().into_os_string().into_string().unwrap();
+
+            // Create the directory
+            fs::create_dir_all(jobpath.as_str()).expect("Couldn't create directory for permanent Job..");
+            
+            // Copy the file from blendfile to the temp folder
+            let source_filename = source_path.clone();
+            let source_filename = source_filename.file_name().unwrap();
+            let source_filename = source_filename.to_os_string().into_string().unwrap();
+            let mut target_blendfile = jobpathbuf.clone();
+            target_blendfile.push(source_filename.as_str());
+            let error_message = format!("Couldn't copy blendfile for permanent Job from {:?} to {:?}", source_path, target_blendfile);
+            fs::copy(&source_path, &target_blendfile).expect(error_message.as_str());
+
+            // Construct Job with fixed creation time (for comparison)
+            let job = Job {
+                id: id,
+                paths: JobPaths::from_uploadfolder(jobpath.as_str()),
+                animation: animation,
+                email: email,
+                version: "".to_owned(),
+                time: JobTime {
+                    creation: Some(Utc.ymd(2018, 8, 23)
+                        .and_hms_micro(13, 48, 40, 176598)),
+                    start: None,
+                    finish: None,
+                    error: None,
+                    abort: None,
+                    pause: None
+                },
+                status: Status::new(),
+                data: HashMap::new(),
+                history: BTreeMap::new(),
+                resolution: Default::default(),
+                render: Default::default(),
+                frames: Default::default(),
+                tasks: Default::default()
+            };
+
+            // Write the "data.json" to the temporary folder
+            job.write_to_file().expect("Couldn't write new random job to file!");
+
+            job
+        }
     }
 
+    // =========================== PERMANENT::RANDOM ===========================
     /// functions regarding the creation of permanent random jobs (single or multi)
     /// with a temp directory beeing created
     pub mod random{
+        use common::blendfiles::bender_config::Config;
+        use job::Job;
+        use jobpaths::JobPaths;
+        use jobtime::JobTime;
+        use status::Status;
+        use chrono::Utc;
+        use std::path::PathBuf;
+        use std::fs;
+        use std::collections::{HashMap, BTreeMap};
+
+        // ===================== PERMANENT::RANDOM::SINGLE =====================
         /// Creation of permanent random jobs
         pub mod single{
             use ::*;
@@ -297,7 +374,7 @@ pub mod permanent{
                 let email = rng.choose(&emails).unwrap().to_string();
                 let id = random_id();
                 let animation = rng.gen_bool(0.5);
-                permanent::from_blendfile(source_path, id, email, animation)
+                permanent::random::from_blendfile(source_path, id, email, animation)
             }
 
 
@@ -308,7 +385,7 @@ pub mod permanent{
                 let mut rng = thread_rng();
                 let email = rng.choose(&emails).unwrap().to_string();
                 let id = random_id();
-                permanent::from_blendfile(source_path, id, email, false)
+                permanent::random::from_blendfile(source_path, id, email, false)
             }
 
 
@@ -319,10 +396,11 @@ pub mod permanent{
                 let mut rng = thread_rng();
                 let email = rng.choose(&emails).unwrap().to_string();
                 let id = random_id();
-                permanent::from_blendfile(source_path, id, email, true)
+                permanent::random::from_blendfile(source_path, id, email, true)
             }
         }
 
+        // ====================== PERMANENT::RANDOM::MULTI =====================
         /// Creation of Vectors filled with n ...
         pub mod multi{
             use ::*;
@@ -382,75 +460,72 @@ pub mod permanent{
                 vec
             }
         }
+
+        // ------------------------- PERMANENT::RANDOM -------------------------
+        /// Create a Job from a existing blendfile and copy it to a new folder in
+        /// the data directory specified in the config. This is the base
+        /// function creating _all_ permanent jobs within `common::blendfiles::permanent`
+        pub fn from_blendfile<P, S>(source_path: P, id: S, email: S, animation: bool) -> Job 
+        where P: Into<PathBuf>, S: Into<String>{
+            let config = Config::from_file(Config::location()).unwrap();
+            let data_blendfilespath = config.paths.blend();
+            // Common variables
+            let source_path = source_path.into();
+            let id = id.into();
+            let email = email.into();
+
+            // Create a Path for the job (e.g. /data/blendfiles/<id>)
+            let mut jobpathbuf = PathBuf::from(data_blendfilespath.clone());
+            jobpathbuf.push(id.as_str());
+            let jobpath = jobpathbuf.clone().into_os_string().into_string().unwrap();
+
+            // Create the directory
+            fs::create_dir_all(jobpath.as_str()).expect("Couldn't create directory for permanent Job..");
+            
+            // Copy the file from blendfile to the temp folder
+            let source_filename = source_path.clone();
+            let source_filename = source_filename.file_name().unwrap();
+            let source_filename = source_filename.to_os_string().into_string().unwrap();
+            let mut target_blendfile = jobpathbuf.clone();
+            target_blendfile.push(source_filename.as_str());
+            let error_message = format!("Couldn't copy blendfile for permanent Job from {:?} to {:?}", source_path, target_blendfile);
+            fs::copy(&source_path, &target_blendfile).expect(error_message.as_str());
+
+            // Construct Job with fixed creation time (for comparison)
+            let job = Job {
+                id: id,
+                paths: JobPaths::from_uploadfolder(jobpath.as_str()),
+                animation: animation,
+                email: email,
+                version: "".to_owned(),
+                time: JobTime {
+                    creation: Some(Utc::now()),
+                    start: None,
+                    finish: None,
+                    error: None,
+                    abort: None,
+                    pause: None
+                },
+                status:     Status::new(),
+                data:       HashMap::new(),
+                history:    BTreeMap::new(),
+                resolution: Default::default(),
+                render:     Default::default(),
+                frames:     Default::default(),
+                tasks:      Default::default()
+            };
+
+            // Write the "data.json" to the temporary folder
+            job.write_to_file().expect("Couldn't write new random job to file!");
+
+            job
+        }
     }
-
-
-    /// Create a Job from a existing blendfile and copy it to a new folder in
-    /// the data directory specified in the config. This is the base
-    /// function creating _all_ permanent jobs within `common::blendfiles::permanent`
-    pub fn from_blendfile<P, S>(source_path: P, id: S, email: S, animation: bool) -> Job 
-    where P: Into<PathBuf>, S: Into<String>{
-        let config = Config::from_file(Config::location()).unwrap();
-        let data_blendfilespath = config.paths.blend();
-        // Common variables
-        let source_path = source_path.into();
-        let id = id.into();
-        let email = email.into();
-
-        // Create a Path for the job (e.g. /data/blendfiles/<id>)
-        let mut jobpathbuf = PathBuf::from(data_blendfilespath.clone());
-        jobpathbuf.push(id.as_str());
-        let jobpath = jobpathbuf.clone().into_os_string().into_string().unwrap();
-
-        // Create the directory
-        fs::create_dir_all(jobpath.as_str()).expect("Couldn't create directory for permanent Job..");
-        
-        // Copy the file from blendfile to the temp folder
-        let source_filename = source_path.clone();
-        let source_filename = source_filename.file_name().unwrap();
-        let source_filename = source_filename.to_os_string().into_string().unwrap();
-        let mut target_blendfile = jobpathbuf.clone();
-        target_blendfile.push(source_filename.as_str());
-        let error_message = format!("Couldn't copy blendfile for permanent Job from {:?} to {:?}", source_path, target_blendfile);
-        fs::copy(&source_path, &target_blendfile).expect(error_message.as_str());
-
-        // Construct Job with fixed creation time (for comparison)
-        let job = Job {
-            id: id,
-            paths: JobPaths::from_uploadfolder(jobpath.as_str()),
-            animation: animation,
-            email: email,
-            version: "".to_owned(),
-            time: JobTime {
-                creation: Some(Utc.ymd(2018, 8, 23)
-                    .and_hms_micro(13, 48, 40, 176598)),
-                start: None,
-                finish: None,
-                error: None,
-                abort: None,
-                pause: None
-            },
-            status: Status::new(),
-            data: HashMap::new(),
-            history: BTreeMap::new(),
-            resolution: Default::default(),
-            render: Default::default(),
-            frames: Default::default(),
-            tasks: Default::default()
-        };
-
-        // Write the "data.json" to the temporary folder
-        job.write_to_file().expect("Couldn't write new random job to file!");
-
-        job
-    }
-
-
 }
 
 
 
-
+// ================================= TEMPORARY =================================
 /// Creation of _temporary_ jobs. Temporary means, there is a temporary \
 /// directory beeing created, that will automatically get erased in case \
 /// after the work is done.
@@ -462,10 +537,12 @@ pub mod temporary{
     use common::tempfile::Builder;
 
 
+    // ======================== TEMPORARY::DETERMINISTIC =======================
     /// functions regarding the creation of temporary random jobs (single or 
     /// multi) with a non-temporary direcory beeing created
     pub mod deterministic{
 
+        // ================== TEMPORARY::DETERMINISTIC::SINGLE =================
         /// Creation of temporary deterministic _single_ jobs
         pub mod single{
             use ::*;
@@ -479,6 +556,7 @@ pub mod temporary{
             }
         }
 
+        // ================== TEMPORARY::DETERMINISTIC::MULTI ==================
         /// Creation of Vectors filled with n deterministic temporary jobs
         pub mod multi{
             use job::Job;
@@ -548,11 +626,12 @@ pub mod temporary{
 
     }
 
-
+    // =========================== TEMPORARY::RANDOM ===========================
     /// functions regarding the creation of temporary random jobs (single or multi) \
     /// with a temp directory beeing created
     pub mod random {
 
+        // ===================== TEMPORARY::RANDOM::SINGLE =====================
         /// Creation of temporary random _single_ jobs
         pub mod single{
             use ::*;
@@ -594,7 +673,7 @@ pub mod temporary{
             }
         }
 
-
+        // ====================== TEMPORARY::RANDOM::MULTI =====================
         /// Creation of Vectors filled with n random temporary jobs
         pub mod multi{
             use ::*;
@@ -657,7 +736,7 @@ pub mod temporary{
     }
 
 
-
+    // --------------------------- TEMPORARY::RANDOM ---------------------------
     /// Create a Job from a existing blendfile and copy it to a new temp folder in
     /// the jobs `./tests/resources/data/blendfiles/<id>`. This is the base
     /// function creating _all_ temporary jobs within `common::blendfiles::temporary`
