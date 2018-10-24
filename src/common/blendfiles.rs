@@ -270,6 +270,18 @@ pub mod permanent{
                 let mut vec = Vec::<Job>::new();
                 vec.push(deterministic::single::get_job("qu 1s", ""));
                 vec.push(deterministic::single::get_job("qu 1s B", ""));
+
+                // Do all the processing necessary to get a valid queue
+                let vec = vec.iter()
+                             .cloned()
+                             .map(|mut job|{
+                                job.validate();
+                                job.scan();
+                                job.atomize();
+                                job.queue();
+                                job
+                             })
+                             .collect();
                 vec
             }
 
@@ -278,6 +290,18 @@ pub mod permanent{
                 let mut vec = Vec::<Job>::new();
                 vec.push(deterministic::single::get_job("qu 5s", ""));
                 vec.push(deterministic::single::get_job("qu 1s B", ""));
+
+                // Do all the processing necessary to get a valid queue
+                let vec = vec.iter()
+                             .cloned()
+                             .map(|mut job|{
+                                job.validate();
+                                job.scan();
+                                job.atomize();
+                                job.queue();
+                                job
+                             })
+                             .collect();
                 vec
             }
         }
@@ -612,6 +636,18 @@ pub mod temporary{
                 let mut vec = Vec::<Job>::new();
                 vec.push(deterministic::single::get_job("qu 1s"));
                 vec.push(deterministic::single::get_job("qu 1s B"));
+
+                // Do all the processing necessary to get a valid queue
+                let vec = vec.iter()
+                             .cloned()
+                             .map(|mut job|{
+                                job.validate();
+                                job.scan();
+                                job.atomize();
+                                job.queue();
+                                job
+                             })
+                             .collect();
                 vec
             }
 
@@ -620,6 +656,18 @@ pub mod temporary{
                 let mut vec = Vec::<Job>::new();
                 vec.push(deterministic::single::get_job("qu 5s"));
                 vec.push(deterministic::single::get_job("qu 1s B"));
+
+                // Do all the processing necessary to get a valid queue
+                let vec = vec.iter()
+                             .cloned()
+                             .map(|mut job|{
+                                job.validate();
+                                job.scan();
+                                job.atomize();
+                                job.queue();
+                                job
+                             })
+                             .collect();
                 vec
             }
         }
