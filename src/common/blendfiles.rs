@@ -657,9 +657,8 @@ pub mod temporary{
                 push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 1s B"));
 
                 // Do all the processing necessary to get a valid queue
-                jobs.iter()
+                jobs.iter_mut()
                    .for_each(|job|{
-                       let mut job = job.clone();
                        job.validate();
                        job.scan();
                        job.atomize();
@@ -676,9 +675,8 @@ pub mod temporary{
                 push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 1s B"));
 
                 // Do all the processing necessary to get a valid queue
-                jobs.iter()
+                jobs.iter_mut()
                    .for_each(|job|{
-                       let mut job = job.clone();
                        job.validate();
                        job.scan();
                        job.atomize();
