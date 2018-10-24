@@ -276,16 +276,13 @@ pub mod permanent{
                 vec.push(deterministic::single::get_job("qu 1s B", "").0);
 
                 // Do all the processing necessary to get a valid queue
-                let vec = vec.iter()
-                             .cloned()
-                             .map(|mut job|{
-                                job.validate();
-                                job.scan();
-                                job.atomize();
-                                job.queue();
-                                job
-                             })
-                             .collect();
+                vec.iter_mut()
+                   .for_each(|job|{
+                      job.validate();
+                      job.scan();
+                      job.atomize();
+                      job.queue();
+                   });
                 vec
             }
 
@@ -296,16 +293,13 @@ pub mod permanent{
                 vec.push(deterministic::single::get_job("qu 1s B", "").0);
 
                 // Do all the processing necessary to get a valid queue
-                let vec = vec.iter()
-                             .cloned()
-                             .map(|mut job|{
-                                job.validate();
-                                job.scan();
-                                job.atomize();
-                                job.queue();
-                                job
-                             })
-                             .collect();
+                vec.iter_mut()
+                   .for_each(|job|{
+                      job.validate();
+                      job.scan();
+                      job.atomize();
+                      job.queue();
+                   });
                 vec
             }
         }
