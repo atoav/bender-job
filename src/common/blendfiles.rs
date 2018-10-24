@@ -594,85 +594,97 @@ pub mod temporary{
             use common::tempfile::TempDir;
             use common::blendfiles::temporary::deterministic;
 
+            /// Helper function to push both parts of a tuple to vectors
+            fn push_to_both(jobs: &mut Vec<Job>, dirs: &mut Vec<TempDir>, jt: (Job, TempDir)){
+                jobs.push(jt.0);
+                dirs.push(jt.1);
+            }
+
             /// Create all jobs defined in the get_deterministic_job function.
             /// This includes invalid jobs
-            pub fn create_all_jobs() -> Vec<(Job, TempDir)>{
-                let mut vec = Vec::<(Job, TempDir)>::new();
-                vec.push(deterministic::single::get_job("animation"));
-                vec.push(deterministic::single::get_job("still"));
-                vec.push(deterministic::single::get_job("step10"));
-                vec.push(deterministic::single::get_job("invalid"));
-                vec.push(deterministic::single::get_job("packed"));
-                vec.push(deterministic::single::get_job("blenderrender"));
-                vec.push(deterministic::single::get_job("highres"));
-                vec.push(deterministic::single::get_job("video"));
-                vec.push(deterministic::single::get_job("twoscenes"));
-                vec.push(deterministic::single::get_job("qu 1s"));
-                vec.push(deterministic::single::get_job("qu 5s"));
-                vec.push(deterministic::single::get_job("qu 11s"));
-                vec.push(deterministic::single::get_job("qu 20s"));
-                vec
+            pub fn create_all_jobs() -> (Vec<Job>, Vec<TempDir>){
+                let mut jobs = Vec::<Job>::new();
+                let mut dirs = Vec::<TempDir>::new();
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("animation"));
+                
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("still"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("step10"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("invalid"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("packed"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("blenderrender"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("highres"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("video"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("twoscenes"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 1s"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 5s"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 11s"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 20s"));
+                (jobs, dirs)
             }
 
             /// Create all valid jobs defined in the get_deterministic_job function.
-            pub fn create_valid_jobs() -> Vec<(Job, TempDir)>{
-                let mut vec = Vec::<(Job, TempDir)>::new();
-                vec.push(deterministic::single::get_job("animation"));
-                vec.push(deterministic::single::get_job("still"));
-                vec.push(deterministic::single::get_job("step10"));
-                vec.push(deterministic::single::get_job("packed"));
-                vec.push(deterministic::single::get_job("blenderrender"));
-                vec.push(deterministic::single::get_job("highres"));
-                vec.push(deterministic::single::get_job("video"));
-                vec.push(deterministic::single::get_job("twoscenes"));
-                vec.push(deterministic::single::get_job("qu 1s"));
-                vec.push(deterministic::single::get_job("qu 5s"));
-                vec.push(deterministic::single::get_job("qu 11s"));
-                vec.push(deterministic::single::get_job("qu 20s"));
-                vec
+            pub fn create_valid_jobs() -> (Vec<Job>, Vec<TempDir>){
+                let mut jobs = Vec::<Job>::new();
+                let mut dirs = Vec::<TempDir>::new();
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("animation"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("still"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("step10"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("packed"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("blenderrender"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("highres"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("video"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("twoscenes"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 1s"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 5s"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 11s"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 20s"));
+                (jobs, dirs)
             }
 
             /// Create invalid jobs defined in the get_deterministic_job function.
-            pub fn create_invalid_jobs() -> Vec<(Job, TempDir)>{
-                let mut vec = Vec::<(Job, TempDir)>::new();
-                vec.push(deterministic::single::get_job("invalid"));
-                vec
+            pub fn create_invalid_jobs() -> (Vec<Job>, Vec<TempDir>){
+                let mut jobs = Vec::<Job>::new();
+                let mut dirs = Vec::<TempDir>::new();
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("invalid"));
+                (jobs, dirs)
             }
 
             /// Create a simple queue with two people and two jobs
-            pub fn create_qu() -> Vec<(Job, TempDir)>{
-                let mut vec = Vec::<(Job, TempDir)>::new();
-                vec.push(deterministic::single::get_job("qu 1s"));
-                vec.push(deterministic::single::get_job("qu 1s B"));
+            pub fn create_qu() -> (Vec<Job>, Vec<TempDir>){
+                let mut jobs = Vec::<Job>::new();
+                let mut dirs = Vec::<TempDir>::new();
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 1s"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 1s B"));
 
                 // Do all the processing necessary to get a valid queue
-                vec.iter()
-                   .for_each(|(job, _)|{
+                jobs.iter()
+                   .for_each(|job|{
                        let mut job = job.clone();
                        job.validate();
                        job.scan();
                        job.atomize();
                        job.queue();
                    });
-                vec
+                (jobs, dirs)
             }
 
             /// Create a simple queue with two people and two jobs (imbalanced)
-            pub fn create_qu_imbalanced() -> Vec<(Job, TempDir)>{
-                let mut vec = Vec::<(Job, TempDir)>::new();
-                vec.push(deterministic::single::get_job("qu 5s"));
-                vec.push(deterministic::single::get_job("qu 1s B"));
+            pub fn create_qu_imbalanced() -> (Vec<Job>, Vec<TempDir>){
+                let mut jobs = Vec::<Job>::new();
+                let mut dirs = Vec::<TempDir>::new();
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 5s"));
+                push_to_both(&mut jobs, &mut dirs, deterministic::single::get_job("qu 1s B"));
 
                 // Do all the processing necessary to get a valid queue
-                vec.iter()
-                   .for_each(|(job, _)|{
+                jobs.iter()
+                   .for_each(|job|{
                        let mut job = job.clone();
                        job.validate();
                        job.scan();
                        job.atomize();
                        job.queue();
                    });
-                vec
+                (jobs, dirs)
             }
         }
 
@@ -737,8 +749,9 @@ pub mod temporary{
 
             /// Create n jobs that are completely random. That means they are either valid or
             /// invalid, still or animation and have random email adresses
-            pub fn create_n_jobs(n: usize) -> Vec<(Job, TempDir)>{
-                let mut vec = Vec::<(Job, TempDir)>::with_capacity(n);
+            pub fn create_n_jobs(n: usize) -> (Vec<Job>, Vec<TempDir>){
+                let mut jobs = Vec::<Job>::with_capacity(n);
+                let mut dirs = Vec::<TempDir>::with_capacity(n);
                 let blendfiles = path::get_blendfiles();
                 let mut rng = thread_rng();
                 for _ in 0 .. n{
@@ -746,14 +759,16 @@ pub mod temporary{
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     let (j, t) = temporary::random::single::get_job(blendfile);
                     let t = t.unwrap();
-                    vec.push((j, t));
+                    jobs.push(j);
+                    dirs.push(t);
                 }
-                vec
+                (jobs, dirs)
             }
 
             /// Create n random still jobs. That means they have random email adresses
-            pub fn create_n_still_jobs(n: usize) -> Vec<(Job, TempDir)>{
-                let mut vec = Vec::<(Job, TempDir)>::with_capacity(n);
+            pub fn create_n_still_jobs(n: usize) -> (Vec<Job>, Vec<TempDir>){
+                let mut jobs = Vec::<Job>::with_capacity(n);
+                let mut dirs = Vec::<TempDir>::with_capacity(n);
                 let blendfiles = path::get_blendfiles();
 
                 // Filter all files containing invalid in their filename
@@ -767,14 +782,16 @@ pub mod temporary{
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     let (j, t) = temporary::random::single::get_still_job(blendfile);
                     let t = t.unwrap();
-                    vec.push((j, t));
+                    jobs.push(j);
+                    dirs.push(t);
                 }
-                vec
+                (jobs, dirs)
             }
 
             /// Create n random animation jobs. That means they have random email adresses
-            pub fn create_n_animation_jobs(n: usize) -> Vec<(Job, TempDir)>{
-                let mut vec = Vec::<(Job, TempDir)>::with_capacity(n);
+            pub fn create_n_animation_jobs(n: usize) -> (Vec<Job>, Vec<TempDir>){
+                let mut jobs = Vec::<Job>::with_capacity(n);
+                let mut dirs = Vec::<TempDir>::with_capacity(n);
                 let blendfiles = path::get_blendfiles();
 
                 // Filter all files containing invalid in their filename
@@ -788,9 +805,10 @@ pub mod temporary{
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     let (j, t) = temporary::random::single::get_animation_job(blendfile);
                     let t = t.unwrap();
-                    vec.push((j, t));
+                    jobs.push(j);
+                    dirs.push(t);
                 }
-                vec
+                (jobs, dirs)
             }
         }
     }
