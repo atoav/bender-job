@@ -806,6 +806,8 @@ pub mod temporary{
                 .prefix(jobpath.as_str())
                 .tempdir()
                 .expect("Couldn't create directory for temporary Job..");
+
+        debug_assert_eq!(jobpath, tempdir.path().to_string_lossy());
         
         // Copy the file from blendfile to the temp folder
         let source_filename = source_path.clone();
