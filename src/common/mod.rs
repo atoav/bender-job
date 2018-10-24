@@ -155,8 +155,12 @@ pub fn get_random_job_from<S>(source_id: S, source_filename: S) -> (Job, TempDir
     let jobpath = jobpath.into_os_string().into_string().unwrap();
     let tempdir = Builder::new()
             .prefix(jobpath.as_str())
+            .rand_bytes(0)
             .tempdir()
             .expect("Couldn't create directory for random Job..");
+
+    // Test if the temp path is as expected
+    debug_assert_eq!(jobpath, tempdir.path().to_string_lossy());
 
     // Copy blendfile
     let mut source_file_path = get_data_blendfilespath();
