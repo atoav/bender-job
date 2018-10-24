@@ -531,6 +531,16 @@ impl From<PathBuf> for Job{
     }
 }
 
+/// Allows a job to turn into a Vec<Job> as a convenience interface for other \
+/// functions that take one more jobs as an argument
+impl Into<Vec<Job>> for Job {
+    fn into(self) -> Vec<Job> {
+        let mut v = Vec::new();
+        v.push(self);
+        v
+    }
+}
+
 
 /// String formatting for Job
 /// Returns something that looks like this:
