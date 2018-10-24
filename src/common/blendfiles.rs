@@ -804,9 +804,11 @@ pub mod temporary{
         // Create a Temp dir
         let tempdir = Builder::new()
                 .prefix(jobpath.as_str())
+                .rand_bytes(0)
                 .tempdir()
                 .expect("Couldn't create directory for temporary Job..");
 
+        // Test if the temp path is as expected
         debug_assert_eq!(jobpath, tempdir.path().to_string_lossy());
         
         // Copy the file from blendfile to the temp folder
