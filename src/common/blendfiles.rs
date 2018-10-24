@@ -819,6 +819,9 @@ pub mod temporary{
         let error_message = format!("Couldn't copy blendfile for temporary Job from {:?} to {:?}", source_path, temp_blendfile);
         fs::copy(&source_path, &temp_blendfile).expect(error_message.as_str());
 
+        // Test if the temp_blendfile exists at the expected path
+        debug_assert!(temp_blendfile.is_file());
+
         // Get a string representing the uploadfolder
         let uploadfolder: PathBuf = tempdir.path().to_path_buf();
         let uploadfolder: String = uploadfolder.into_os_string().into_string().unwrap();
