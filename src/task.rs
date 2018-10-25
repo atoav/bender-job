@@ -478,7 +478,39 @@ pub trait TaskQueue{
 
     /// Return a vector of mutable references to aborted Tasks
     fn aborted_mut(&mut self) -> Vec<&mut Task>;
+
+    /// Returns true if all jobs finished
+    fn is_all_finished(&self) -> bool;
+
+    /// Returns true if all jobs ended
+    fn is_all_ended(&self) -> bool;
+
+    /// Returns true if all jobs are waiting
+    fn is_all_waiting(&self) -> bool;
+
+    /// Returns true if any of the tasks is running
+    fn is_any_running(&self) -> bool;
+
+    /// Returns true if any of the tasks is errored
+    fn is_any_errored(&self) -> bool;
+
+    /// Returns true if any of the tasks is waiting
+    fn is_any_waiting(&self) -> bool;
+
+    /// Returns true if any of the tasks is paused
+    fn is_any_paused(&self) -> bool;
+
+    /// Returns true if any of the tasks is aborted
+    fn is_any_aborted(&self) -> bool;
+
+    /// Returns true if any of the tasks is finished
+    fn is_any_finished(&self) -> bool;
 }
+
+
+
+
+
 
 
 impl TaskQueue for Tasks{
@@ -587,5 +619,42 @@ impl TaskQueue for Tasks{
         let len: usize = v.len();
         self.total_duration_seconds()/len
     }
+
+    fn is_all_finished(&self) -> bool{
+        self.into_iter().all(|t| t.is_finished())
+    }
+
+    fn is_all_ended(&self) -> bool{
+        self.into_iter().all(|t| t.is_ended())
+    }
+
+    fn is_all_waiting(&self) -> bool{
+        self.into_iter().all(|t| t.is_waiting())
+    }
+
+    fn is_any_running(&self) -> bool{
+        self.into_iter().any(|t| t.is_running())
+    }
+
+    fn is_any_errored(&self) -> bool{
+        self.into_iter().any(|t| t.is_errored())
+    }
+
+    fn is_any_waiting(&self) -> bool{
+        self.into_iter().any(|t| t.is_waiting())
+    }
+
+    fn is_any_paused(&self) -> bool{
+        self.into_iter().any(|t| t.is_paused())
+    }
+
+    fn is_any_aborted(&self) -> bool{
+        self.into_iter().any(|t| t.is_aborted())
+    }
+
+    fn is_any_finished(&self) -> bool{
+        self.into_iter().any(|t| t.is_finished())
+    }
+
 }
 
