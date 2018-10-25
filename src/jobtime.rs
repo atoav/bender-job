@@ -108,6 +108,52 @@ impl JobTime{
         let ht = HumanTime::from(self.age());
         ht.to_text_en(Accuracy::Precise, Tense::Present)
     }
+
+    /// Return the duration (duration since start) of Job as a chrono duration
+    pub fn duration(&self) -> Option<Duration>{
+        match self.start{
+            Some(t) =>{
+                // Use the finish time if the task finished, otherwise use now
+                let end = match self.finish{
+                    None => Utc::now(),
+                    Some(end) => end
+                };
+                Some(end - t)
+            },
+            None => None
+        }
+        
+    }
+
+    /// Return the duration (duration since start) of Job in seconds
+    pub fn duration_seconds(&self) -> Option<usize>{
+        match self.duration(){
+            Some(d) => Some(d.num_seconds() as usize),
+            None => None
+        }
+    }
+
+    /// Return the Jobs duration (duration since start) in rough human time
+    pub fn duration_human(&self) -> String{
+        match self.duration(){
+            Some(d) => {
+                let ht = HumanTime::from(d);
+                ht.to_text_en(Accuracy::Rough, Tense::Present)
+            },
+            None => "Not started".to_string()
+        }
+    }
+
+    /// Return the Jobs duration (duration since start) in precise human time
+    pub fn duration_human_precise(&self) -> String{
+        match self.duration(){
+            Some(d) => {
+                let ht = HumanTime::from(d);
+                ht.to_text_en(Accuracy::Precise, Tense::Present)
+            },
+            None => "Not started".to_string()
+        }
+    }
 }
 
 // String formatting for JobTime
