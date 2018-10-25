@@ -305,6 +305,16 @@ impl Job{
     pub fn is_queued(&self) -> bool{
         self.status.is_queued()
     }
+
+    /// Return true if self is ended
+    pub fn is_ended(&self) -> bool{
+        self.status.has_ended()
+    }
+
+    /// Return true if self is aborted
+    pub fn is_aborted(&self) -> bool{
+        self.status.is_canceled()
+    }
 }
 
 
