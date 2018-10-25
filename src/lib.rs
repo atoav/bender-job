@@ -61,7 +61,7 @@ pub mod jobpaths;
 pub use jobpaths::JobPaths;
 
 pub mod task;
-pub use task::Task;
+pub use task::{Task, Tasks};
 
 pub mod status;
 pub use status::{Status};

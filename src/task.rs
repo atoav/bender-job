@@ -1,6 +1,7 @@
 //! The task module defines the Task Structholding the atomized units of work which \
 //! are distributed among the workers
 use ::*;
+use chrono::Duration;
 
 
 
@@ -266,6 +267,76 @@ impl Task{
             _ => ()
         }
     }
+
+    pub fn is_started(&self) -> bool{
+         match self.status{
+            Status::Running => true,
+            _ => false
+        }
+    }
+
+    pub fn is_running(&self) -> bool{
+         match self.status{
+            Status::Running => true,
+            _ => false
+        }
+    }
+
+    pub fn is_finished(&self) -> bool{
+         match self.status{
+            Status::Finished => true,
+            _ => false
+        }
+    }
+
+    pub fn is_errored(&self) -> bool{
+         match self.status{
+            Status::Errored => true,
+            _ => false
+        }
+    }
+
+    pub fn is_aborted(&self) -> bool{
+         match self.status{
+            Status::Aborted => true,
+            _ => false
+        }
+    }
+
+    pub fn is_paused(&self) -> bool{
+         match self.status{
+            Status::Paused => true,
+            _ => false
+        }
+    }
+
+    pub fn is_waiting(&self) -> bool{
+         match self.status{
+            Status::Waiting => true,
+            _ => false
+        }
+    }
+
+    pub fn is_alive(&self) -> bool{
+         match self.status{
+            Status::Waiting|Status::Running|Status::Paused => true,
+            _ => false
+        }
+    }
+
+    pub fn is_ended(&self) -> bool{
+         match self.status{
+            Status::Finished|Status::Errored|Status::Aborted => true,
+            _ => false
+        }
+    }
+
+    pub fn needs_dispatching(&self) -> bool{
+         match self.status{
+            Status::Waiting => true,
+            _ => false
+        }
+    }
 }
 
 
@@ -333,3 +404,188 @@ mod tests {
     }
 
 }
+
+
+
+
+pub type Tasks = VecDeque<Task>;
+
+/// The TaskQueue trait is responsible for implementing queue utilities for the \
+/// `Job::tasks` field. It returns references to potentially interesting tasks \
+/// like the next waiting task, a vector of running tasks etc.
+/// 
+/// Additionally this trait allows to start the next task, abort or pause running \
+/// tasks as well as displaying average and total runtimes
+pub trait TaskQueue{
+    /// Dispatch the next Task in the queue and return a mutable reference to it.
+    /// The next task is the next task that is waiting
+    fn start_next(&mut self) -> Option<&mut Task>;
+
+    /// Abort all running tasks
+    fn abort_all_running(&mut self);
+
+    /// Pause all running tasks
+    fn pause_all_running(&mut self);
+
+    /// Resume all paused tasks
+    fn resume_all_paused(&mut self);
+
+    /// Return a reference to the next Task without starting it
+    fn next_waiting(&self) -> Option<&Task>;
+
+    /// Calculate the total time it took each task to finish (this includes the\
+    /// time of currently running tasks that have yet to finish)
+    fn total_duration(&self) -> Duration;
+
+    /// Calculate the average time it took each task to finish (this includes the\
+    /// time of currently running tasks that have yet to finish)
+    fn average_duration(&self) -> Duration;
+
+    /// Calculate the total time it took each task to finish (this includes the\
+    /// time of currently running tasks that have yet to finish)
+    fn total_duration_seconds(&self) -> usize;
+
+    /// Calculate the average time it took each task to finish (this includes the\
+    /// time of currently running tasks that have yet to finish)
+    fn average_duration_seconds(&self) -> usize;
+
+    /// Return a vector of references to running Tasks
+    fn running(&self) -> Vec<&Task>;
+
+    /// Return a vector of mutable references to running Tasks
+    fn running_mut(&mut self) -> Vec<&mut Task>;
+
+    /// Return a vector of references to finished Tasks
+    fn finished(&self) -> Vec<&Task>;
+
+    /// Return a vector of mutable references to finished Tasks
+    fn finished_mut(&mut self) -> Vec<&mut Task>;
+
+    /// Return a vector of references to paused Tasks
+    fn paused(&self) -> Vec<&Task>;
+
+    /// Return a vector of mutable references to paused Tasks
+    fn paused_mut(&mut self) -> Vec<&mut Task>;
+
+    /// Return a vector of references to errored Tasks
+    fn errored(&self) -> Vec<&Task>;
+
+    /// Return a vector of mutable references to errored Tasks
+    fn errored_mut(&mut self) -> Vec<&mut Task>;
+
+    /// Return a vector of references to aborted Tasks
+    fn aborted(&self) -> Vec<&Task>;
+
+    /// Return a vector of mutable references to aborted Tasks
+    fn aborted_mut(&mut self) -> Vec<&mut Task>;
+}
+
+
+impl TaskQueue for Tasks{
+    fn start_next(&mut self) -> Option<&mut Task>{
+        match self.iter().position(|t| t.is_waiting()){
+            Some(position) => {
+                self[position].start();
+                Some(&mut self[position])
+            },
+            None => None
+        }
+    }
+
+    fn next_waiting(&self) -> Option<&Task>{
+        match self.iter().position(|t| t.is_waiting()){
+            Some(position) => Some(&self[position]),
+            None => None
+        }
+    }
+
+    fn abort_all_running(&mut self){
+        self.running_mut().into_iter().for_each(|t|t.abort());
+    }
+
+    fn pause_all_running(&mut self){
+        self.running_mut().into_iter().for_each(|t|t.pause());
+    }
+
+    fn resume_all_paused(&mut self){
+        self.paused_mut().into_iter().for_each(|t|t.resume());
+    }
+
+    fn running(&self) -> Vec<&Task>{
+        self.iter().filter(|t| t.is_running()).collect()
+    }
+
+    fn running_mut(&mut self) -> Vec<&mut Task>{
+        self.iter_mut().filter(|t| t.is_running()).collect()
+    }
+
+    fn finished(&self) -> Vec<&Task>{
+        self.iter().filter(|t| t.is_finished()).collect()
+    }
+
+    fn finished_mut(&mut self) -> Vec<&mut Task>{
+        self.iter_mut().filter(|t| t.is_finished()).collect()
+    }
+
+    fn paused(&self) -> Vec<&Task>{
+        self.iter().filter(|t| t.is_paused()).collect()
+    }
+
+    fn paused_mut(&mut self) -> Vec<&mut Task>{
+        self.iter_mut().filter(|t| t.is_paused()).collect()
+    }
+
+    fn errored(&self) -> Vec<&Task>{
+        self.iter().filter(|t| t.is_errored()).collect()
+    }
+
+    fn errored_mut(&mut self) -> Vec<&mut Task>{
+        self.iter_mut().filter(|t| t.is_errored()).collect()
+    }
+
+    fn aborted(&self) -> Vec<&Task>{
+        self.iter().filter(|t| t.is_aborted()).collect()
+    }
+
+    fn aborted_mut(&mut self) -> Vec<&mut Task>{
+        self.iter_mut().filter(|t| t.is_aborted()).collect()
+    }
+
+    fn total_duration(&self) -> Duration{
+        // Use both finished and running tasks
+        let mut v = self.finished();
+        v.append(&mut self.running());
+        // Accumulate all durations
+        v.into_iter()
+         .fold(Duration::zero(), |d, t| d + t.time.duration().unwrap())
+    }
+
+    fn average_duration(&self) -> Duration{
+        // Use both finished and running tasks
+        let mut v = self.finished();
+        v.append(&mut self.running());
+        // Calculate the average duration
+        let len: usize = v.len();
+        self.total_duration()/len as i32
+
+    }
+
+    fn total_duration_seconds(&self) -> usize{
+        // Use both finished and running tasks
+        let mut v = self.finished();
+        v.append(&mut self.running());
+        // Accumulate all durations
+        v.into_iter()
+         .fold(0, |d, t| d + t.time.duration_seconds().unwrap())
+    }
+
+    fn average_duration_seconds(&self) -> usize{
+        // Use both finished and running tasks
+        let mut v = self.finished();
+        v.append(&mut self.running());
+        // Calculate the average duration
+        let len: usize = v.len();
+        self.total_duration_seconds()/len
+    }
+}
+

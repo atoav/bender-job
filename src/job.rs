@@ -64,7 +64,7 @@ pub struct Job {
     #[serde(default)]
     pub frames: Frames,
     #[serde(default)]
-    pub tasks: VecDeque<Task>
+    pub tasks: Tasks
 }
 
 
