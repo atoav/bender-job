@@ -431,7 +431,10 @@ pub trait TaskQueue{
     fn resume_all_paused(&mut self);
 
     /// Return a reference to the next Task without starting it
-    fn next_waiting(&self) -> Option<&Task>;
+    fn get_next(&self) -> Option<&Task>;
+
+    /// Return a mutable reference to the next Task without starting it
+    fn get_next_mut(&mut self) -> Option<&mut Task>;
 
     /// Calculate the total time it took each task to finish (this includes the\
     /// time of currently running tasks that have yet to finish)
@@ -524,7 +527,16 @@ impl TaskQueue for Tasks{
         }
     }
 
-    fn next_waiting(&self) -> Option<&Task>{
+    fn get_next_mut(&mut self) -> Option<&mut Task>{
+        match self.iter().position(|t| t.is_waiting()){
+            Some(position) => {
+                Some(&mut self[position])
+            },
+            None => None
+        }
+    }
+
+    fn get_next(&self) -> Option<&Task>{
         match self.iter().position(|t| t.is_waiting()){
             Some(position) => Some(&self[position]),
             None => None
