@@ -616,8 +616,10 @@ impl TaskQueue for Tasks{
         v.append(&mut self.running());
         // Calculate the average duration
         let len: usize = v.len();
-        self.total_duration()/len as i32
-
+        match len{
+            0 => Duration::zero(),
+            _ => self.total_duration()/len as i32
+        }
     }
 
     fn total_duration_seconds(&self) -> usize{
@@ -635,7 +637,10 @@ impl TaskQueue for Tasks{
         v.append(&mut self.running());
         // Calculate the average duration
         let len: usize = v.len();
-        self.total_duration_seconds()/len
+        match len{
+            0 => 0,
+            _ => self.total_duration_seconds()/len
+        }
     }
 
     fn is_all_finished(&self) -> bool{
