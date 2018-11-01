@@ -511,6 +511,9 @@ pub trait TaskQueue{
 
     /// Returns true if any of the tasks is finished
     fn is_any_finished(&self) -> bool;
+
+    /// Returns true if any of the tasks is ended
+    fn is_any_ended(&self) -> bool;
 }
 
 
@@ -673,6 +676,10 @@ impl TaskQueue for Tasks{
 
     fn is_any_finished(&self) -> bool{
         self.into_iter().any(|t| t.is_finished())
+    }
+
+    fn is_any_ended(&self) -> bool{
+        self.into_iter().any(|t| t.is_ended())
     }
 
 }
