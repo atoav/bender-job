@@ -46,7 +46,7 @@ impl JobTime{
 
     /// Save time for
     pub fn start(&mut self){
-        match self.creation{
+        match self.start{
             Some(t) => println!("Tried to set time of start, but there already was a time set: {}", t),
             None => self.start = Some(Utc::now())
         }
