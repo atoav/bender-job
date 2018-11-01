@@ -491,6 +491,9 @@ pub trait TaskQueue{
     /// Returns true if all jobs are waiting
     fn is_all_waiting(&self) -> bool;
 
+    /// Returns true if all jobs are running
+    fn is_all_running(&self) -> bool;
+
     /// Returns true if any of the tasks is running
     fn is_any_running(&self) -> bool;
 
@@ -642,6 +645,10 @@ impl TaskQueue for Tasks{
 
     fn is_all_waiting(&self) -> bool{
         self.into_iter().all(|t| t.is_waiting())
+    }
+
+    fn is_all_running(&self) -> bool{
+        self.into_iter().all(|t| t.is_running())
     }
 
     fn is_any_running(&self) -> bool{
