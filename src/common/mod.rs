@@ -9,7 +9,6 @@ extern crate tempfile;
 
 /// Commonly used functions
 use std::path::PathBuf;
-use chrono::Utc;
 use std::collections::{HashMap, BTreeMap};
 use self::rand::{thread_rng, Rng};
 use std::fs;
@@ -46,15 +45,7 @@ pub fn get_job() -> Job {
         animation: false,
         email: "dh@atoav.com".to_owned(),
         version: "".to_owned(),
-        time: JobTime {
-            creation: Some(Utc.ymd(2018, 8, 23)
-                .and_hms_micro(13, 48, 40, 176598)),
-            start: None,
-            finish: None,
-            error: None,
-            abort: None,
-            pause: None
-        },
+        time: JobTime::new_deterministic_for_test(),
         status: Status::new(),
         data: HashMap::new(),
         history: BTreeMap::new(),
@@ -75,15 +66,7 @@ pub fn get_other_job() -> Job {
         animation: true,
         email: "dh@atoav.com".to_owned(),
         version: "".to_owned(),
-        time: JobTime {
-            creation: Some(Utc.ymd(2018, 8, 23)
-                .and_hms_micro(13, 48, 40, 176598)),
-            start: None,
-            finish: None,
-            error: None,
-            abort: None,
-            pause: None
-        },
+        time: JobTime::new_deterministic_for_test(),
         status: Status::new(),
         data: HashMap::new(),
         history: BTreeMap::new(),
@@ -105,15 +88,7 @@ pub fn get_invalid_job() -> Job {
         animation: false,
         email: "dh@atoav.com".to_owned(),
         version: "".to_owned(),
-        time: JobTime {
-            creation: Some(Utc.ymd(2018, 8, 23)
-                .and_hms_micro(13, 48, 40, 176598)),
-            start: None,
-            finish: None,
-            error: None,
-            abort: None,
-            pause: None
-        },
+        time: JobTime::new_deterministic_for_test(),
         status: Status::new(),
         data: HashMap::new(),
         history: BTreeMap::new(),
@@ -189,15 +164,7 @@ pub fn get_random_job_from<S>(source_id: S, source_filename: S) -> (Job, TempDir
         animation: false,
         email: "dh@atoav.com".to_owned(),
         version: "".to_owned(),
-        time: JobTime {
-            creation: Some(Utc.ymd(2018, 8, 23)
-                .and_hms_micro(13, 48, 40, 176598)),
-            start: None,
-            finish: None,
-            error: None,
-            abort: None,
-            pause: None
-        },
+        time: JobTime::new_deterministic_for_test(),
         status: Status::new(),
         data: HashMap::new(),
         history: BTreeMap::new(),

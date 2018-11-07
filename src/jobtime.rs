@@ -13,6 +13,7 @@ use chrono_humanize::{Accuracy, HumanTime, Tense};
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct JobTime {
     pub creation: Option<DateTime<Utc>>,
+    pub queued: Option<DateTime<Utc>>,
     pub start: Option<DateTime<Utc>>,
     pub finish: Option<DateTime<Utc>>,
     pub error: Option<DateTime<Utc>>,
@@ -28,6 +29,21 @@ impl JobTime{
     pub fn new() -> Self{
         JobTime{ 
             creation: Some(Utc::now()), 
+            queued: None,
+            start: None,
+            finish: None, 
+            error: None,
+            abort: None,
+            pause: None
+        }
+    }
+
+    /// Returns a fixed time for testing
+    pub fn new_deterministic_for_test() -> Self{
+        JobTime{ 
+            creation: Some(Utc.ymd(2018, 8, 23)
+                .and_hms_micro(13, 48, 40, 176598)), 
+            queued: None,
             start: None,
             finish: None, 
             error: None,
@@ -41,6 +57,14 @@ impl JobTime{
         match self.creation{
             Some(t) => println!("Tried to set time of creation, but there already was a time set: {}", t),
             None => self.creation = Some(Utc::now())
+        }
+    }
+
+    /// Save time for
+    pub fn queue(&mut self){
+        match self.queued{
+            Some(t) => println!("Tried to set time of queue, but there already was a time set: {}", t),
+            None => self.queued = Some(Utc::now())
         }
     }
 
@@ -85,6 +109,7 @@ impl JobTime{
         }
     }
 
+    //  ------------------------------- AGE ---------------------------------
 
     /// Return the age (duration since creation) of Job as a chrono duration
     pub fn age(&self) -> Duration{
@@ -108,6 +133,8 @@ impl JobTime{
         let ht = HumanTime::from(self.age());
         ht.to_text_en(Accuracy::Precise, Tense::Present)
     }
+
+    //  -------------------------- DURATION ----------------------------------
 
     /// Return the duration (duration since start) of Job as a chrono duration
     pub fn duration(&self) -> Option<Duration>{
@@ -154,7 +181,56 @@ impl JobTime{
             None => "Not started".to_string()
         }
     }
+
+    //  ------------------------- TIME WAITING ----------------------------
+
+    /// Return the duration (duration since queued) of Job as a chrono duration
+    pub fn waiting_for(&self) -> Option<Duration>{
+        match self.start{
+            Some(t) =>{
+                // Use the stat time if the task started, otherwise use now
+                let end = match self.start{
+                    None => Utc::now(),
+                    Some(end) => end
+                };
+                Some(end - t)
+            },
+            None => None
+        }
+        
+    }
+
+    /// Return the duration the job has been sitting in the qu Job in seconds
+    pub fn waiting_for_seconds(&self) -> Option<usize>{
+        match self.waiting_for(){
+            Some(d) => Some(d.num_seconds() as usize),
+            None => None
+        }
+    }
+
+    /// Return the Jobs duration the job has been sitting in the qu rough human time
+    pub fn waiting_for_human(&self) -> String{
+        match self.waiting_for(){
+            Some(d) => {
+                let ht = HumanTime::from(d);
+                ht.to_text_en(Accuracy::Rough, Tense::Present)
+            },
+            None => "Not started".to_string()
+        }
+    }
+
+    /// Return the Jobs duration the job has been sitting in the qu precise human time
+    pub fn waiting_for_human_precise(&self) -> String{
+        match self.waiting_for(){
+            Some(d) => {
+                let ht = HumanTime::from(d);
+                ht.to_text_en(Accuracy::Precise, Tense::Present)
+            },
+            None => "Not started".to_string()
+        }
+    }
 }
+
 
 // String formatting for JobTime
 impl fmt::Display for JobTime {

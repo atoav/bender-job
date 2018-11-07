@@ -197,16 +197,29 @@ impl Task{
 
 // Methods dealing with Task.status
 impl Task{
-    /// Start the task (only if the task is waiting)
-    /// and log the time of this call
+    /// Queue the task (only if the task is waiting) and log the time of this call
+    pub fn queue(&mut self){
+        match self.status{
+            Status::Running => (),
+            Status::Finished => (),
+            Status::Waiting => {
+                self.time.queue();
+                self.status = Status::Queued;
+            },
+            _ => ()
+        }
+    }
+
+    /// Start the task (only if the task is waiting) and log the time of this call
     pub fn start(&mut self){
         match self.status{
             Status::Running => (),
             Status::Finished => (),
-            _ => {
+            Status::Queued => {
                 self.time.start();
                 self.status = Status::Running;
-            }
+            },
+            _ => ()
         }
     }
 
@@ -234,11 +247,11 @@ impl Task{
         } 
     }
 
-    /// Abort the task (only if it is either running, waiting or paused)
+    /// Abort the task (only if it is either running, waiting, queued or paused)
     /// and log the time of this call
     pub fn abort(&mut self){
         match self.status{
-            Status::Running|Status::Waiting|Status::Paused => {
+            Status::Running|Status::Waiting|Status::Paused|Status::Queued => {
                 self.time.abort();
                 self.status = Status::Aborted;
             },
@@ -265,6 +278,13 @@ impl Task{
                 self.status = Status::Running;
             },
             _ => ()
+        }
+    }
+
+    pub fn is_queued(&self) -> bool{
+         match self.status{
+            Status::Queued => true,
+            _ => false
         }
     }
 
@@ -347,6 +367,7 @@ impl Task{
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Status{
     Waiting,
+    Queued,
     Running,
     Finished,
     Errored,
@@ -417,8 +438,12 @@ pub type Tasks = VecDeque<Task>;
 /// Additionally this trait allows to start the next task, abort or pause running \
 /// tasks as well as displaying average and total runtimes
 pub trait TaskQueue{
-    /// Dispatch the next Task in the queue and return a mutable reference to it.
+    /// Put the next Task into Queue status and return a mutable reference to it.
     /// The next task is the next task that is waiting
+    fn queue_next(&mut self) -> Option<&mut Task>;
+
+    /// Dispatch the next Task in the queue and return a mutable reference to it.
+    /// The next task is the next task that is queued
     fn start_next(&mut self) -> Option<&mut Task>;
 
     /// Abort all running tasks
@@ -523,8 +548,18 @@ pub trait TaskQueue{
 
 
 impl TaskQueue for Tasks{
-    fn start_next(&mut self) -> Option<&mut Task>{
+    fn queue_next(&mut self) -> Option<&mut Task>{
         match self.iter().position(|t| t.is_waiting()){
+            Some(position) => {
+                self[position].queue();
+                Some(&mut self[position])
+            },
+            None => None
+        }
+    }
+
+    fn start_next(&mut self) -> Option<&mut Task>{
+        match self.iter().position(|t| t.is_queued()){
             Some(position) => {
                 self[position].start();
                 Some(&mut self[position])

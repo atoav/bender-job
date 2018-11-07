@@ -193,7 +193,6 @@ pub mod permanent{
         use jobpaths::JobPaths;
         use jobtime::JobTime;
         use status::Status;
-        use chrono::{Utc, TimeZone};
         use std::path::PathBuf;
         use std::fs;
         use std::collections::{HashMap, BTreeMap};
@@ -341,15 +340,7 @@ pub mod permanent{
                 animation: animation,
                 email: email,
                 version: "".to_owned(),
-                time: JobTime {
-                    creation: Some(Utc.ymd(2018, 8, 23)
-                        .and_hms_micro(13, 48, 40, 176598)),
-                    start: None,
-                    finish: None,
-                    error: None,
-                    abort: None,
-                    pause: None
-                },
+                time: JobTime::new_deterministic_for_test(),
                 status: Status::new(),
                 data: HashMap::new(),
                 history: BTreeMap::new(),
@@ -375,7 +366,6 @@ pub mod permanent{
         use jobpaths::JobPaths;
         use jobtime::JobTime;
         use status::Status;
-        use chrono::Utc;
         use std::path::PathBuf;
         use std::fs;
         use std::collections::{HashMap, BTreeMap};
@@ -515,19 +505,12 @@ pub mod permanent{
 
             // Construct Job with fixed creation time (for comparison)
             let job = Job {
-                id: id,
-                paths: JobPaths::from_uploadfolder(jobpath.as_str()),
-                animation: animation,
-                email: email,
-                version: "".to_owned(),
-                time: JobTime {
-                    creation: Some(Utc::now()),
-                    start: None,
-                    finish: None,
-                    error: None,
-                    abort: None,
-                    pause: None
-                },
+                id:         id,
+                paths:      JobPaths::from_uploadfolder(jobpath.as_str()),
+                animation:  animation,
+                email:      email,
+                version:    "".to_owned(),
+                time:       JobTime::new(),
                 status:     Status::new(),
                 data:       HashMap::new(),
                 history:    BTreeMap::new(),
@@ -855,15 +838,7 @@ pub mod temporary{
             animation: animation,
             email: email,
             version: "".to_owned(),
-            time: JobTime {
-                creation: Some(Utc.ymd(2018, 8, 23)
-                    .and_hms_micro(13, 48, 40, 176598)),
-                start: None,
-                finish: None,
-                error: None,
-                abort: None,
-                pause: None
-            },
+            time: JobTime::new_deterministic_for_test(),
             status: Status::new(),
             data: HashMap::new(),
             history: BTreeMap::new(),
