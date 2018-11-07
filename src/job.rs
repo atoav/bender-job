@@ -275,6 +275,18 @@ impl Job{
         }
         Ok(())
     }
+
+    /// Update the Job from disk only if the job stored there is different from \
+    /// self. This does no checks if the job on disk is actually newer than the \
+    /// one at hand!
+    pub fn update_from_disk(&mut self) -> GenResult<()>{
+        let datapath = self.paths.data.clone();
+        let mut on_disk = Self::from_datajson(datapath)?;
+        if self != &mut on_disk{
+            *self = on_disk;
+        }
+        Ok(())
+    }
 }
 
 

@@ -4,6 +4,9 @@ extern crate chrono;
 
 
 
+
+
+
 /// Test a Jobs functions
 mod job_functions{
     use bender_job::common;
@@ -123,6 +126,57 @@ mod job_functions{
         // Clean up after yourself
         let j = common::get_job();
         j.write_to_file().expect("Couldn't write to file!");
+    }
+
+    /// Make sure this works when there is no change on disk
+    #[test]
+    fn update_from_disk_no_change() {
+        let (mut j, tempdir) = common::get_random_job();
+        let j2 = j.clone();
+        j.write_to_file().expect("Couldn't write to file!");
+        let result = match j.update_from_disk(){
+            Ok(()) => true,
+            Err(_e) => false
+        };
+
+        // Assert if the update_from_disk-part worked
+        assert_eq!(result, true);
+
+        // Assert if the jobs are consistent with what is on disk
+        assert_eq!(j.changed_on_disk().unwrap(), false);
+        assert_eq!(j2.changed_on_disk().unwrap(), false);
+        
+        tempdir.close().expect("Couldn't close tempdir");
+    }
+
+    /// Make sure this works when there is a change on disk
+    #[test]
+    fn update_from_disk() {
+        let (mut j, tempdir) = common::get_random_job();
+        let mut j2 = j.clone();
+        j.add_data("testdata", "something foo-ey");
+        j.write_to_file().expect("Couldn't write to file!");
+
+        // j2 should now be different from the thing on disk
+        assert_eq!(j2.changed_on_disk().unwrap(), true);
+
+        // now we update it
+        let result = match j2.update_from_disk(){
+            Ok(()) => true,
+            Err(_e) => false
+        };
+
+        // Assert if the update_from_disk-part worked
+        assert_eq!(result, true);
+
+        // Assert if the jobs are consistent with what is on disk
+        assert_eq!(j.changed_on_disk().unwrap(), false);
+        assert_eq!(j2.changed_on_disk().unwrap(), false);
+
+        // Assert if the jobs are in fact equal
+        assert_eq!(j, j2);
+        
+        tempdir.close().expect("Couldn't close tempdir");
     }
 }
 
