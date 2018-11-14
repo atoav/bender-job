@@ -83,6 +83,19 @@ impl Command{
     }
 }
 
+impl fmt::Display for Command {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self{
+            Command::Basic(b) => {
+                write!(f, "{}", b)
+            },
+            Command::Blender(b) => {
+                write!(f, "{}", b)
+            }
+        }
+    }
+}
+
 
 
 
@@ -106,6 +119,13 @@ impl BasicCommand{
     }
 }
 
+/// Implement Formating for basic command
+impl fmt::Display for BasicCommand {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.command)
+    }
+}
+
 
 /// This holds a blender command and allows for local construction of commands with
 /// different paths for input and output
@@ -118,6 +138,10 @@ pub struct BlenderCommand{
     command: Option<String>
     
 }
+
+/// Implement formatting for Blender command
+
+
 
 impl BlenderCommand{
     /// Return a new Blender command for a single Frame
@@ -157,7 +181,29 @@ impl BlenderCommand{
             None => Err(From::from("Error: Couldn't convert Blender Command to_string(). Forgot to call construct() first?"))
         }
     }
+
+    pub fn is_constructed(&self) -> bool{
+        match self.blendfile{
+            Some(_) => true,
+            None => false
+        }
+    }
 }
+
+/// Implement Formating for basic command
+impl fmt::Display for BlenderCommand {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.is_constructed(){
+            true => {
+                write!(f, "Render {} ({})", self.frame, self.image_format)
+            },
+            false => {
+                write!(f, "Render {} ({})", self.frame, self.image_format)
+            }
+        }
+    }
+}
+
     
 /// A Frame holds either a `Single(usize)` or a `Range(Range{start: usize, end: usize, step: usize})`.
 /// These describe either a single frame, or a range of frames with a certain step size.
@@ -210,6 +256,23 @@ impl Frame{
     /// and a frame step
     pub fn new_range(start: usize, end: usize, step: usize) -> Self{
         Frame::Range(Range{ start, end, step})
+    }
+}
+
+impl fmt::Display for Frame {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self{
+            Frame::Single(u) => {
+                write!(f, "Frame {}", u)
+            },
+            Frame::Range(r) => {
+                if r.step == 1{
+                    write!(f, "Frames {} to {}", r.start, r.end)
+                }else{
+                    write!(f, "Frames {} to {} (Framestep: {})", r.start, r.end, r.step)
+                }
+            }
+        }
     }
 }
 

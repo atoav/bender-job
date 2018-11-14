@@ -1,7 +1,6 @@
 //! The task module defines the Task Structholding the atomized units of work which \
 //! are distributed among the workers
 use ::*;
-use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use chrono::Duration;
 use common::random_id;
@@ -203,6 +202,12 @@ impl Task{
     /// ```
     pub fn is_blender(&self) -> bool{
         self.command.is_blender()
+    }
+}
+
+impl fmt::Display for Task {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Task [{}]({:?}): {}", self.id, self.status, self.command)
     }
 }
 

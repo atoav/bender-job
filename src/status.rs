@@ -40,6 +40,13 @@ pub enum JobStatus{
 }
 
 
+impl fmt::Display for RequestStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Request ({:?})", self)
+    }
+}
+
+
 impl fmt::Display for Status {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
