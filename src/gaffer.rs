@@ -48,31 +48,31 @@ impl Gaffer for Job{
                                     self.set_scan();
                                 },
                                 Err(err) => {
-                                    let error_message = format!("Error: failed to deserialize output to MiscInfo: {}\nOutput was: \"{}\"", err, output);
-                                    println!("{}", error_message);
+                                    let error_message = format!("failed to deserialize output to MiscInfo in gaffer: {}\nOutput was: \"{}\"", err, output);
+                                    println!("Error: {}", error_message);
                                     self.set_error(error_message);
                                 }
                             }
                         },
                         Err(err) =>{
-                            let error_message = format!("Error: while running with {}: {}", python_path, err);
-                            println!("{}", error_message);
+                            let error_message = format!("while running with {}: {}", python_path, err);
+                            println!("Error: {}", error_message);
                             self.set_error(error_message);
                         }
                     }
                 }else{
-                    let error_message = format!("Warning: Couldn't scan_and_optimize() because job wasn't validated");
+                    let error_message = format!("Warning: Couldn't scan_and_optimize() with gaffer because job wasn't validated");
                     println!("{}", error_message);
                     self.set_error(error_message);
                 }
             }else{
-                let error_message = format!("Error: Didn't find optimize_blend.py at {}\nYou might try to reinstall.", python_path);
-                println!("{}", error_message); 
+                let error_message = format!("Didn't find optimize_blend.py for gaffer at {}\nYou might try to reinstall bender-job.", python_path);
+                println!("Error: {}", error_message); 
                 self.set_error(error_message);
             }
         }else{
-            let error_message = format!("Error: Didn't find blendfile at {}", self.paths.blend);
-            println!("{}", error_message); 
+            let error_message = format!("Didn't find blendfile at {}", self.paths.blend);
+            println!("Error: {}", error_message); 
             self.set_error(error_message);
         }
     }
