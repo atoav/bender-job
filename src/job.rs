@@ -45,7 +45,7 @@ use ::*;
 /// - `Job::resolution: Resolution` stores x and y size, as well as the scale of the scene
 /// - `Job::render: Render` stores general values about the renderer, such as fps etc
 /// - `Job::frames: Frames` stores data related to the frame range
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Job {
     pub id: String,
     pub animation: bool,
@@ -67,6 +67,24 @@ pub struct Job {
     pub tasks: Tasks
 }
 
+
+impl PartialEq for Job {
+    fn eq(&self, other: &Job) -> bool {
+        self.id == other.id && 
+        self.animation == other.animation &&
+        self.paths == other.paths &&
+        self.email == other.email &&
+        self.version == other.version &&
+        self.time == other.time &&
+        self.status == other.status &&
+        self.data == other.data &&
+        self.history == other.history &&
+        self.resolution == other.resolution &&
+        self.render == other.render &&
+        self.frames == other.frames &&
+        self.tasks == other.tasks
+    }
+}
 
 
 
@@ -244,6 +262,7 @@ impl Job{
 
         }
     }
+
 
     /// Convenience Function to create a Job from the directory containing a
     /// data.json.
