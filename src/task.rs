@@ -1,7 +1,10 @@
 //! The task module defines the Task Structholding the atomized units of work which \
 //! are distributed among the workers
 use ::*;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use chrono::Duration;
+use common::random_id;
 
 
 
@@ -48,9 +51,16 @@ use chrono::Duration;
 /// ```
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Task{
+    pub id: String,
     pub status: Status,
     pub time: JobTime,
     pub command: Command
+}
+
+impl Hash for Task {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
 }
 
 
@@ -65,6 +75,7 @@ impl Task{
     /// ```
     pub fn new_basic<S>(command: S) -> Self where S: Into<String>{
         Self{
+            id: random_id(),
             status: Status::Waiting,
             time: JobTime::new(),
             command: Command::new(command.into())
@@ -80,6 +91,7 @@ impl Task{
     /// ```
     pub fn new_blender_single<S>(frame: usize, image_format: S) -> Self where S: Into<String>{
         Self{
+            id: random_id(),
             status: Status::Waiting,
             time: JobTime::new(),
             command: Command::new_blender_single(frame, image_format.into())
@@ -95,6 +107,7 @@ impl Task{
     /// ```
     pub fn new_blender_range<S>(start: usize, end: usize, step: usize, image_format: S) -> Self where S: Into<String>{
         Self{
+            id: random_id(),
             status: Status::Waiting,
             time: JobTime::new(),
             command: Command::new_blender_range(start, end, step, image_format.into())
@@ -391,7 +404,7 @@ mod tests {
     }
 
     #[test]
-    fn serialize_deserialze() {
+    fn serialize_deserial70ze() {
         let t1 = Task::new_basic("ls -a");
         match t1.serialize(){
             Ok(serialized) => {
@@ -438,6 +451,15 @@ pub type Tasks = VecDeque<Task>;
 /// Additionally this trait allows to start the next task, abort or pause running \
 /// tasks as well as displaying average and total runtimes
 pub trait TaskQueue{
+    /// Get the position a Task has in VecDeque by id
+    fn position_by_id<S>(&self, id: S) -> Option<usize> where S: Into<String>;
+
+    /// Get a reference to the task with the given ID
+    fn get_by_id<S>(&self, id: S) -> Option<&Task> where S: Into<String>;
+
+    /// Get a mutable reference to the task with the given ID
+    fn get_mut_by_id<S>(&mut self, id: S) -> Option<&mut Task> where S: Into<String>;
+
     /// Put the next Task into Queue status and return a mutable reference to it.
     /// The next task is the next task that is waiting
     fn queue_next(&mut self) -> Option<&mut Task>;
@@ -548,6 +570,25 @@ pub trait TaskQueue{
 
 
 impl TaskQueue for Tasks{
+
+    fn position_by_id<S>(&self, id: S) -> Option<usize> where S: Into<String>{
+        let id = id.into();
+        self.iter()
+            .position(|task|task.id == id)
+    }
+
+    fn get_by_id<S>(&self, id: S) -> Option<&Task> where S: Into<String>{
+        let id = id.into();
+        self.iter()
+            .find(|ref task|task.id == id)
+    }
+
+    fn get_mut_by_id<S>(&mut self, id: S) -> Option<&mut Task> where S: Into<String>{
+        let id = id.into();
+        self.iter_mut()
+            .find(|ref mut task|task.id == id)
+    }
+
     fn queue_next(&mut self) -> Option<&mut Task>{
         match self.iter().position(|t| t.is_waiting()){
             Some(position) => {
