@@ -299,13 +299,6 @@ impl Task{
         }
     }
 
-    pub fn is_queued(&self) -> bool{
-         match self.status{
-            Status::Queued => true,
-            _ => false
-        }
-    }
-
     pub fn is_started(&self) -> bool{
          match self.status{
             Status::Running => true,
@@ -902,7 +895,80 @@ impl TaskQueue for Tasks{
 
     // ============== UPDATE METHODS ===============
     fn update_from(&mut self, other: &Self){
+        self.iter_mut()
+            .zip(other.iter())
+            .for_each(|(this, that)|{
+                // Decide if the other task is considered newer or older based on
+                // it's status first
+                let mut should_update = match this.status{
+                    Status::Waiting => {
+                        match that.status{
+                            Status::Waiting => false,
+                            _ => true
+                        }
+                    },
+                    Status::Queued => {
+                        match that.status{
+                            Status::Waiting => false,
+                            Status::Queued => false,
+                            _ => true
+                        }
+                    },
+                    Status::Running => {
+                        match that.status{
+                            Status::Waiting => false,
+                            Status::Queued => false,
+                            Status::Running => false,
+                            _ => true
+                        }
+                    },
+                    Status::Paused => {
+                        match that.status{
+                            Status::Waiting => false,
+                            Status::Queued => false,
+                            Status::Running => false,
+                            Status::Paused => false,
+                            _ => true
+                        }
+                    },
+                    Status::Aborted => {
+                        false
+                    },
+                    Status::Errored => {
+                        false
+                    },
+                    Status::Finished => {
+                        false
+                    }
+                };
 
+                // Don't update if this task is constructed and the other isn't
+                if should_update{
+                    should_update = match this.command.is_constructed(){
+                        true => {
+                            // Don't update if this task is constructed and the \
+                            // other isn't
+                            match that.command.is_constructed(){
+                                true => true,
+                                false => false
+                            }
+                        },
+                        false => {
+                            // Always update if this command is (or isn't) \
+                            // constructed and the other isn't
+                            match that.command.is_constructed(){
+                                true => true,
+                                false => true
+                            }
+                        }
+                    }
+                }
+
+                // Finally do the updatin' if all checks say yes
+                if should_update{
+                    *this = that.clone();
+                }
+            });
     }
 
 }

@@ -61,10 +61,10 @@ pub mod jobpaths;
 pub use jobpaths::JobPaths;
 
 pub mod task;
-pub use task::{Task, Tasks};
+pub use task::{Task, Tasks, TaskQueue};
 
 pub mod status;
-pub use status::{Status};
+pub use status::{Status, JobStatus, RequestStatus};
 
 pub mod data;
 pub use data::{Render, Frames, Resolution};

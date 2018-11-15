@@ -81,6 +81,14 @@ impl Command{
             Command::Blender(_) => true
         }
     }
+
+    /// Returns true if the Command is constructed
+    pub fn is_constructed(&self) -> bool{
+        match self{
+            Command::Basic(_) => true,
+            Command::Blender(b) => b.is_constructed()
+        }
+    }
 }
 
 impl fmt::Display for Command {
