@@ -306,7 +306,7 @@ impl Job{
     /// Reload the Job from disk only if the job stored there is different from \
     /// self. This does no checks if the job on disk is actually newer than the \
     /// one at hand!
-    pub fn reload_from_disk(&mut self) -> GenResult<()>{
+    pub fn update_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let mut on_disk = Self::from_datajson(datapath)?;
         if self != &mut on_disk{
@@ -316,7 +316,7 @@ impl Job{
     }
 
     /// A safe update from disk, that makes sure only certain things get updated
-    pub fn update_from_disk(&mut self) -> GenResult<()>{
+    pub fn update_from_disk2(&mut self) -> GenResult<()>{
         self.update_status_from_disk()?;
         self.update_data_from_disk()?;
         self.update_tasks_from_disk()?;
