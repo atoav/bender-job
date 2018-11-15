@@ -327,81 +327,79 @@ impl Job{
     /// Update the Jobs Status from disk if it is newer
     pub fn update_status_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
-        let mut on_disk = Self::from_datajson(datapath)?;
-        if self != &mut on_disk{
-            // First check if the status of the job on disk is something we \
-            // actually should update
-            let should_update = match self.status{
-                Status::Request(RequestStatus::Untouched) => {
-                    match on_disk.status{
-                        Status::Job(_) => true,
-                        Status::Request(RequestStatus::Untouched) => false,
-                        _ => true
-                    }
-                },
-                Status::Request(RequestStatus::Invalid) => {
-                    false
-                },
-                Status::Request(RequestStatus::Errored) => {
-                    false
-                },
-                Status::Request(RequestStatus::Checked) => {
-                    match on_disk.status{
-                        Status::Job(_) => true,
-                        Status::Request(RequestStatus::Untouched) => false,
-                        Status::Request(RequestStatus::Checked) => false,
-                        _ => true
-                    }
-                },
-                Status::Request(RequestStatus::Scanned) => {
-                    match on_disk.status{
-                        Status::Job(_) => true,
-                        Status::Request(RequestStatus::Untouched) => false,
-                        Status::Request(RequestStatus::Checked) => false,
-                        Status::Request(RequestStatus::Scanned) => false,
-                        _ => true
-                    }
-                },
-                Status::Request(RequestStatus::Atomized) => {
-                    match on_disk.status{
-                        Status::Job(_) => true,
-                        Status::Request(RequestStatus::Untouched) => false,
-                        Status::Request(RequestStatus::Checked) => false,
-                        Status::Request(RequestStatus::Scanned) => false,
-                        Status::Request(RequestStatus::Atomized) => false,
-                        _ => true
-                    }
-                },
-                Status::Job(JobStatus::Queued) => {
-                    match on_disk.status{
-                        Status::Request(_) => false,
-                        Status::Job(JobStatus::Queued) => false,
-                        _ => true
-                    }
-                },
-                Status::Job(JobStatus::Running) => {
-                    match on_disk.status{
-                        Status::Request(_) => false,
-                        Status::Job(JobStatus::Queued) => false,
-                        Status::Job(JobStatus::Running) => false,
-                        _ => true
-                    }
-                },
-                Status::Job(JobStatus::Canceled) => {
-                    false
-                },
-                Status::Job(JobStatus::Errored) => {
-                    false
-                },
-                Status::Job(JobStatus::Finished) => {
-                    false
-                },
-            };
+        let on_disk = Self::from_datajson(datapath)?;
+        // First check if the status of the job on disk is something we \
+        // actually should update
+        let should_update = match self.status{
+            Status::Request(RequestStatus::Untouched) => {
+                match on_disk.status{
+                    Status::Job(_) => true,
+                    Status::Request(RequestStatus::Untouched) => false,
+                    _ => true
+                }
+            },
+            Status::Request(RequestStatus::Invalid) => {
+                false
+            },
+            Status::Request(RequestStatus::Errored) => {
+                false
+            },
+            Status::Request(RequestStatus::Checked) => {
+                match on_disk.status{
+                    Status::Job(_) => true,
+                    Status::Request(RequestStatus::Untouched) => false,
+                    Status::Request(RequestStatus::Checked) => false,
+                    _ => true
+                }
+            },
+            Status::Request(RequestStatus::Scanned) => {
+                match on_disk.status{
+                    Status::Job(_) => true,
+                    Status::Request(RequestStatus::Untouched) => false,
+                    Status::Request(RequestStatus::Checked) => false,
+                    Status::Request(RequestStatus::Scanned) => false,
+                    _ => true
+                }
+            },
+            Status::Request(RequestStatus::Atomized) => {
+                match on_disk.status{
+                    Status::Job(_) => true,
+                    Status::Request(RequestStatus::Untouched) => false,
+                    Status::Request(RequestStatus::Checked) => false,
+                    Status::Request(RequestStatus::Scanned) => false,
+                    Status::Request(RequestStatus::Atomized) => false,
+                    _ => true
+                }
+            },
+            Status::Job(JobStatus::Queued) => {
+                match on_disk.status{
+                    Status::Request(_) => false,
+                    Status::Job(JobStatus::Queued) => false,
+                    _ => true
+                }
+            },
+            Status::Job(JobStatus::Running) => {
+                match on_disk.status{
+                    Status::Request(_) => false,
+                    Status::Job(JobStatus::Queued) => false,
+                    Status::Job(JobStatus::Running) => false,
+                    _ => true
+                }
+            },
+            Status::Job(JobStatus::Canceled) => {
+                false
+            },
+            Status::Job(JobStatus::Errored) => {
+                false
+            },
+            Status::Job(JobStatus::Finished) => {
+                false
+            },
+        };
 
-            // Finally update
-            if should_update{
-                self.status = on_disk.status
-            }
+        // Finally update
+        if should_update{
+            self.status = on_disk.status
         }
         Ok(())
     }
@@ -410,19 +408,15 @@ impl Job{
     pub fn update_data_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let mut on_disk = Self::from_datajson(datapath)?;
-        if self != &mut on_disk{
-            self.incorporate_alternate_data(&mut on_disk.data);
-        }
+        self.incorporate_alternate_data(&mut on_disk.data);
         Ok(())
     }
 
     /// Update the the Jobs Tasks from disk if they are newer
     pub fn update_tasks_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
-        let mut on_disk = Self::from_datajson(datapath)?;
-        if self != &mut on_disk{
-            self.tasks.update_from(&on_disk.tasks);
-        }
+        let on_disk = Self::from_datajson(datapath)?;
+         self.tasks.update_from(&on_disk.tasks);
         Ok(())
     }
 
@@ -430,9 +424,7 @@ impl Job{
     pub fn update_history_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let mut on_disk = Self::from_datajson(datapath)?;
-        if self != &mut on_disk{
-            self.incorporate_alternate_history(&mut on_disk.history);
-        }
+        self.incorporate_alternate_history(&mut on_disk.history);
         Ok(())
     }
 
