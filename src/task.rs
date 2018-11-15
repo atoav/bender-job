@@ -355,9 +355,16 @@ impl Task{
         }
     }
 
+    pub fn is_queued(&self) -> bool{
+         match self.status{
+            Status::Queued => true,
+            _ => false
+        }
+    }
+
     pub fn is_alive(&self) -> bool{
          match self.status{
-            Status::Waiting|Status::Running|Status::Paused => true,
+            Status::Waiting|Status::Running|Status::Paused|Status::Queued => true,
             _ => false
         }
     }
@@ -409,7 +416,7 @@ mod tests {
     }
 
     #[test]
-    fn serialize_deserial70ze() {
+    fn serialize_deserialize() {
         let t1 = Task::new_basic("ls -a");
         match t1.serialize(){
             Ok(serialized) => {
@@ -543,6 +550,9 @@ pub trait TaskQueue{
     /// Returns true if all tasks are waiting
     fn is_all_waiting(&self) -> bool;
 
+    /// Returns true if all tasks are queued
+    fn is_all_queued(&self) -> bool;
+
     /// Returns true if all tasks are running
     fn is_all_running(&self) -> bool;
 
@@ -554,6 +564,9 @@ pub trait TaskQueue{
 
     /// Returns true if any of the tasks is waiting
     fn is_any_waiting(&self) -> bool;
+
+    // Returns true if any of the tasks is queued
+    fn is_any_queued(&self) -> bool;
 
     /// Returns true if any of the tasks is paused
     fn is_any_paused(&self) -> bool;
@@ -569,6 +582,9 @@ pub trait TaskQueue{
 
     /// Returns the number of waiting tasks
     fn count_waiting(&self) -> usize;
+
+    /// Returns the number of queued tasks
+    fn count_queued(&self) -> usize;
 
     /// Returns the number tasks
     fn count(&self) -> usize;
@@ -591,6 +607,10 @@ pub trait TaskQueue{
     /// Returns the number of ended tasks
     fn count_ended(&self) -> usize;
 
+
+
+    /// Update Tasks from other tasks
+    fn update_from(&mut self, other: &Self);
 }
 
 
@@ -777,8 +797,16 @@ impl TaskQueue for Tasks{
         self.iter().all(|t| t.is_running())
     }
 
+    fn is_all_queued(&self) -> bool{
+        self.iter().all(|t| t.is_queued())
+    }
+
     fn is_any_running(&self) -> bool{
         self.iter().any(|t| t.is_running())
+    }
+
+    fn is_any_queued(&self) -> bool{
+        self.iter().any(|t| t.is_queued())
     }
 
     fn is_any_errored(&self) -> bool{
@@ -818,6 +846,13 @@ impl TaskQueue for Tasks{
     fn count_waiting(&self) -> usize{
         self.iter()
             .filter(|t| t.is_waiting())
+            .count()
+    }
+
+    /// Returns the number of queued tasks
+    fn count_queued(&self) -> usize{
+        self.iter()
+            .filter(|t| t.is_queued())
             .count()
     }
 
@@ -865,7 +900,10 @@ impl TaskQueue for Tasks{
 
 
 
+    // ============== UPDATE METHODS ===============
+    fn update_from(&mut self, other: &Self){
 
+    }
 
 }
 
