@@ -534,16 +534,16 @@ pub trait TaskQueue{
     /// Return a vector of mutable references to aborted Tasks
     fn aborted_mut(&mut self) -> Vec<&mut Task>;
 
-    /// Returns true if all jobs finished
+    /// Returns true if all tasks finished
     fn is_all_finished(&self) -> bool;
 
-    /// Returns true if all jobs ended
+    /// Returns true if all tasks ended
     fn is_all_ended(&self) -> bool;
 
-    /// Returns true if all jobs are waiting
+    /// Returns true if all tasks are waiting
     fn is_all_waiting(&self) -> bool;
 
-    /// Returns true if all jobs are running
+    /// Returns true if all tasks are running
     fn is_all_running(&self) -> bool;
 
     /// Returns true if any of the tasks is running
@@ -566,6 +566,31 @@ pub trait TaskQueue{
 
     /// Returns true if any of the tasks is ended
     fn is_any_ended(&self) -> bool;
+
+    /// Returns the number of waiting tasks
+    fn count_waiting(&self) -> usize;
+
+    /// Returns the number tasks
+    fn count(&self) -> usize;
+
+    /// Returns the number of running tasks
+    fn count_running(&self) -> usize;
+
+    /// Returns the number of errored tasks
+    fn count_errored(&self) -> usize;
+
+    /// Returns the number of aborted tasks
+    fn count_aborted(&self) -> usize;
+
+    /// Returns the number of paused tasks
+    fn count_paused(&self) -> usize;
+
+    /// Returns the number of finished tasks
+    fn count_finished(&self) -> usize;
+
+    /// Returns the number of ended tasks
+    fn count_ended(&self) -> usize;
+
 }
 
 
@@ -575,6 +600,7 @@ pub trait TaskQueue{
 
 
 impl TaskQueue for Tasks{
+    // ================== BY ID METHODS ====================
 
     fn position_by_id<S>(&self, id: S) -> Option<usize> where S: Into<String>{
         let id = id.into();
@@ -593,6 +619,8 @@ impl TaskQueue for Tasks{
         self.iter_mut()
             .find(|ref mut task|task.id == id)
     }
+
+    // ================== CONTROL METHODS ====================
 
     fn queue_next(&mut self) -> Option<&mut Task>{
         match self.iter().position(|t| t.is_waiting()){
@@ -642,6 +670,8 @@ impl TaskQueue for Tasks{
         self.paused_mut().into_iter().for_each(|t|t.resume());
     }
 
+    // ================== VECTOR METHODS ====================
+
     fn running(&self) -> Vec<&Task>{
         self.iter().filter(|t| t.is_running()).collect()
     }
@@ -681,6 +711,9 @@ impl TaskQueue for Tasks{
     fn aborted_mut(&mut self) -> Vec<&mut Task>{
         self.iter_mut().filter(|t| t.is_aborted()).collect()
     }
+
+
+    // ================== DURATION/AGE METHODS ====================
 
     fn total_duration(&self) -> Duration{
         // Use both finished and running tasks
@@ -724,49 +757,115 @@ impl TaskQueue for Tasks{
         }
     }
 
+
+
+    // ================== COUNTING METHODS ====================
+
     fn is_all_finished(&self) -> bool{
-        self.into_iter().all(|t| t.is_finished())
+        self.iter().all(|t| t.is_finished())
     }
 
     fn is_all_ended(&self) -> bool{
-        self.into_iter().all(|t| t.is_ended())
+        self.iter().all(|t| t.is_ended())
     }
 
     fn is_all_waiting(&self) -> bool{
-        self.into_iter().all(|t| t.is_waiting())
+        self.iter().all(|t| t.is_waiting())
     }
 
     fn is_all_running(&self) -> bool{
-        self.into_iter().all(|t| t.is_running())
+        self.iter().all(|t| t.is_running())
     }
 
     fn is_any_running(&self) -> bool{
-        self.into_iter().any(|t| t.is_running())
+        self.iter().any(|t| t.is_running())
     }
 
     fn is_any_errored(&self) -> bool{
-        self.into_iter().any(|t| t.is_errored())
+        self.iter().any(|t| t.is_errored())
     }
 
     fn is_any_waiting(&self) -> bool{
-        self.into_iter().any(|t| t.is_waiting())
+        self.iter().any(|t| t.is_waiting())
     }
 
     fn is_any_paused(&self) -> bool{
-        self.into_iter().any(|t| t.is_paused())
+        self.iter().any(|t| t.is_paused())
     }
 
     fn is_any_aborted(&self) -> bool{
-        self.into_iter().any(|t| t.is_aborted())
+        self.iter().any(|t| t.is_aborted())
     }
 
     fn is_any_finished(&self) -> bool{
-        self.into_iter().any(|t| t.is_finished())
+        self.iter().any(|t| t.is_finished())
     }
 
     fn is_any_ended(&self) -> bool{
-        self.into_iter().any(|t| t.is_ended())
+        self.iter().any(|t| t.is_ended())
     }
+
+
+    // ================== COUNTING METHODS ====================
+
+    /// Returns the number tasks
+    fn count(&self) -> usize{
+        self.iter()
+            .count()
+    }
+
+    /// Returns the number of waiting tasks
+    fn count_waiting(&self) -> usize{
+        self.iter()
+            .filter(|t| t.is_waiting())
+            .count()
+    }
+
+    /// Returns the number of running tasks
+    fn count_running(&self) -> usize{
+        self.iter()
+            .filter(|t| t.is_running())
+            .count()
+    }
+
+    /// Returns the number of errored tasks
+    fn count_errored(&self) -> usize{
+        self.iter()
+            .filter(|t| t.is_errored())
+            .count()
+    }
+
+    /// Returns the number of aborted tasks
+    fn count_aborted(&self) -> usize{
+        self.iter()
+            .filter(|t| t.is_aborted())
+            .count()
+    }
+
+    /// Returns the number of paused tasks
+    fn count_paused(&self) -> usize{
+        self.iter()
+            .filter(|t| t.is_paused())
+            .count()
+    }
+
+    /// Returns the number of finished tasks
+    fn count_finished(&self) -> usize{
+        self.iter()
+            .filter(|t| t.is_finished())
+            .count()
+    }
+
+    /// Returns the number of ended tasks
+    fn count_ended(&self) -> usize{
+        self.iter()
+            .filter(|t| t.is_ended())
+            .count()
+    }
+
+
+
+
 
 }
 
