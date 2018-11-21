@@ -1,7 +1,7 @@
 //! The job is the core data structure holding all information, including paths, \
 //! job history, job status, tasks, etc. For details check the Job Struct.
 use ::*;
-
+use std::path::Path;
 
 
 
@@ -282,6 +282,12 @@ impl Job{
         let mut p = p.into();
         p.push("data.json");
         Self::from_datajson(p)
+    }
+
+    /// Check whether a job's `data.json` still exists on disk or not
+    pub fn exists(&self) -> bool {
+        let datapath = self.paths.data.clone();
+        Path::new(&datapath).exists()
     }
 
     /// Return Ok(true) when the data on disk is different than self
