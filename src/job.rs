@@ -602,7 +602,7 @@ impl Job{
     pub fn set_queue(&mut self){
         match self.status.queue(){
             Ok(_) => {
-                let message = format!("Queued Job");
+                let message = format!("Queued Job to job queue");
                 self.add_history(message.as_str());
             },
             Err(err) => {
