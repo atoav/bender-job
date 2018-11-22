@@ -301,7 +301,7 @@ impl Job{
 
     /// Only write changes to data.json if there is a difference between the data
     /// stored on disk and self, Return Error if something failed, otherwise Ok()
-    pub fn update_from_disk_conservatively(&self) -> GenResult<()>{
+    pub fn update_on_disk(&self) -> GenResult<()>{
         let shouldupdate = self.changed_on_disk()?;
         if shouldupdate{
             self.write_to_file()?;
@@ -322,7 +322,7 @@ impl Job{
     }
 
     /// A safe update from disk, that makes sure only certain things get updated
-    pub fn update_from_disk2(&mut self) -> GenResult<()>{
+    pub fn update_from_disk_conservatively(&mut self) -> GenResult<()>{
         self.update_status_from_disk()?;
         self.update_data_from_disk()?;
         self.update_tasks_from_disk()?;
