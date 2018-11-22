@@ -2,6 +2,7 @@
 //! are distributed among the workers
 use ::*;
 use std::hash::{Hash, Hasher};
+use std::collections::HashMap;
 use chrono::Duration;
 use common::random_id;
 
@@ -53,7 +54,8 @@ pub struct Task{
     pub id: String,
     pub status: Status,
     pub time: JobTime,
-    pub command: Command
+    pub command: Command,
+    pub data: HashMap<String, String>
 }
 
 impl Hash for Task {
@@ -77,7 +79,8 @@ impl Task{
             id: random_id(),
             status: Status::Waiting,
             time: JobTime::new(),
-            command: Command::new(command.into())
+            command: Command::new(command.into()),
+            data: HashMap::new()
         }
     }
 
@@ -93,7 +96,8 @@ impl Task{
             id: random_id(),
             status: Status::Waiting,
             time: JobTime::new(),
-            command: Command::new_blender_single(frame, image_format.into())
+            command: Command::new_blender_single(frame, image_format.into()),
+            data: HashMap::new()
         }
     }
 
@@ -109,7 +113,8 @@ impl Task{
             id: random_id(),
             status: Status::Waiting,
             time: JobTime::new(),
-            command: Command::new_blender_range(start, end, step, image_format.into())
+            command: Command::new_blender_range(start, end, step, image_format.into()),
+            data: HashMap::new()
         }
     }
 
@@ -140,6 +145,11 @@ impl Task{
     /// ```
     pub fn construct<S>(&mut self, blendfile: S, outpath: S) where S: Into<String>{
         self.command.construct(blendfile.into(), outpath.into())
+    }
+
+    /// allows to quickly add data to Self::data
+    pub fn add_data<S>(&mut self, key: S, value: S) where S: Into<String> {
+        self.data.insert(key.into(), value.into());
     }
 
     /// Convert the command to string. This returns an Error when the command is a variant \
