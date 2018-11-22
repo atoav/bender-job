@@ -33,7 +33,7 @@ impl Atomizer for Job{
         }
         if chunk_size == 1{
             // Run construct_command on every frame and return as a VecDeque<Task>
-            VecDeque::from_iter(frames.iter().map(|frame| Task::new_blender_single(*frame, iformat.clone())))       
+            VecDeque::from_iter(frames.iter().map(|frame| Task::new_blender_single(*frame, iformat.clone(), self.id.clone())))
         } else {
             // Get a chunk of frames (a Vec<usize>) and map it to the construct_range_command
             VecDeque::from_iter(frames.chunks(chunk_size as usize)
@@ -43,7 +43,7 @@ impl Atomizer for Job{
                         let step = self.frames.step;
                         debug_assert!(step >= self.frames.start);
                         debug_assert!(step <= self.frames.end);
-                        Task::new_blender_range(*start, *end, step, iformat.clone())
+                        Task::new_blender_range(*start, *end, step, iformat.clone(), self.id.clone())
                     }))
         }
     }
