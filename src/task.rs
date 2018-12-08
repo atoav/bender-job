@@ -614,7 +614,8 @@ pub trait TaskQueue{
     /// Returns the number of ended tasks
     fn count_ended(&self) -> usize;
 
-
+    /// Update Task from other Task
+    fn update_task_from(&mut self, task: &Task);
 
     /// Update Tasks from other tasks
     fn update_from(&mut self, other: &Self);
@@ -983,6 +984,17 @@ impl TaskQueue for Tasks{
                     *this = that.clone();
                 }
             });
+    }
+
+    fn update_task_from(&mut self, task: &Task){
+        // Find the other task in self:
+        match self.position_by_id(task.id.as_str()){
+            Some(index) => {
+                self.remove(index);
+                self.insert(index, task.clone());
+            },
+            None => ()
+        }      
     }
 
 }
