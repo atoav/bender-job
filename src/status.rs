@@ -257,6 +257,7 @@ impl Status{
     pub fn validate(&mut self) -> GenResult<()>{
         match self{
             Status::Request(RequestStatus::Untouched) => { *self = Status::Request(RequestStatus::Checked); Ok(()) },
+            Status::Request(RequestStatus::Checked) => Ok(()),
             _ => Err(From::from("Couldn't Status::validate(): was not a untouched request"))
         }
     }
@@ -265,6 +266,7 @@ impl Status{
     pub fn scan(&mut self) -> GenResult<()>{
         match self{
             Status::Request(RequestStatus::Checked) => { *self = Status::Request(RequestStatus::Scanned); Ok(()) },
+            Status::Request(RequestStatus::Scanned) => Ok(()),
             _ => Err(From::from("Couldn't Status::validate(): was not a checked request"))
         }
     }
@@ -273,6 +275,7 @@ impl Status{
     pub fn atomize(&mut self) -> GenResult<()>{
         match self{
             Status::Request(RequestStatus::Scanned) => { *self = Status::Request(RequestStatus::Atomized); Ok(()) },
+            Status::Request(RequestStatus::Atomized) => Ok(()),
             _ => Err(From::from("Couldn't Status::validate(): was not a scanned request"))
         }
     }
@@ -281,6 +284,7 @@ impl Status{
     pub fn queue(&mut self) -> GenResult<()>{
         match self{
             Status::Request(RequestStatus::Atomized) => { *self = Status::Job(JobStatus::Queued); Ok(()) },
+            Status::Job(JobStatus::Queued) => Ok(()),
             _ => Err(From::from("Couldn't Status::queue(): was not a atomized request"))
         }
     }
@@ -289,6 +293,7 @@ impl Status{
     pub fn run(&mut self) -> GenResult<()>{
         match self{
             Status::Job(JobStatus::Queued) => { *self = Status::Job(JobStatus::Running); Ok(()) },
+            Status::Job(JobStatus::Running) => Ok(()),
             _ => Err(From::from("Couldn't Status::run(): was not a queued job"))
         }
     }
@@ -297,6 +302,7 @@ impl Status{
     pub fn finish(&mut self) -> GenResult<()>{
         match self{
             Status::Job(JobStatus::Running) => { *self = Status::Job(JobStatus::Finished); Ok(()) },
+            Status::Job(JobStatus::Finished) => Ok(()),
             _ => Err(From::from("Couldn't Status::finish(): was not a running job"))
         }
     }
