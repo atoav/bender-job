@@ -36,8 +36,8 @@ use common::random_id;
 /// let mut range_frame_task = Task::new_blender_range(1, 250, 1, "PNG", "55067970443c49eaafdb60541fbde157");
 ///
 /// // Tasks with a blender command must be constructed with paths before usage. 
-/// single_frame_task.construct("my/blend/file.blend", "some/out/folder/####.png");
-/// range_frame_task.construct("my/blend/file.blend", "some/out/folder/####.png");
+/// single_frame_task.construct("my/blend/file.blend", "some/out/folder");
+/// range_frame_task.construct("my/blend/file.blend", "some/out/folder");
 ///
 /// // Get the constructed tasks (unwrap fails, if you didn't construct the blender tasks before):
 /// let basic_command = basic_task.to_string().unwrap();
@@ -46,8 +46,8 @@ use common::random_id;
 ///
 /// // This yields following strings as a result:
 /// assert_eq!(basic_command, "ls -a".to_string());
-/// assert_eq!(single_frame_command, "blender -b --disable-autoexec my/blend/file.blend -f 121 -o some/out/folder/####.png -F PNG".to_string());
-/// assert_eq!(range_frame_command, "blender -b --disable-autoexec my/blend/file.blend -s 1 -e 250 -j 1 -o some/out/folder/####.png -F PNG".to_string());
+/// assert_eq!(single_frame_command, "blender -b --disable-autoexec my/blend/file.blend -f 121 -o some/out/folder/######.png -F PNG".to_string());
+/// assert_eq!(range_frame_command, "blender -b --disable-autoexec my/blend/file.blend -s 1 -e 250 -j 1 -o some/out/folder/######.png -F PNG".to_string());
 /// ```
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Task{
@@ -138,14 +138,14 @@ impl Task{
     /// // Now that we are on a different machine, it could make sense to let the worker
     /// // decide which paths to use:
     /// let blendfile = "my/custom/file.blend";
-    /// let outpath = "render/files/here/####.png";
+    /// let outpath = "render/files/here";
     ///
     /// // Construct the command with the new paths
     /// t.construct(blendfile, outpath);
     ///
     /// // Get the string of the command (unwrap will panic if you forgot construct):
     /// let c = t.to_string().unwrap();
-    /// assert_eq!(c, "blender -b --disable-autoexec my/custom/file.blend -f 121 -o render/files/here/####.png -F PNG".to_string());
+    /// assert_eq!(c, "blender -b --disable-autoexec my/custom/file.blend -f 121 -o render/files/here/######.png -F PNG".to_string());
     /// ```
     pub fn construct<S>(&mut self, blendfile: S, outpath: S) where S: Into<String>{
         self.command.construct(blendfile.into(), outpath.into())

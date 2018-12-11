@@ -179,7 +179,8 @@ impl BlenderCommand{
         self.blendfile = Some(blendfile.into());
         self.outpath = Some(outpath.into());
         let framestring = self.frame.to_flags();
-        self.command = Some(format!("blender -b --disable-autoexec {} {} -o {} -F {}", self.blendfile.clone().unwrap(), framestring, self.outpath.clone().unwrap(), self.image_format));
+        let out = self.outpath.clone().unwrap()+"/######."+&self.image_format.to_lowercase();
+        self.command = Some(format!("blender -b --disable-autoexec {} {} -o {} -F {}", self.blendfile.clone().unwrap(), framestring, out, self.image_format));
     }
 
     /// Convert the command to String, return Error if Self::construct() hasn't been called before
