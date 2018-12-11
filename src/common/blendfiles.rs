@@ -137,6 +137,14 @@ fn get_deterministic_job(job_selector: String, id: String, f: &Fn(String, String
             if !id_defined { id = "tttttttthishastwosceneslllllllll".to_string(); }
             apply_job_function("cycles_video_output.blend", id.as_str(), "dh@atoav.com", false, f)
         },
+        "qu short" =>{
+            if !id_defined { id = "25framesshortshortshortshortshor".to_string(); }
+            apply_job_function("qu_1-25_1s_1080p_x0.25.blend", id.as_str(), "dh@atoav.com", true, f)
+        },
+        "qu short B" =>{
+            if !id_defined { id = "shortshortshortshort25framesbbbb".to_string(); }
+            apply_job_function("qu_1-25_1s_1080p_x0.25.blend", id.as_str(), "dh@atoav.com", true, f)
+        },
         "qu 1s" =>{
             if !id_defined { id = "250framesforcycleswith1sperframe".to_string(); }
             apply_job_function("qu_1-250_1s_1080p_x0.25.blend", id.as_str(), "dh@atoav.com", true, f)
@@ -236,6 +244,7 @@ pub mod permanent{
                 vec.push(deterministic::single::get_job("highres", "").0);
                 vec.push(deterministic::single::get_job("video", "").0);
                 vec.push(deterministic::single::get_job("twoscenes", "").0);
+                vec.push(deterministic::single::get_job("qu short", "").0);
                 vec.push(deterministic::single::get_job("qu 1s", "").0);
                 vec.push(deterministic::single::get_job("qu 5s", "").0);
                 vec.push(deterministic::single::get_job("qu 11s", "").0);
@@ -254,6 +263,7 @@ pub mod permanent{
                 vec.push(deterministic::single::get_job("highres", "").0);
                 vec.push(deterministic::single::get_job("video", "").0);
                 vec.push(deterministic::single::get_job("twoscenes", "").0);
+                vec.push(deterministic::single::get_job("qu short", "").0);
                 vec.push(deterministic::single::get_job("qu 1s", "").0);
                 vec.push(deterministic::single::get_job("qu 5s", "").0);
                 vec.push(deterministic::single::get_job("qu 11s", "").0);
@@ -290,6 +300,23 @@ pub mod permanent{
                 let mut vec = Vec::<Job>::new();
                 vec.push(deterministic::single::get_job("qu 5s", "").0);
                 vec.push(deterministic::single::get_job("qu 1s B", "").0);
+
+                // Do all the processing necessary to get a valid queue
+                vec.iter_mut()
+                   .for_each(|job|{
+                      job.validate();
+                      job.scan();
+                      job.atomize();
+                      job.queue();
+                   });
+                vec
+            }
+
+            /// Create a simple queue with two people and two jobs (short)
+            pub fn create_qu_short() -> Vec<Job>{
+                let mut vec = Vec::<Job>::new();
+                vec.push(deterministic::single::get_job("qu short", "").0);
+                vec.push(deterministic::single::get_job("qu short B", "").0);
 
                 // Do all the processing necessary to get a valid queue
                 vec.iter_mut()
