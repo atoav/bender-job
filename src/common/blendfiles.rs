@@ -143,7 +143,7 @@ fn get_deterministic_job(job_selector: String, id: String, f: &Fn(String, String
         },
         "qu short B" =>{
             if !id_defined { id = "shortshortshortshort25framesbbbb".to_string(); }
-            apply_job_function("qu_1-25_1s_1080p_x0.25.blend", id.as_str(), "dh@atoav.com", true, f)
+            apply_job_function("qu_1-25_1s_1080p_x0.25.blend", id.as_str(), "foo@bar.com", true, f)
         },
         "qu 1s" =>{
             if !id_defined { id = "250framesforcycleswith1sperframe".to_string(); }
