@@ -468,7 +468,7 @@ pub mod permanent{
 
                 // Filter all files containing invalid in their filename
                 let blendfiles: Vec<PathBuf> = blendfiles.iter()
-                    .filter(|path| path.file_name().unwrap().to_string_lossy().contains("invalid"))
+                    .filter(|path| !path.file_name().unwrap().to_string_lossy().contains("invalid"))
                     .cloned()
                     .collect();
                 let mut rng = thread_rng();
@@ -487,7 +487,7 @@ pub mod permanent{
 
                 // Filter all files containing invalid in their filename
                 let blendfiles: Vec<PathBuf> = blendfiles.iter()
-                    .filter(|path| path.file_name().unwrap().to_string_lossy().contains("invalid"))
+                    .filter(|path| !path.file_name().unwrap().to_string_lossy().contains("invalid"))
                     .cloned()
                     .collect();
                 let mut rng = thread_rng();
@@ -775,7 +775,7 @@ pub mod temporary{
 
                 // Filter all files containing invalid in their filename
                 let blendfiles: Vec<PathBuf> = blendfiles.iter()
-                    .filter(|path| path.file_name().unwrap().to_string_lossy().contains("invalid"))
+                    .filter(|path| !path.file_name().unwrap().to_string_lossy().contains("invalid"))
                     .cloned()
                     .collect();
                 let mut rng = thread_rng();
@@ -798,7 +798,7 @@ pub mod temporary{
 
                 // Filter all files containing invalid in their filename
                 let blendfiles: Vec<PathBuf> = blendfiles.iter()
-                    .filter(|path| path.file_name().unwrap().to_string_lossy().contains("invalid"))
+                    .filter(|path| !path.file_name().unwrap().to_string_lossy().contains("invalid"))
                     .cloned()
                     .collect();
                 let mut rng = thread_rng();

@@ -475,6 +475,21 @@ impl Job{
     pub fn is_aborted(&self) -> bool{
         self.status.is_canceled()
     }
+
+    /// Return true if self is running
+    pub fn is_running(&self) -> bool{
+        self.status.is_running()
+    }
+
+    /// Return true if self is finished
+    pub fn is_finished(&self) -> bool{
+        self.status.is_finished()
+    }
+
+    /// Return true if self is errored
+    pub fn is_errored(&self) -> bool{
+        self.status.is_errored()
+    }
 }
 
 
@@ -491,7 +506,9 @@ impl Job {
     }
 
     pub fn error<S>(&mut self, error_message: S) where S: Into<String>{
-        self.set_error(error_message.into());
+        if !self.is_errored(){
+            self.set_error(error_message.into());
+        }
     }
 
     pub fn scan(&mut self){
@@ -503,15 +520,21 @@ impl Job {
     }
 
     pub fn queue(&mut self){
-        self.set_queue();
+        if !self.is_queued(){
+            self.set_queue();
+        }
     }
 
     pub fn run(&mut self){
-        self.set_run();
+        if !self.is_running(){
+            self.set_run();
+        }
     }
 
     pub fn finish(&mut self){
-        self.set_finish();
+        if !self.is_finished(){
+            self.set_finish();
+        }
     }
 
     pub fn cancel(&mut self){
