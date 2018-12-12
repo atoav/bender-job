@@ -111,7 +111,7 @@ impl fmt::Display for Command {
 /// A basic command, that is basically just a command-line executable string
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct BasicCommand{
-    command: String
+    pub command: String
 }
 
 impl BasicCommand{
@@ -139,11 +139,11 @@ impl fmt::Display for BasicCommand {
 /// different paths for input and output
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct BlenderCommand{
-    frame: Frame,
-    image_format: String,
-    blendfile: Option<String>,
-    outpath: Option<String>,
-    command: Option<String>
+    pub frame: Frame,
+    pub image_format: String,
+    pub blendfile: Option<String>,
+    pub outpath: Option<String>,
+    pub command: Option<String>
     
 }
 
