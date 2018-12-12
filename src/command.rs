@@ -64,6 +64,19 @@ impl Command{
         }
     }
 
+    /// Return a string that represents the Command in essence
+    pub fn short(&self) -> String{
+        match self{
+            Command::Blender(ref c) => format!("{}", c.frame),
+            Command::Basic(ref c) => {
+                match c.to_string(){
+                    Ok(b) => format!("{}", b),
+                    Err(_err) => "".to_string()
+                }
+            }
+        }
+    }
+
     /// Construct the Command (useful to update the paths on a different system)
     pub fn construct<S>(&mut self, input: S, output: S) where S: Into<String>{
         let input = input.into();
