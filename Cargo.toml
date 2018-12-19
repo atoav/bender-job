@@ -8,14 +8,15 @@ name = "bender_job"
 path = "src/lib.rs"
 
 [dependencies]
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 chrono-humanize = "*"
-rand = "0.5"
-tempfile = "3"
-regex = "1"
 lazy_static = "1"
-bender_bouncer = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-bouncer.git" }
-bender_config = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-config.git" }
+rand = "0.5"
+regex = "1"
+serde = "1"
+serde_derive = "1"
+serde_json = "1"
+tempfile = "3"
+
+bender_config = { path = "../bender-config" }
+bender_bouncer = { path = "../bender-bouncer" }

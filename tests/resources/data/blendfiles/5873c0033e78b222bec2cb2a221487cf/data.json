@@ -2,10 +2,10 @@
   "id": "5873c0033e78b222bec2cb2a221487cf",
   "animation": false,
   "paths": {
-    "upload": "/home/atoav/Blender/bender-job/tests/resources/data/blendfiles/5873c0033e78b222bec2cb2a221487cf",
-    "data": "/home/atoav/Blender/bender-job/tests/resources/data/blendfiles/5873c0033e78b222bec2cb2a221487cf/data.json",
-    "blend": "/home/atoav/Blender/bender-job/tests/resources/data/blendfiles/5873c0033e78b222bec2cb2a221487cf/untitled.blend",
-    "frames": "/home/atoav/Blender/bender-job/tests/resources/data/frames/5873c0033e78b222bec2cb2a221487cf",
+    "upload": "/home/atoav/Bender/bender-job/tests/resources/data/blendfiles/5873c0033e78b222bec2cb2a221487cf",
+    "data": "/home/atoav/Bender/bender-job/tests/resources/data/blendfiles/5873c0033e78b222bec2cb2a221487cf/data.json",
+    "blend": "/home/atoav/Bender/bender-job/tests/resources/data/blendfiles/5873c0033e78b222bec2cb2a221487cf/untitled.blend",
+    "frames": "/home/atoav/Bender/bender-job/tests/resources/data/frames/5873c0033e78b222bec2cb2a221487cf",
     "filename": "untitled.blend"
   },
   "email": "dh@atoav.com",
