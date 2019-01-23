@@ -3,10 +3,6 @@ name = "bender_job"
 version = "0.1.0"
 authors = ["David Huss <dh@widerstandzwecklos.at>"]
 
-[lib]
-name = "bender_job"
-path = "src/lib.rs"
-
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 chrono-humanize = "*"
