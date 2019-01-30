@@ -96,6 +96,11 @@ impl Job{
         self.paths.get_id()
     }
 
+    /// Check if the frames have been downloaded
+    pub fn is_downloaded(&self) -> bool{
+        PathBuf::from(format!("{}/downloaded", self.paths.blend)).exists()
+    }
+
     /// Add to the history of a Job
     /// key is a DateTime constructed via `chrono::Utc::now()`
     /// value can be any String
