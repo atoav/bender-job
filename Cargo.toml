@@ -1,8 +1,15 @@
 [package]
 name = "bender_job"
 version = "0.1.0"
+license = "MIT"
+readme = "README.md"
 authors = ["David Huss <dh@widerstandzwecklos.at>"]
+description = "As part of the bender renderfarm, the bender-job library descripes the job and task datatypes and provides common methods for their creation, storage and manipulation"
 workspace = ".."
+
+[package.metadata.deb]
+extended-description = "As part of the bender renderfarm, the bender-job library descripes the job and task datatypes and provides common methods for their creation, storage and manipulation"
+depends = "$auto"
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
