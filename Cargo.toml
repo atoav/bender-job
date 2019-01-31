@@ -1,5 +1,5 @@
 [package]
-name = "bender-job"
+name = "bender_job"
 version = "0.1.1"
 license = "MIT"
 readme = "README.md"
