@@ -119,7 +119,7 @@ impl Job{
                     false => false
                 }
             },
-            None => true
+            None => false
         };
         if addtohistory{
             self.add_history(value);

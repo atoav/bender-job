@@ -1,10 +1,10 @@
-//! bender_job is a rust library, that serializes and deserializes jobs
+//! bender-job is a rust library, that serializes and deserializes jobs
 //! from `data.json` files. The deserialization yields a Job struct.  
 //!
 //! It can be loaded into a rust project via git by putting this in your Cargo.toml:  
 //! ```text
 //! [dependencies]
-//! bender_job = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-job.git" }
+//! bender-job = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-job.git" }
 //! ```
 //! To update this run
 //! ```text
@@ -40,7 +40,7 @@ extern crate chrono;
 extern crate chrono_humanize;
 extern crate regex;
 #[macro_use] extern crate lazy_static;
-extern crate bender_bouncer;
+extern crate bender-bouncer;
 
 use chrono::prelude::*;
 use chrono::Utc;
@@ -98,8 +98,8 @@ pub type GenResult<T> = Result<T, GenError>;
 
 /// Read all Jobs from the directory specified and return a Vector of Jobs.
 /// ```
-/// # extern crate bender_job;
-/// # use bender_job::{read_all, Job};
+/// # extern crate bender-job;
+/// # use bender-job::{read_all, Job};
 ///
 /// // Read all jobs into Vector
 /// let jobs = read_all("/data/blendfiles");
