@@ -40,7 +40,7 @@ extern crate chrono;
 extern crate chrono_humanize;
 extern crate regex;
 #[macro_use] extern crate lazy_static;
-extern crate bender-bouncer;
+extern bender_bouncer;
 
 use chrono::prelude::*;
 use chrono::Utc;
@@ -98,8 +98,8 @@ pub type GenResult<T> = Result<T, GenError>;
 
 /// Read all Jobs from the directory specified and return a Vector of Jobs.
 /// ```
-/// # extern crate bender-job;
-/// # use bender-job::{read_all, Job};
+/// # extern bender_job;
+/// # use bender_job::{read_all, Job};
 ///
 /// // Read all jobs into Vector
 /// let jobs = read_all("/data/blendfiles");
