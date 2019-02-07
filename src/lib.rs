@@ -122,7 +122,7 @@ pub fn read_all<S>(directory: S) -> Vec<Job> where S: Into<String>{
                                 Ok(job) =>{
                                     vec.push(job);
                                 },
-                                Err(err) => eprintln!("Error: Job::read_all({}) couldn't deserialize Job: {}", directory.as_str(), err)
+                                Err(err) => eprintln!("Error: Job::read_all({}) couldn't deserialize Job from {}: {}", directory.as_str(), p.path(), err)
                             }
                         },
                         Err(err) => eprintln!("Error: Job::read_all({}) failed with Error: {}", 
