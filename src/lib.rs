@@ -112,21 +112,29 @@ pub type GenResult<T> = Result<T, GenError>;
 pub fn read_all<S>(directory: S) -> Vec<Job> where S: Into<String>{
     let directory = directory.into();
     let mut vec = Vec::<Job>::new();
-    if let Ok(paths) = fs::read_dir(directory.as_str()){
-        for path in paths{
-            match path{
-                Ok(p) => {
-                    match Job::from_directory(p.path()){
-                        Ok(job) =>{
-                            vec.push(job);
+    match std::path::PathBuf::from(directory.clone().as_str()).exists(){
+        true => {
+            if let Ok(paths) = fs::read_dir(directory.as_str()){
+                for path in paths{
+                    match path{
+                        Ok(p) => {
+                            match Job::from_directory(p.path()){
+                                Ok(job) =>{
+                                    vec.push(job);
+                                },
+                                Err(err) => eprintln!("Error: Job::read_all({}) couldn't deserialize Job: {}", directory.as_str(), err)
+                            }
                         },
-                        Err(err) => println!("Error: Job::read_all({}) couldn't deserialize Job: {}", directory.as_str(), err)
+                        Err(err) => eprintln!("Error: Job::read_all({}) failed with Error: {}", 
+                            directory.as_str(), err)
                     }
-                },
-                Err(err) => println!("Error: Job::read_all({}) failed with Error: {}", 
-                    directory.as_str(), err)
+                }
             }
+            vec
+        }
+        false => {
+            eprintln!("Error: The job directory at {} doesn't exist. Please create it.", directory.as_str());
+            vec
         }
     }
-    vec
 }
