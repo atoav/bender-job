@@ -101,6 +101,11 @@ impl Job{
         PathBuf::from(format!("{}/downloaded", self.paths.blend)).exists()
     }
 
+    /// Check if the user canceled the job
+    pub fn is_user_canceled(&self) -> bool{
+        PathBuf::from(format!("{}/canceled", self.paths.blend)).exists()
+    }
+
     /// Add to the history of a Job
     /// key is a DateTime constructed via `chrono::Utc::now()`
     /// value can be any String
@@ -438,8 +443,6 @@ impl Job{
         self.incorporate_alternate_history(&mut on_disk.history);
         Ok(())
     }
-
-
 }
 
 
