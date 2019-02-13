@@ -101,7 +101,7 @@ impl Job{
         PathBuf::from(format!("{}/downloaded", self.paths.blend)).exists()
     }
 
-    /// Check if the user canceled the job
+    /// Check if the user canceled the job, set the
     pub fn is_user_canceled(&self) -> bool{
         PathBuf::from(format!("{}/canceled", self.paths.blend)).exists()
     }
@@ -220,7 +220,8 @@ impl Job{
     pub fn from_datajson<S>(p: S) -> GenResult<Self> where S: Into<PathBuf>{
         let p = p.into();
         let bytes = &fs::read(p)?;
-        let job = Self::deserialize_from_u8(bytes)?;
+        let mut job = Self::deserialize_from_u8(bytes)?;
+        if job.is_user_canceled() { job.cancel(); }
         Ok(job)
     }
 
@@ -277,7 +278,6 @@ impl Job{
             render: Render::default(),
             frames: Frames::default(),
             tasks: VecDeque::<Task>::new()
-
         }
     }
 
@@ -417,6 +417,10 @@ impl Job{
         if should_update{
             self.status = on_disk.status
         }
+
+        // Cancel if the user cancled it
+        if self.is_user_canceled() { self.cancel(); }
+
         Ok(())
     }
 
@@ -480,8 +484,8 @@ impl Job{
     }
 
     /// Return true if self is aborted
-    pub fn is_aborted(&self) -> bool{
-        self.status.is_canceled()
+    pub fn is_canceled(&self) -> bool{
+        self.status.is_canceled() || self.is_user_canceled()
     }
 
     /// Return true if self is running
