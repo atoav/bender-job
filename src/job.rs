@@ -117,15 +117,7 @@ impl Job{
     /// Return Ok(()) if the value has been added otherwise return a boxed error
     pub fn add_history_debounced<S>(&mut self, value: S) where S: Into<String>{
         let value = value.into();
-        let addtohistory =  match self.history.values().next_back(){
-            Some(oldvalue) => {
-                match &value  != oldvalue{
-                    true => true,
-                    false => false
-                }
-            },
-            None => false
-        };
+        let addtohistory =  self.history.values().next_back() != Some(&value);
         if addtohistory{
             self.add_history(value);
         }

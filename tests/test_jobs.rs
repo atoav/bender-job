@@ -35,7 +35,9 @@ mod job_functions{
         j.add_history_debounced("Something completely different");
         j.add_history_debounced("Something completely different");
         // Test if last element was actually added
-        let (_key, value) = j.history.iter().next_back().unwrap();
+        let len = j.history.iter().count();
+        let msg = format!("There was no next_back value. history len is {}:\n{:#?}\n", len, j.history);
+        let (_key, value) = j.history.iter().next_back().expect(&msg);
         assert_eq!(value, "Something completely different");
         // Test if the element before the element is what we expect
         let (_key, value) = j.history.iter().nth(j.history.len()-2).unwrap();
