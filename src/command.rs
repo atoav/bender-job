@@ -283,6 +283,14 @@ impl Frame{
     pub fn new_range(start: usize, end: usize, step: usize) -> Self{
         Frame::Range(Range{ start, end, step})
     }
+
+    /// Count the frames independed of type (Single, Range)
+    pub fn count(&self) -> usize{
+        match self{
+            Frame::Single(f) => *f,
+            Frame::Range(r) => (r.end-r.start+1)/r.step
+        }
+    }
 }
 
 impl fmt::Display for Frame {
