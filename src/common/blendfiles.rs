@@ -336,7 +336,7 @@ pub mod permanent{
         /// function creating _all_ permanent jobs within `common::blendfiles::permanent`
         pub fn from_blendfile<P, S>(source_path: P, id: S, email: S, animation: bool) -> (Job, Option<TempDir>)
         where P: Into<PathBuf>, S: Into<String>{
-            let config = Config::from_file(Config::location()).unwrap();
+            let config = Config::get();
             let data_blendfilespath = config.paths.blend();
             // Common variables
             let source_path = source_path.into();
@@ -506,7 +506,7 @@ pub mod permanent{
         /// function creating _all_ permanent jobs within `common::blendfiles::permanent`
         pub fn from_blendfile<P, S>(source_path: P, id: S, email: S, animation: bool) -> Job 
         where P: Into<PathBuf>, S: Into<String>{
-            let config = Config::from_file(Config::location()).unwrap();
+            let config = Config::get();
             let data_blendfilespath = config.paths.blend();
             // Common variables
             let source_path = source_path.into();
