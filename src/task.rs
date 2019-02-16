@@ -622,7 +622,7 @@ pub trait TaskQueue{
     fn update_task_from(&mut self, task: &Task);
 
     /// Update Tasks from other tasks
-    fn update_from(&mut self, other: &Self);
+    fn update_from(&mut self, other: &Self, force: bool);
 }
 
 
@@ -913,7 +913,7 @@ impl TaskQueue for Tasks{
 
 
     // ============== UPDATE METHODS ===============
-    fn update_from(&mut self, other: &Self){
+    fn update_from(&mut self, other: &Self, force: bool){
         self.iter_mut()
             .zip(other.iter())
             .for_each(|(this, that)|{
@@ -962,7 +962,7 @@ impl TaskQueue for Tasks{
                 };
 
                 // Don't update if this task is constructed and the other isn't
-                if should_update{
+                if should_update || force{
                     should_update = match this.command.is_constructed(){
                         true => {
                             // Don't update if this task is constructed and the \
@@ -1000,6 +1000,8 @@ impl TaskQueue for Tasks{
             None => ()
         }      
     }
+
+
 
 }
 

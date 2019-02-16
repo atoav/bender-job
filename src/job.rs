@@ -433,9 +433,10 @@ impl Job{
     pub fn update_tasks_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let on_disk = Self::from_datajson(datapath)?;
-         self.tasks.update_from(&on_disk.tasks);
+        self.tasks.update_from(&on_disk.tasks, true);
         Ok(())
     }
+
 
     /// Update the Jobs History from disk if it is newer
     pub fn update_history_from_disk(&mut self) -> GenResult<()>{
