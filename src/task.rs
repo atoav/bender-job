@@ -263,6 +263,10 @@ impl Task{
                 self.time.finish();
                 self.status = Status::Finished;
             },
+            Status::Queued => {
+                self.time.finish();
+                self.status = Status::Finished;
+            },
             _ => ()
         }
     }
