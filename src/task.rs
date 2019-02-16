@@ -953,8 +953,10 @@ impl TaskQueue for Tasks{
                         false
                     },
                     Status::Finished => {
-                        Status::Finished => true,
-                        _ => false
+                        match that.status{
+                            Status::Finished => true,
+                            _ => false
+                        }
                     }
                 };
 
