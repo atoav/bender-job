@@ -922,14 +922,12 @@ impl TaskQueue for Tasks{
                 let mut should_update = match this.status{
                     Status::Waiting => {
                         match that.status{
-                            Status::Waiting => false,
                             _ => true
                         }
                     },
                     Status::Queued => {
                         match that.status{
                             Status::Waiting => false,
-                            Status::Queued => false,
                             _ => true
                         }
                     },
@@ -937,7 +935,6 @@ impl TaskQueue for Tasks{
                         match that.status{
                             Status::Waiting => false,
                             Status::Queued => false,
-                            Status::Running => false,
                             _ => true
                         }
                     },
@@ -946,7 +943,6 @@ impl TaskQueue for Tasks{
                             Status::Waiting => false,
                             Status::Queued => false,
                             Status::Running => false,
-                            Status::Paused => false,
                             _ => true
                         }
                     },
@@ -957,7 +953,8 @@ impl TaskQueue for Tasks{
                         false
                     },
                     Status::Finished => {
-                        false
+                        Status::Finished => true,
+                        _ => false
                     }
                 };
 
