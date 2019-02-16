@@ -961,30 +961,12 @@ impl TaskQueue for Tasks{
                     }
                 };
 
-                // Don't update if this task is constructed and the other isn't
-                if should_update || force{
-                    should_update = match this.command.is_constructed(){
-                        true => {
-                            // Don't update if this task is constructed and the \
-                            // other isn't
-                            match that.command.is_constructed(){
-                                true => true,
-                                false => false
-                            }
-                        },
-                        false => {
-                            // Always update if this command is (or isn't) \
-                            // constructed and the other isn't
-                            match that.command.is_constructed(){
-                                true => true,
-                                false => true
-                            }
-                        }
-                    }
-                }
+                // Do not update if this command is constructed and the other isn't
+                should_update = should_update && 
+                                !(this.command.is_constructed() && !that.command.is_constructed());
 
                 // Finally do the updatin' if all checks say yes
-                if should_update{
+                if should_update || force{
                     *this = that.clone();
                 }
             });
