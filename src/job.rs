@@ -2,7 +2,8 @@
 //! job history, job status, tasks, etc. For details check the Job Struct.
 use ::*;
 use std::path::Path;
-
+use atomicwrites::{AtomicFile, AllowOverwrite};
+use std::io::Write;
 
 
 /* --------------------------------[ Job ]-------------------------------- */
@@ -194,13 +195,17 @@ impl Job{
         Ok(deserialized)
     }
 
+
     /// Write a serialized version of the Job to the path specified in `Job::paths::data`
-    /// **Warning:** _This must only be used within ONE service!_e
+    /// **Warning:** _This must only be used within ONE service!
     pub fn write_to_file(&self) -> GenResult<()> {
         // Step 1: Serialize
-        let serialized = self.serialize()?;
+        let serialized = self.serialize_to_u8()?;
         // Step 2: Write
-        fs::write(&self.paths.data, serialized)?;
+        let atomicfile = AtomicFile::new(&self.paths.data, AllowOverwrite);
+        try!(atomicfile.write(|f| {
+            f.write_all(&serialized)
+        }));
         Ok(())
     }
 
