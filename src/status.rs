@@ -302,6 +302,7 @@ impl Status{
     pub fn finish(&mut self) -> GenResult<()>{
         match self{
             Status::Job(JobStatus::Running) => { *self = Status::Job(JobStatus::Finished); Ok(()) },
+            Status::Job(JobStatus::Queued) => { *self = Status::Job(JobStatus::Finished); Ok(()) },
             Status::Job(JobStatus::Finished) => Ok(()),
             _ => Err(From::from("Couldn't Status::finish(): was not a running job"))
         }
