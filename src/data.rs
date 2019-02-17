@@ -72,9 +72,14 @@ impl Frames {
         self == &Self::default()
     }
 
-    /// Merge two Frame structs, this is a dummy function
-    pub fn merge(&mut self, _other: &Self){
+    /// Merge two Frame structs, if self is default and the other isn't
+    pub fn merge(&mut self, other: &Self){
         // Frames shouldn't change, don't merge
+        if self.start   == Frames::default().start{   self.start   = other.start;   }
+        if self.end     == Frames::default().end{     self.end     = other.end;     }
+        if self.current == Frames::default().current{ self.current = other.current; }
+        if self.step    == Frames::default().step{    self.step    = other.step;    }
+        if self.fps     == Frames::default().fps{     self.fps     = other.fps;     }
     }
 }
 
@@ -111,9 +116,12 @@ impl Resolution {
         self == &Self::default()
     }
 
-    /// Merge two Resolution structs, this is a dummy function
-    pub fn merge(&mut self, _other: &Self){
+    /// Merge two Resolution structs, if self is default and the other isn't
+    pub fn merge(&mut self, other: &Self){
         // Resolution shouldn't change, don't merge
+        if self.x     == Self::default().x{ self.x = other.x; }
+        if self.y     == Self::default().y{ self.y = other.y; }
+        if self.scale == Self::default().scale{ self.scale = other.scale; }
     }
 }
 
