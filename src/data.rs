@@ -28,6 +28,15 @@ impl Render{
     pub fn is_default(&self) -> bool{
         self == &Self::default()
     }
+
+    /// Merge two Render structs
+    pub fn merge(&mut self, other: &Self){
+        self.renderer = other.renderer.to_string().clone();
+        self.cuda = self.cuda && other.cuda;
+        self.device = other.device.to_string().clone();
+        self.image_format = other.image_format.to_string().clone();
+        self.uses_compositing = self.uses_compositing && other.uses_compositing;
+    }
 }
 
 /// The Frames struct stores frame related data of a [Job](struct.Job.html) (like start, end, current, step and fps). \
@@ -62,6 +71,11 @@ impl Frames {
     pub fn is_default(&self) -> bool{
         self == &Self::default()
     }
+
+    /// Merge two Frame structs, this is a dummy function
+    pub fn merge(&mut self, _other: &Self){
+        // Frames shouldn't change, don't merge
+    }
 }
 
 
@@ -95,6 +109,11 @@ impl Resolution {
     /// Return true if self has still the default value
     pub fn is_default(&self) -> bool{
         self == &Self::default()
+    }
+
+    /// Merge two Resolution structs, this is a dummy function
+    pub fn merge(&mut self, _other: &Self){
+        // Resolution shouldn't change, don't merge
     }
 }
 

@@ -99,6 +99,65 @@ impl Status{
         Status::Request(RequestStatus::Untouched)
     }
 
+    /// Merge one Status with another
+    pub fn merge(&mut self, other: &Self){
+        let should_merge = match self{
+            Status::Request(request_status) =>{
+                match request_status{
+                    RequestStatus::Untouched    => true,
+                    RequestStatus::Invalid       => false,
+                    RequestStatus::Errored      => false,
+                    RequestStatus::Checked      => {
+                        match other{
+                            Status::Request(RequestStatus::Scanned)  => true,
+                            Status::Request(RequestStatus::Atomized) => true,
+                            Status::Job(_)               => true,
+                            _ => false                        
+                        }
+                    },
+                    RequestStatus::Scanned      => {
+                        match other{
+                            Status::Request(RequestStatus::Atomized) => true,
+                            Status::Job(_)               => true,
+                            _ => false                        
+                        }
+                    },
+                    RequestStatus::Atomized     => {
+                        match other{
+                            Status::Job(_) => true,
+                            _ => false                        
+                        }
+                    }
+                }
+            },
+            Status::Job(job_status)         => {
+                match job_status{
+                    JobStatus::Queued           => {
+                        match other{
+                            Status::Job(_) => true,
+                            _ => false                        
+                        }
+                    },
+                    JobStatus::Running          => {
+                        match other{
+                            Status::Job(JobStatus::Queued) => false,
+                            Status::Job(_) => true,
+                            _ => false                        
+                        }
+
+                    },
+                    JobStatus::Canceled         => false,
+                    JobStatus::Errored          => false,
+                    JobStatus::Finished         => false,
+                }
+            }
+        };
+
+        if should_merge{
+            *self = other.clone();
+        }
+    }
+
     // =============== Check General States ===============
     pub fn is_request(&self) -> bool{
         match self{

@@ -278,6 +278,19 @@ impl Job{
         }
     }
 
+    pub fn merge(&mut self, other: &Self){
+        self.time.merge(&other.time);
+        self.status.merge(&other.status);
+        self.data.extend(other.data.clone());
+        self.incorporate_alternate_history(&mut other.history.clone());
+        self.tasks.merge(&other.tasks);
+        self.resolution.merge(&other.resolution);
+        self.render.merge(&other.render);
+        self.frames.merge(&other.frames);
+        self.tasks.merge(&other.tasks);
+
+    }
+
 
     /// Convenience Function to create a Job from the directory containing a
     /// data.json.
@@ -330,10 +343,9 @@ impl Job{
 
     /// A safe update from disk, that makes sure only certain things get updated
     pub fn update_from_disk_conservatively(&mut self) -> GenResult<()>{
-        self.update_status_from_disk()?;
-        self.update_data_from_disk()?;
-        self.update_tasks_from_disk()?;
-        self.update_history_from_disk()?;
+        let datapath = self.paths.data.clone();
+        let on_disk = Self::from_datajson(datapath)?;
+        self.merge(&on_disk);
         Ok(())
     }
 
@@ -422,7 +434,7 @@ impl Job{
     }
 
     /// Update the Jobs data from disk if it is newer
-    pub fn update_data_from_disk(&mut self) -> GenResult<()>{
+    pub fn merge_data_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let mut on_disk = Self::from_datajson(datapath)?;
         self.incorporate_alternate_data(&mut on_disk.data);
@@ -430,7 +442,7 @@ impl Job{
     }
 
     /// Update the the Jobs Tasks from disk if they are newer
-    pub fn update_tasks_from_disk(&mut self) -> GenResult<()>{
+    pub fn merge_tasks_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let on_disk = Self::from_datajson(datapath)?;
         self.tasks.merge(&on_disk.tasks);
@@ -439,7 +451,7 @@ impl Job{
 
 
     /// Update the Jobs History from disk if it is newer
-    pub fn update_history_from_disk(&mut self) -> GenResult<()>{
+    pub fn merge_history_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let mut on_disk = Self::from_datajson(datapath)?;
         self.incorporate_alternate_history(&mut on_disk.history);
