@@ -55,6 +55,21 @@ impl Command{
         Command::Blender(BlenderCommand::new_range(start, end, step, image_format.into()))
     }
 
+    /// Merge one Command into another
+    pub fn merge(&mut self, other: &Self){
+        let commands = (self, other);
+
+        // Only unconstructed Blender commands from constructed ones
+        match commands{
+            (Command::Blender(a), Command::Blender(b)) => {
+                if !(a.is_constructed() && !b.is_constructed()){
+                    *a = b.clone();
+                }
+            },
+            _ => ()
+        }
+    }
+
     /// Convert the Command to a String and return a Result<String> (Error if,
     /// construct() was needed and not called)
     pub fn to_string(&self) -> GenResult<String>{

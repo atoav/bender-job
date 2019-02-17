@@ -217,7 +217,31 @@ impl Task{
     pub fn is_blender(&self) -> bool{
         self.command.is_blender()
     }
+
+    /// Allows to merge one Task with another. This uses "smart" rules in order \
+    /// to ensure no relevant fields get overwritten and will print an Error if \
+    /// the user tries to merge two Tasks with differing id or parent_id fields.
+    /// This means it is the users responsibility to ensure these match. 
+    pub fn merge(&mut self, other: &Self) {
+        if !(self.id != other.id || self.parent_id != other.parent_id) {
+            self.status.merge(&other.status);
+            self.time.merge(&other.time);
+            self.command.merge(&other.command);
+            self.merge_data(&other);
+        }else{
+            eprintln!("Error: you tried to merge two Tasks with differing ids or parent_ids:");
+            eprintln!("Task A: {:#?}", self);
+            eprintln!("Task B: {:#?}", other);       
+        }
+    }
+
+    /// Extend `self.data` with `other.data`
+    pub fn merge_data(&mut self, other: &Self){
+        self.data.extend(other.data.clone());
+    }
 }
+
+
 
 impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -409,6 +433,60 @@ pub enum Status{
     Errored,
     Aborted,
     Paused
+}
+
+
+
+impl Status{
+    /// Merge other status into self based on the other status' value
+    pub fn merge(&mut self, other: &Self){
+        // Check if the status
+        let should_update_status = match self{
+            Status::Waiting => {
+                match other{
+                    _ => true
+                }
+            },
+            Status::Queued => {
+                match other{
+                    Status::Waiting => false,
+                    _ => true
+                }
+            },
+            Status::Running => {
+                match other{
+                    Status::Waiting => false,
+                    Status::Queued => false,
+                    _ => true
+                }
+            },
+            Status::Paused => {
+                match other{
+                    Status::Waiting => false,
+                    Status::Queued => false,
+                    Status::Running => false,
+                    _ => true
+                }
+            },
+            Status::Aborted => {
+                false
+            },
+            Status::Errored => {
+                false
+            },
+            Status::Finished => {
+                match other{
+                    Status::Finished => true,
+                    _ => false
+                }
+            }
+        };
+
+        // Update the status if it has been
+        if should_update_status{
+            *self = other.clone();
+        }
+    }
 }
 
 
@@ -623,6 +701,9 @@ pub trait TaskQueue{
 
     /// Update Tasks from other tasks
     fn update_from(&mut self, other: &Self, force: bool);
+
+    /// Merge Tasks one by one
+    fn merge(&mut self, other: &Self);
 }
 
 
@@ -980,6 +1061,25 @@ impl TaskQueue for Tasks{
             },
             None => ()
         }      
+    }
+
+    /// Run merge on all tasks of Tasks
+    fn merge(&mut self, other: &Self){
+        self.iter_mut()
+            .for_each(|task|{
+                match other.get_by_id(task.id.as_str()){
+                    Some(b) => {
+                        if task.parent_id == b.parent_id{
+                            task.merge(b)
+                        }else{
+                            eprintln!("Error: Tried to merge Tasks witt differing parent_id:");
+                            eprintln!("{:#?}", task);
+                            eprintln!("{:#?}", b);
+                        }
+                    },
+                    None    => ()
+                }
+            });
     }
 
 

@@ -433,7 +433,7 @@ impl Job{
     pub fn update_tasks_from_disk(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let on_disk = Self::from_datajson(datapath)?;
-        self.tasks.update_from(&on_disk.tasks, false);
+        self.tasks.merge(&on_disk.tasks);
         Ok(())
     }
 

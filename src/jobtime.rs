@@ -21,6 +21,25 @@ pub struct JobTime {
     pub pause: Option<DateTime<Utc>>
 }
 
+/// Associated function that handles the logic of mergin one Option<DateTime<Utc>>
+/// into another
+fn merge_date(this: Option<DateTime<Utc>>, that: Option<DateTime<Utc>>) -> Option<DateTime<Utc>>{
+    let dates = (this, that);
+    // Return the date that has a value or is older
+    match dates{
+        (None, None)       => None,
+        (Some(a), None)    => Some(a),
+        (None, Some(b))    => Some(b),
+        (Some(a), Some(b)) => {
+            if a < b {
+                Some(a)
+            }else{
+                Some(b)
+            }
+        }
+    }
+}
+
 
 
 #[allow(dead_code)]
@@ -50,6 +69,17 @@ impl JobTime{
             abort: None,
             pause: None
         }
+    }
+
+    /// Allow the merging of one JobTime into another
+    pub fn merge(&mut self, other: &Self){
+        self.creation = merge_date(self.creation, other.creation);
+        self.queued   = merge_date(self.queued, other.queued);
+        self.start    = merge_date(self.start, other.start);
+        self.finish   = merge_date(self.finish, other.finish);
+        self.error    = merge_date(self.error, other.error);
+        self.abort    = merge_date(self.abort, other.abort);
+        self.pause    = merge_date(self.pause, other.pause);
     }
 
     /// Save time for
