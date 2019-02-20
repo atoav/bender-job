@@ -49,7 +49,7 @@ use common::random_id;
 /// assert_eq!(single_frame_command, "blender -b --disable-autoexec my/blend/file.blend -o some/out/folder/######.png -F PNG -f 121".to_string());
 /// assert_eq!(range_frame_command, "blender -b --disable-autoexec my/blend/file.blend -o some/out/folder/######.png -F PNG -s 1 -e 250 -j 1".to_string());
 /// ```
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Task{
     pub id: String,
     pub status: Status,
@@ -62,6 +62,12 @@ pub struct Task{
 impl Hash for Task {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state);
+    }
+}
+
+impl PartialEq for Task {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
     }
 }
 
@@ -322,22 +328,16 @@ impl Task{
     /// Pause the task (only if it is running)
     /// and log the time of this call
     pub fn pause(&mut self){
-        match self.status{
-            Status::Running => {
-                self.time.pause();
-                self.status = Status::Paused;
-            },
-            _ => ()
+        if let Status::Running = self.status {
+            self.time.pause();
+            self.status = Status::Paused;
         }
     }
 
     /// Resume the Task if it is running
     pub fn resume(&mut self){
-        match self.status{
-            Status::Paused => {
-                self.status = Status::Running;
-            },
-            _ => ()
+        if let Status::Paused = self.status {
+            self.status = Status::Running;
         }
     }
 
@@ -561,6 +561,9 @@ pub trait TaskQueue{
     /// Get a mutable reference to the task with the given ID
     fn get_mut_by_id<S>(&mut self, id: S) -> Option<&mut Task> where S: Into<String>;
 
+    /// Return true if there is a Task with the given id
+    fn has_task<S>(&self, id: S) -> bool where S: Into<String>;
+
     /// Put the next Task into Queue status and return a mutable reference to it.
     /// The next task is the next task that is waiting
     fn queue_next(&mut self) -> Option<&mut Task>;
@@ -731,6 +734,12 @@ impl TaskQueue for Tasks{
         let id = id.into();
         self.iter_mut()
             .find(|ref mut task|task.id == id)
+    }
+
+    fn has_task<S>(&self, id: S) -> bool where S: Into<String>{
+        let id = id.into();
+        self.iter()
+            .any(|ref task|task.id == id)
     }
 
     // ================== CONTROL METHODS ====================
