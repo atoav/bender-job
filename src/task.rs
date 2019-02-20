@@ -1065,24 +1065,34 @@ impl TaskQueue for Tasks{
 
     /// Run merge on all tasks of Tasks
     fn merge(&mut self, other: &Self){
-        self.iter_mut()
-            .for_each(|task|{
-                match other.get_by_id(task.id.as_str()){
-                    Some(b) => {
-                        if task.parent_id == b.parent_id{
-                            task.merge(b)
-                        }else{
-                            eprintln!("Error: Tried to merge Tasks witt differing parent_id:");
-                            eprintln!("{:#?}", task);
-                            eprintln!("{:#?}", b);
-                        }
-                    },
-                    None    => ()
-                }
-            });
+        // Get the bigger of the two
+        let taskcount = std::cmp::max(self.len(), other.len());
+        let difference = taskcount - std::cmp::min(self.len(), other.len());
+
+        // Create a list for appending tasks
+        let mut newtasks = Vec::with_capacity(difference);
+
+        // Iterate over the maximum length of the two VecDeque<Task>
+        for i in 0 .. taskcount{
+            // Get a tuple of (Option<&mut Task>, Option<&Task>)
+            let tasks = (self.get_mut(i), other.get(i));
+            // Match all possible combinations of old and new
+            match tasks{
+                (Some(o), Some(n)) => {    // Both tasks exist, merge new in old
+                    if n.id == o.id && n.parent_id == o.parent_id{
+                        o.merge(n);
+                    }else{
+                        eprintln!("Error: Tried to merge Tasks with differing parent_id or id:");
+                        eprintln!("Old: {:#?}", o);
+                        eprintln!("New: {:#?}", n);
+                    }
+                },
+                (Some(_), None)    => (),  // Only old task exists, do nothing
+                (None, Some(n))    => newtasks.push(n.clone()),
+                (None, None)       => ()   // Both are none (this should not happen)
+            }
+        }
     }
-
-
 
 }
 
