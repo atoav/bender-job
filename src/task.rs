@@ -235,9 +235,7 @@ impl Task{
             self.command.merge(&other.command);
             self.merge_data(&other);
         }else{
-            eprintln!("Error: you tried to merge two Tasks with differing ids or parent_ids:");
-            eprintln!("Task A: {:#?}", self);
-            eprintln!("Task B: {:#?}", other);       
+            eprintln!("Error: you tried to merge two Tasks with differing ids or parent_ids");      
         }
     }
 
