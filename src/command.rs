@@ -60,13 +60,10 @@ impl Command{
         let commands = (self, other);
 
         // Only unconstructed Blender commands from constructed ones
-        match commands{
-            (Command::Blender(a), Command::Blender(b)) => {
-                if !(a.is_constructed() && !b.is_constructed()){
-                    *a = b.clone();
-                }
-            },
-            _ => ()
+        if let (Command::Blender(a), Command::Blender(b)) = commands {
+            if b.is_constructed() || !a.is_constructed(){
+                *a = b.clone();
+            }
         }
     }
 
@@ -85,7 +82,7 @@ impl Command{
             Command::Blender(ref c) => format!("{}", c.frame),
             Command::Basic(ref c) => {
                 match c.to_string(){
-                    Ok(b) => format!("{}", b),
+                    Ok(b) => b.to_string(),
                     Err(_err) => "".to_string()
                 }
             }
@@ -224,23 +221,17 @@ impl BlenderCommand{
     }
 
     pub fn is_constructed(&self) -> bool{
-        match self.blendfile{
-            Some(_) => true,
-            None => false
-        }
+        self.blendfile.is_some()
     }
 }
 
 /// Implement Formating for basic command
 impl fmt::Display for BlenderCommand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.is_constructed(){
-            true => {
-                write!(f, "Render {} ({})", self.frame, self.image_format)
-            },
-            false => {
-                write!(f, "Render {} ({})", self.frame, self.image_format)
-            }
+        if self.is_constructed() {
+            write!(f, "Render {} ({})", self.frame, self.image_format)
+        } else {
+            write!(f, "Render {} ({})", self.frame, self.image_format)
         }
     }
 }
@@ -302,7 +293,7 @@ impl Frame{
     /// Count the frames independed of type (Single, Range)
     pub fn count(&self) -> usize{
         match self{
-            Frame::Single(f) => *f,
+            Frame::Single(_) => 1,
             Frame::Range(r) => (r.end-r.start+1)/r.step
         }
     }
