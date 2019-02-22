@@ -27,9 +27,12 @@ impl Atomizer for Job{
         let mut frames = Vec::new();
         let iformat = &self.render.image_format;
         // Return the frame/frames depending on the split settings
-        match self.animation{
-            false => frames.push(self.frames.current),
-            true => self.frames.as_vec().iter().for_each(|frame| frames.push(*frame))
+        if self.animation { 
+            self.frames.as_vec()
+                       .iter()
+                       .for_each(|frame| frames.push(*frame)) 
+        } else { 
+            frames.push(self.frames.current) 
         }
         if chunk_size == 1{
             // Run construct_command on every frame and return as a VecDeque<Task>
