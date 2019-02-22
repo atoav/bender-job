@@ -41,8 +41,8 @@ impl Atomizer for Job{
                         let start = frame_chunk.iter().min().unwrap();
                         let end = frame_chunk.iter().max().unwrap();
                         let step = self.frames.step;
-                        debug_assert!(step >= self.frames.start);
-                        debug_assert!(step <= self.frames.end);
+                        debug_assert!(self.frames.start <= self.frames.end);
+                        debug_assert!(step > 0);
                         Task::new_blender_range(*start, *end, step, iformat.clone(), self.id.clone())
                     }))
         }
