@@ -11,6 +11,7 @@ use data::Resource;
 use std::process::Command;
 use std::path::Path;
 use regex::Regex;
+use std::os::unix::fs::OpenOptionsExt;
 
 
 /// A thing that implements the Gaffer trait can scan and optimize its own job \
@@ -97,7 +98,7 @@ impl Gaffer for Job{
         // to set some things straight and save a new file
         let command = Command::new("blender")
                 .arg("-b")
-                .arg(path)
+                .arg(&path)
                 .arg("--disable-autoexec")
                 .arg("--python")
                 .arg(python_path)
@@ -111,9 +112,16 @@ impl Gaffer for Job{
             .collect();
 
         // Error on empty string
-        match output == "".to_string(){
-            true => Err(From::from(String::from_utf8(command.stdout).unwrap())),
-            false => Ok(output)
+        if output == "" { 
+            Err(From::from(String::from_utf8(command.stdout).unwrap())) 
+        } else {
+            let _f = fs::OpenOptions::new()
+                    .read(true)
+                    .create(false)
+                    .write(false)
+                    .mode(0o775)
+                    .open(&path)?;
+            Ok(output)
         }
     }
 
