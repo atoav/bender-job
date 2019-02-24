@@ -10,7 +10,6 @@ use ::*;
 use data::Resource;
 use std::process::Command;
 use std::path::Path;
-use regex::Regex;
 use std::os::unix::fs::OpenOptionsExt;
 
 
@@ -42,10 +41,12 @@ impl Gaffer for Job{
                     // Run Blend with Python
                     match Self::run_with_python(self.paths.blend.as_str(), python_path.as_str()){
                         Ok(output) =>{
+                            println!("\n         /--[scan: Miscinfo::deserialize  -> start]");
                             // Deserialize from blender output
                             match MiscInfo::deserialize(&output[..]){
                                 Ok(info) => {
                                     self.incorporate_info(info);
+                                    println!("         |--[scan: self.set_scan()  -> start]");
                                     self.set_scan();
                                 },
                                 Err(err) => {
@@ -62,7 +63,7 @@ impl Gaffer for Job{
                         }
                     }
                 }else{
-                    let error_message = format!("Warning: Couldn't scan_and_optimize() with gaffer because job wasn't validated");
+                    let error_message = "Warning: Couldn't scan_and_optimize() with gaffer because job wasn't validated".to_string();
                     println!("{}", error_message);
                     self.set_error(error_message);
                 }
@@ -85,14 +86,9 @@ impl Gaffer for Job{
     /// blender -b myfile.blend --disable-autoexec --python path/to/optimize_blend.py
     /// ```
     fn run_with_python<S>(path: S, python_path: S) -> GenResult<String>where S: Into<String>{
+        println!("         |--[scan: run_with_python  -> start]");
         let path = path.into();
         let python_path = python_path.into();
-
-        // Compile the pattern lazy, so we don't need to generate a pattern every
-        // time rum_with_python() gets a call
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r#"\{"render""#).unwrap();
-        }
 
         // Pass variables as environment variables, let blender run optimize_blend.py
         // to set some things straight and save a new file
@@ -108,7 +104,7 @@ impl Gaffer for Job{
         // Collect all lines starting with "{" for JSON
         let output: String = String::from_utf8(command.stdout.clone())?
             .lines()
-            .filter(|line|RE.is_match(line))
+            .filter(|line|line.starts_with(r#"\{"render""#))
             .collect();
 
         // Error on empty string
@@ -118,9 +114,10 @@ impl Gaffer for Job{
             let _f = fs::OpenOptions::new()
                     .read(true)
                     .create(false)
-                    .write(false)
+                    .write(true)
                     .mode(0o775)
                     .open(&path)?;
+
             Ok(output)
         }
     }
@@ -129,6 +126,7 @@ impl Gaffer for Job{
     /// Integrates the MiscInfo deserialized from the optimize_blend.py output
     /// into the Job's fields'
     fn incorporate_info(&mut self, info: MiscInfo){
+        println!("         |--[scan: incorporate_info  -> start]");
         self.render = info.render.clone();
         self.frames = info.frames.clone();
         self.resolution = info.resolution.clone();
