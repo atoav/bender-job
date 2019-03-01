@@ -14,7 +14,7 @@ depends = "$auto"
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 chrono-humanize = "*"
-rand = "0.5"
+rand = "0.6"
 regex = "1"
 serde = "1"
 serde_derive = "1"
