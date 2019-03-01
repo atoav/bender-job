@@ -4,6 +4,8 @@ use ::*;
 use std::path::Path;
 use atomicwrites::{AtomicFile, AllowOverwrite};
 use std::io::Write;
+use std::os::unix::fs::PermissionsExt;
+
 
 
 /* --------------------------------[ Job ]-------------------------------- */
@@ -152,10 +154,7 @@ impl Job{
         let value = value.into();
         match self.data.insert(key.into(), value.clone()){
             Some(oldvalue) => {
-                match value != oldvalue{
-                    true => Ok(()),
-                    false => Ok(())
-                }
+                if value != oldvalue { Ok(()) } else { Ok(()) }
             },
             None => Ok(())
         }
@@ -204,6 +203,18 @@ impl Job{
         // Step 2: Write
         let atomicfile = AtomicFile::new(&self.paths.data, AllowOverwrite);
         try!(atomicfile.write(|f| {
+            match f.metadata(){
+                Ok(meta) => {
+                    // Set the permissions to 775
+                    let mut permissions = meta.permissions();
+                    permissions.set_mode(0o775);
+                    match f.set_permissions(permissions){
+                        Ok(_) => (),
+                        Err(err) => eprintln!("Error: write_to_file failed to set file permissions to 775: {}", err)
+                    }
+                },
+                Err(err) => eprintln!("Error: Failed to get file metadata: {}", err)
+            }
             f.write_all(&serialized)
         }));
         Ok(())
@@ -262,9 +273,9 @@ impl Job{
         let id = id.to_os_string().into_string().unwrap();
 
         Job{
-            id: id,
-            animation: animation,
-            email: email,
+            id,
+            animation,
+            email,
             paths: JobPaths::from_blendpath(blendpath),
             version: "".to_string(),
             time: JobTime::new(),
@@ -586,7 +597,7 @@ impl Job{
     pub fn set_deny(&mut self){
         match self.status.deny(){
             Ok(_) => {
-                let message = format!("Denied Blendfile as invalid");
+                let message = "Denied Blendfile as invalid".to_string();
                 self.add_history(message.as_str());
             },
             Err(err) => {
@@ -616,7 +627,7 @@ impl Job{
     pub fn set_scan(&mut self){
         match self.status.scan(){
             Ok(_) => {
-                let message = format!("Scanning finished");
+                let message = "Scanning finished".to_string();
                 self.add_history(message.as_str());
             },
             Err(err) => {
@@ -630,10 +641,11 @@ impl Job{
     pub fn set_atomize(&mut self){
         match self.status.atomize(){
             Ok(_) => {
-                let message = match self.animation{
-                    true => format!("Atomization finished: created {} atomic tasks (for {} frames)", self.tasks.len(), self.frames.count()),
-                    false => format!("Atomization finished: created {} atomic task (for current frame {})", self.tasks.len(), self.frames.current)
-                };
+                let message = if self.animation { 
+                                format!("Atomization finished: created {} atomic tasks (for {} frames)", self.tasks.len(), self.frames.count()) 
+                              } else { 
+                                format!("Atomization finished: created {} atomic task (for current frame {})", self.tasks.len(), self.frames.current) 
+                              };
                 self.add_history(message.as_str());
             },
             Err(err) => {
@@ -647,7 +659,7 @@ impl Job{
     pub fn set_queue(&mut self){
         match self.status.queue(){
             Ok(_) => {
-                let message = format!("Queued Job to job queue");
+                let message = "Queued Job to job queue".to_string();
                 self.add_history(message.as_str());
             },
             Err(err) => {
@@ -661,7 +673,7 @@ impl Job{
     pub fn set_run(&mut self){
         match self.status.run(){
             Ok(_) => {
-                let message = format!("running Job");
+                let message = "running Job".to_string();
                 self.add_history(message.as_str());
                 self.time.start();
             },
@@ -676,7 +688,7 @@ impl Job{
     pub fn set_finish(&mut self){
         match self.status.finish(){
             Ok(_) => {
-                let message = format!("Finished Job");
+                let message = "Finished Job".to_string();
                 self.add_history(message.as_str());
                 self.time.finish();
             },
@@ -691,7 +703,7 @@ impl Job{
     pub fn set_cancel(&mut self){
         match self.status.cancel(){
             Ok(_) => {
-                let message = format!("Canceled Job");
+                let message = "Canceled Job".to_string();
                 self.add_history(message.as_str());
                 self.time.abort();
             },
