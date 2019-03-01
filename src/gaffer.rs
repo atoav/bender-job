@@ -10,7 +10,7 @@ use ::*;
 use data::Resource;
 use std::process::Command;
 use std::path::Path;
-use std::os::unix::fs::OpenOptionsExt;
+use std::os::unix::fs::PermissionsExt;
 
 
 /// A thing that implements the Gaffer trait can scan and optimize its own job \
@@ -92,6 +92,7 @@ impl Gaffer for Job{
 
         // Pass variables as environment variables, let blender run optimize_blend.py
         // to set some things straight and save a new file
+        // blender -b / --disable-autoexec --python /usr/local/lib/optimize_blend.py
         let command = Command::new("blender")
                 .arg("-b")
                 .arg(&path)
@@ -104,20 +105,26 @@ impl Gaffer for Job{
         // Collect all lines starting with "{" for JSON
         let output: String = String::from_utf8(command.stdout.clone())?
             .lines()
-            .filter(|line|line.starts_with(r#"\{"render""#))
+            .filter(|line|line.trim().starts_with('{'))
             .collect();
 
         // Error on empty string
         if output == "" { 
             Err(From::from(String::from_utf8(command.stdout).unwrap())) 
         } else {
-            let _f = fs::OpenOptions::new()
-                    .read(true)
-                    .create(false)
-                    .write(true)
-                    .mode(0o775)
-                    .open(&path)?;
-
+            // Set permissions
+            match fs::metadata(&path){
+                Ok(meta) => {
+                    // Set the permissions to 775
+                    let mut permissions = meta.permissions();
+                    permissions.set_mode(0o775);
+                    match fs::set_permissions(&path, permissions){
+                        Ok(_) => println!("         |--[scan: set blendfile permissions to 775]"),
+                        Err(err) => eprintln!("Error: failed to set permissions to 775: {}", err)
+                    }
+                },
+                Err(err) => eprintln!("Error: Failed to get file metadata: {}", err)
+            }
             Ok(output)
         }
     }
