@@ -1,5 +1,5 @@
 # This script is meant to be run from within blender
-
+print("Started running optimize_blend.py")
 import bpy
 import os
 import json
@@ -17,17 +17,24 @@ def now():
 history = {}
 history[now()] = "optimize_blend.py: Sucessfully started blender with optimize_blend.py"
 
-# Get current Scene
-scene = bpy.context.scene
-history[now()] = "optimize_blend.py: Active scene.name=\'"+scene.name+"\'"
+
+try:
+    # Get current Scene
+    scene = bpy.context.scene
+    history[now()] = "optimize_blend.py: Active scene.name=\'"+scene.name+"\'"
+except:
+    print("Error: Couldn't get bpy.context.scene")
 
 # Only allow still image formats to avoid video encoding
 allowed_formats = ["PNG", "BMP", "JPEG", "JPEG2000", "TARGA", "TARGA_RAW", "CINEON", "DPX", "OPEN_EXR_MULTILAYER", "OPEN_EXR", "HDR", "TIFF"]
 
-# Check if Cycles is used
-renderer = bpy.context.scene.render.engine
-uses_cycles = renderer == 'CYCLES'
-history[now()] = "optimize_blend.py: active renderer is "+renderer
+try:
+    # Check if Cycles is used
+    renderer = bpy.context.scene.render.engine
+    uses_cycles = renderer == 'CYCLES'
+    history[now()] = "optimize_blend.py: active renderer is "+renderer
+except:
+    print("Error: couldn't get bpy.context.scene.render.engine")
 
 cuda = False
 
@@ -66,7 +73,7 @@ if not valid_format:
 
 # Delete unused Materials:
 n_materials = len(bpy.data.materials)
-n_materials_removed = n_materials
+n_materials_removed = 0
 for material in bpy.data.materials:
     if not material.users:
         bpy.data.materials.remove(material)
@@ -75,7 +82,7 @@ if n_materials_removed > 0: history[now()] = "optimize_blend.py: Removed "+str(n
 
 # Delete unused Objects:
 n_objects = len(bpy.data.objects)
-n_objects_removed = n_objects
+n_objects_removed = 0
 for obj in bpy.data.objects:
     if not obj.users:
         bpy.data.objects.remove(obj)
@@ -84,7 +91,7 @@ if n_objects_removed > 0: history[now()] = "optimize_blend.py: Removed "+str(n_o
 
 # Delete unused Textures:
 n_textures = len(bpy.data.textures)
-n_textures_removed = n_textures
+n_textures_removed = 0
 for texture in bpy.data.textures:
     if not texture.users:
         bpy.data.textures.remove(texture)
@@ -94,22 +101,19 @@ if n_textures_removed > 0: history[now()] = "optimize_blend.py: Removed "+str(n_
 
 
 # Overwrite the file
-bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath)
-bpy.ops.wm.open_mainfile(filepath=bpy.data.filepath)
-bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath)
+bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath, copy=True)
 history[now()] = "optimize_blend.py: Stored changes in file at "+bpy.data.filepath
 
 
 
 # Save Status into dict
 status = {
-    "render":{
-        "renderer": renderer,
-        "cuda": cuda,
-        "device": scene.cycles.device,
-        "image_format": image_format,
-        "uses_compositing": scene.render.use_compositing
-    },
+    "path": bpy.data.filepath,
+    "renderer": renderer,
+    "cuda": cuda,
+    "device": scene.cycles.device,
+    "image_format": image_format,
+    "valid_format": valid_format,
     "materials": {
         "n": n_materials,
         "removed": n_materials_removed
@@ -126,14 +130,15 @@ status = {
         "start": scene.frame_start,
         "end": scene.frame_end,
         "current": scene.frame_current,
-        "step": scene.frame_step,
-        "fps": scene.render.fps
+        "step": scene.frame_step
     },
     "resolution": {
         "x": scene.render.resolution_x,
         "y": scene.render.resolution_y,
         "scale": scene.render.resolution_percentage
     },
+    "fps": scene.render.fps,
+    "uses_compositing": scene.render.use_compositing,
     "history": history
 }
 
