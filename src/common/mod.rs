@@ -10,7 +10,7 @@ extern crate tempfile;
 /// Commonly used functions
 use std::path::PathBuf;
 use std::collections::{HashMap, BTreeMap};
-use self::rand::{thread_rng, Rng};
+use self::rand::{thread_rng, prelude::SliceRandom};
 use std::fs;
 use self::tempfile::{Builder, TempDir};
 
@@ -28,7 +28,7 @@ pub fn random_id() -> String {
     const CHARSET: &[u8] = b"abcdefghijklmnopqrstuvwxyz0123456789";
     let mut rng = thread_rng();
     let id: String = (0..32)
-        .map(|_| *rng.choose(CHARSET).expect("Unwrapping of random uuid failed") as char)
+        .map(|_| *CHARSET.choose(&mut rng).expect("Unwrapping of random uuid failed") as char)
         .collect();
     id
 }
@@ -143,7 +143,7 @@ pub fn get_random_job_from<S>(source_id: S, source_filename: S) -> (Job, TempDir
     source_file_path.push(source_filename.as_str());
     let temp_blendfile = tempdir.path().join(source_filename.as_str());
     let error_message = format!("Couldn't copy blendfile for random Job from {:?} to {:?}", source_file_path, temp_blendfile);
-    fs::copy(&source_file_path, &temp_blendfile).expect(error_message.as_str()); 
+    fs::copy(&source_file_path, &temp_blendfile).expect(&*error_message); 
     
     // Copy data.json
     let mut source_file_path = get_data_blendfilespath();
@@ -151,7 +151,7 @@ pub fn get_random_job_from<S>(source_id: S, source_filename: S) -> (Job, TempDir
     source_file_path.push("data.json");
     let temp_datafile = tempdir.path().join("data.json");
     let error_message = format!("Couldn't copy blendfile for random Job from {:?} to {:?}", source_file_path, temp_datafile);
-    fs::copy(&source_file_path, &temp_datafile).expect(error_message.as_str()); 
+    fs::copy(&source_file_path, &temp_datafile).expect(&*error_message); 
 
     // Get a string representing the uploadfolder
     let uploadfolder: PathBuf = tempdir.path().to_path_buf();

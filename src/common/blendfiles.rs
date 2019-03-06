@@ -86,7 +86,7 @@ fn apply_job_function<S>(blendfile: S, id: S, email: S, animation: bool, f: &Fn(
 where S: Into<String>{
     let blendfile = blendfile.into();
     let error_message = format!("Error: Couldn't find blendfile named {}", blendfile);
-    let source_path = path::get_blendfile_by_name(blendfile.as_str()).expect(error_message.as_str());
+    let source_path = path::get_blendfile_by_name(blendfile.as_str()).expect(&*error_message);
     let source_path = source_path.into_os_string().into_string().unwrap();
     let id = id.into();
     let email = email.into();
@@ -99,7 +99,7 @@ where S: Into<String>{
 /// 
 fn get_deterministic_job(job_selector: String, id: String, f: &Fn(String, String, String, bool) -> (Job, Option<TempDir>)) -> (Job, Option<TempDir>){
     let mut id = id;
-    let id_defined = id != "".to_string();
+    let id_defined = id != "";
     match job_selector.as_ref(){
         "animation" =>{
             if !id_defined { id = "aaaaaaacycles1to250xxxanimationa".to_string(); }
@@ -358,14 +358,14 @@ pub mod permanent{
             let mut target_blendfile = jobpathbuf.clone();
             target_blendfile.push(source_filename.as_str());
             let error_message = format!("Couldn't copy blendfile for permanent Job from {:?} to {:?}", source_path, target_blendfile);
-            fs::copy(&source_path, &target_blendfile).expect(error_message.as_str());
+            fs::copy(&source_path, &target_blendfile).expect(&*error_message);
 
             // Construct Job with fixed creation time (for comparison)
             let job = Job {
-                id: id,
+                id,
                 paths: JobPaths::from_uploadfolder(jobpath.as_str()),
-                animation: animation,
-                email: email,
+                animation,
+                email,
                 version: "".to_owned(),
                 time: JobTime::new_deterministic_for_test(),
                 status: Status::new(),
@@ -403,14 +403,14 @@ pub mod permanent{
             use ::*;
             use common::random_id;
             use common::blendfiles::permanent;
-            use common::rand::{thread_rng, Rng};
+            use common::rand::{thread_rng, Rng, prelude::SliceRandom};
 
             /// Create a randomized job
             pub fn get_job<S>(source_path: S) -> Job where S: Into<String>{
                 let source_path = source_path.into();
                 let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
                 let mut rng = thread_rng();
-                let email = rng.choose(&emails).unwrap().to_string();
+                let email = (&emails.choose(&mut rng).unwrap()).to_string();
                 let id = random_id();
                 let animation = rng.gen_bool(0.5);
                 permanent::random::from_blendfile(source_path, id, email, animation)
@@ -422,7 +422,7 @@ pub mod permanent{
                 let source_path = source_path.into();
                 let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
                 let mut rng = thread_rng();
-                let email = rng.choose(&emails).unwrap().to_string();
+                let email = (&emails.choose(&mut rng).unwrap()).to_string();
                 let id = random_id();
                 permanent::random::from_blendfile(source_path, id, email, false)
             }
@@ -433,7 +433,7 @@ pub mod permanent{
                 let source_path = source_path.into();
                 let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
                 let mut rng = thread_rng();
-                let email = rng.choose(&emails).unwrap().to_string();
+                let email = (&emails.choose(&mut rng).unwrap()).to_string();
                 let id = random_id();
                 permanent::random::from_blendfile(source_path, id, email, true)
             }
@@ -445,7 +445,7 @@ pub mod permanent{
             use ::*;
             use common::blendfiles::permanent;
             use common::path;
-            use common::rand::{thread_rng, Rng};
+            use common::rand::{thread_rng, prelude::SliceRandom};
 
             /// Create n jobs that are completely random. That means they are either valid or
             /// invalid, still or animation and have random email adresses
@@ -454,7 +454,7 @@ pub mod permanent{
                 let blendfiles = path::get_blendfiles();
                 let mut rng = thread_rng();
                 for _ in 0 .. n{
-                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfiles.choose(&mut rng).unwrap();
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     vec.push(permanent::random::single::get_job(blendfile));
                 }
@@ -473,7 +473,7 @@ pub mod permanent{
                     .collect();
                 let mut rng = thread_rng();
                 for _ in 0 .. n{
-                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfiles.choose(&mut rng).unwrap();
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     vec.push(permanent::random::single::get_still_job(blendfile));
                 }
@@ -492,7 +492,7 @@ pub mod permanent{
                     .collect();
                 let mut rng = thread_rng();
                 for _ in 0 .. n{
-                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfiles.choose(&mut rng).unwrap();
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     vec.push(permanent::random::single::get_animation_job(blendfile));
                 }
@@ -528,14 +528,14 @@ pub mod permanent{
             let mut target_blendfile = jobpathbuf.clone();
             target_blendfile.push(source_filename.as_str());
             let error_message = format!("Couldn't copy blendfile for permanent Job from {:?} to {:?}", source_path, target_blendfile);
-            fs::copy(&source_path, &target_blendfile).expect(error_message.as_str());
+            fs::copy(&source_path, &target_blendfile).expect(&*error_message);
 
             // Construct Job with fixed creation time (for comparison)
             let job = Job {
-                id:         id,
+                id,
                 paths:      JobPaths::from_uploadfolder(jobpath.as_str()),
-                animation:  animation,
-                email:      email,
+                animation,
+                email,
                 version:    "".to_owned(),
                 time:       JobTime::new(),
                 status:     Status::new(),
@@ -704,14 +704,14 @@ pub mod temporary{
             use common::tempfile::TempDir;
             use common::random_id;
             use common::blendfiles::temporary;
-            use common::rand::{thread_rng, Rng};
+            use common::rand::{thread_rng, Rng, prelude::SliceRandom};
 
             /// Create a randomized job
             pub fn get_job<S>(source_path: S) -> (Job, Option<TempDir>) where S: Into<String>{
                 let source_path = source_path.into();
                 let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
                 let mut rng = thread_rng();
-                let email = rng.choose(&emails).unwrap().to_string();
+                let email = (&emails.choose(&mut rng).unwrap()).to_string();
                 let id = random_id();
                 let animation = rng.gen_bool(0.5);
                 temporary::from_blendfile(source_path, id, email, animation)
@@ -723,7 +723,7 @@ pub mod temporary{
                 let source_path = source_path.into();
                 let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
                 let mut rng = thread_rng();
-                let email = rng.choose(&emails).unwrap().to_string();
+                let email = (&emails.choose(&mut rng).unwrap()).to_string();
                 let id = random_id();
                 temporary::from_blendfile(source_path, id, email, false)
             }
@@ -734,7 +734,7 @@ pub mod temporary{
                 let source_path = source_path.into();
                 let emails = ["a@b.de", "dh@atoav.com", "don@mafia.com", "foo@bar.de"];
                 let mut rng = thread_rng();
-                let email = rng.choose(&emails).unwrap().to_string();
+                let email = (&emails.choose(&mut rng).unwrap()).to_string();
                 let id = random_id();
                 temporary::from_blendfile(source_path, id, email, true)
             }
@@ -747,7 +747,7 @@ pub mod temporary{
             use common::tempfile::TempDir;
             use common::blendfiles::temporary;
             use common::path;
-            use common::rand::{thread_rng, Rng};
+            use common::rand::{thread_rng, prelude::SliceRandom};
 
             /// Create n jobs that are completely random. That means they are either valid or
             /// invalid, still or animation and have random email adresses
@@ -757,7 +757,7 @@ pub mod temporary{
                 let blendfiles = path::get_blendfiles();
                 let mut rng = thread_rng();
                 for _ in 0 .. n{
-                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfiles.choose(&mut rng).unwrap();
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     let (j, t) = temporary::random::single::get_job(blendfile);
                     let t = t.unwrap();
@@ -780,7 +780,7 @@ pub mod temporary{
                     .collect();
                 let mut rng = thread_rng();
                 for _ in 0 .. n{
-                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfiles.choose(&mut rng).unwrap();
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     let (j, t) = temporary::random::single::get_still_job(blendfile);
                     let t = t.unwrap();
@@ -803,7 +803,7 @@ pub mod temporary{
                     .collect();
                 let mut rng = thread_rng();
                 for _ in 0 .. n{
-                    let blendfile = rng.choose(&blendfiles).unwrap();
+                    let blendfile = blendfiles.choose(&mut rng).unwrap();
                     let blendfile = blendfile.clone().into_os_string().into_string().unwrap();
                     let (j, t) = temporary::random::single::get_animation_job(blendfile);
                     let t = t.unwrap();
@@ -849,7 +849,7 @@ pub mod temporary{
         let source_filename = source_filename.to_os_string().into_string().unwrap();
         let temp_blendfile = tempdir.path().join(source_filename.as_str());
         let error_message = format!("Couldn't copy blendfile for temporary Job from {:?} to {:?}", source_path, temp_blendfile);
-        fs::copy(&source_path, &temp_blendfile).expect(error_message.as_str());
+        fs::copy(&source_path, &temp_blendfile).expect(&*error_message);
 
         // Test if the temp_blendfile exists at the expected path
         debug_assert!(temp_blendfile.is_file());
@@ -860,10 +860,10 @@ pub mod temporary{
 
         // Construct Job with fixed creation time (for comparison)
         let job = Job {
-            id: id,
+            id,
             paths: JobPaths::from_uploadfolder(uploadfolder.as_str()),
-            animation: animation,
-            email: email,
+            animation,
+            email,
             version: "".to_owned(),
             time: JobTime::new_deterministic_for_test(),
             status: Status::new(),
