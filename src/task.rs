@@ -81,13 +81,13 @@ impl Task{
     /// // Create a new Task with the command ls -a
     /// let t = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
     /// ```
-    pub fn new_basic<S>(command: S, id: S) -> Self where S: Into<String>{
+    pub fn new_basic<S>(command: S, parent_id: S) -> Self where S: Into<String>{
         Self{
             id: random_id(),
             status: Status::Waiting,
             time: JobTime::new(),
             command: Command::new(command.into()),
-            parent_id: id.into(),
+            parent_id: parent_id.into(),
             data: HashMap::new()
         }
     }
@@ -460,9 +460,6 @@ impl Status{
             },
             Status::Paused => {
                 match other{
-                    Status::Waiting => false,
-                    Status::Queued => false,
-                    Status::Running => false,
                     _ => true
                 }
             },
@@ -488,55 +485,6 @@ impl Status{
 }
 
 
-
-
-#[cfg(test)]
-mod tests {
-    use task::{Task, Status}; 
-    #[test]
-    fn initial_status() {
-        let t = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
-        assert_eq!(t.status, Status::Waiting);
-        assert_eq!(t.time.start, None);
-        assert_eq!(t.time.finish, None);
-        assert_eq!(t.time.error, None);
-    }
-
-    #[test]
-    fn serialize_deserialize() {
-        let t1 = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
-        match t1.serialize(){
-            Ok(serialized) => {
-                if let Ok(t2) = Task::deserialize(serialized) {
-                    assert_eq!(t1, t2);
-                }
-            },
-            Err(e) => println!("Error: {}", e)
-        }
-    }
-
-    #[test]
-    fn serialize_deserialze_u8() {
-        let t1 = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
-        match t1.serialize_to_u8(){
-            Ok(serialized) => {
-                if let Ok(t2) = Task::deserialize_from_u8(&serialized) {
-                    assert_eq!(t1, t2);
-                }
-            },
-            Err(e) => println!("Error: {}", e)
-        }
-    }
-
-    #[test]
-    fn is_blender(){
-        let t = Task::new_blender_single(121, "PNG", "55067970443c49eaafdb60541fbde157");
-        assert_eq!(t.is_blender(), true);
-        let t = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
-        assert_eq!(t.is_blender(), false);
-    }
-
-}
 
 
 
@@ -1049,8 +997,7 @@ impl TaskQueue for Tasks{
                 };
 
                 // Do not update if this command is constructed and the other isn't
-                should_update = should_update && 
-                                !(this.command.is_constructed() && !that.command.is_constructed());
+                should_update = (!this.command.is_constructed() || that.command.is_constructed()) && should_update;
 
                 // Finally do the updatin' if all checks say yes
                 if should_update || force{
@@ -1061,12 +1008,9 @@ impl TaskQueue for Tasks{
 
     fn update_task_from(&mut self, task: &Task){
         // Find the other task in self:
-        match self.position_by_id(task.id.as_str()){
-            Some(index) => {
-                self.remove(index);
-                self.insert(index, task.clone());
-            },
-            None => ()
+        if let Some(index) = self.position_by_id(task.id.as_str()) {
+            self.remove(index);
+            self.insert(index, task.clone());
         }      
     }
 
@@ -1103,3 +1047,513 @@ impl TaskQueue for Tasks{
 
 }
 
+
+
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tasks_length() {
+        let mut a = Tasks::new();
+        a.push_front(Task::new_basic("a1", "a"));
+        a.push_front(Task::new_basic("a2", "a"));
+        a.push_front(Task::new_basic("a3", "a"));
+        a.push_front(Task::new_basic("a4", "a"));
+
+        let mut b = Tasks::new();
+        b.push_front(Task::new_basic("b1", "a"));
+        b.push_front(Task::new_basic("b2", "a"));
+        b.push_front(Task::new_basic("b3", "a"));
+        b.push_front(Task::new_basic("b4", "a"));
+
+        a.merge(&b);
+
+        assert_eq!(a.len(), b.len());
+    }
+
+    #[test]
+    fn tasks_status() {
+        let mut a = Tasks::new();
+
+        let mut t1 = Task::new_blender_single(1, "PNG", "id");
+        let mut t2 = Task::new_blender_single(2, "PNG", "id");
+        let mut t3 = Task::new_blender_single(3, "PNG", "id");
+        let mut t4 = Task::new_blender_single(4, "PNG", "id");
+        a.push_front(t1.clone());
+        a.push_front(t2.clone());
+        a.push_front(t3.clone());
+        a.push_front(t4.clone());
+
+        let mut b = Tasks::new();
+
+        t1.status = Status::Finished;
+        t2.status = Status::Finished;
+        t3.status = Status::Finished;
+        t4.status = Status::Finished;
+        b.push_front(t1);
+        b.push_front(t2);
+        b.push_front(t3);
+        b.push_front(t4);
+
+        a.merge(&b);
+
+        assert_eq!(a.len(), b.len());
+        assert_eq!(a[0].status, b[0].status);
+        assert_eq!(a[1].status, b[1].status);
+        assert_eq!(a[2].status, b[2].status);
+        assert_eq!(a[3].status, b[3].status);
+    }
+
+    #[test]
+    fn tasks_status_many_waiting_to_queued() {
+        let mut a = Tasks::new();
+        let mut b = Tasks::new();
+
+        for i in 0..20000 {
+            let mut t = Task::new_blender_single(i, "PNG", "id");
+            a.push_front(t.clone());
+            t.status = Status::Queued;
+            b.push_front(t);
+        }
+
+        a.merge(&b);
+
+        assert_eq!(a.len(), b.len());
+        for i in 0..20000 {
+            assert_eq!(a[i].status, b[i].status);
+        }
+    }
+
+    #[test]
+    fn tasks_status_many_queued_to_running() {
+        let mut a = Tasks::new();
+        let mut b = Tasks::new();
+
+        for i in 0..20000 {
+            let mut t = Task::new_blender_single(i, "PNG", "id");
+            t.status = Status::Queued;
+            a.push_front(t.clone());
+            t.status = Status::Running;
+            b.push_front(t);
+        }
+
+        a.merge(&b);
+
+        assert_eq!(a.len(), b.len());
+        for i in 0..20000 {
+            assert_eq!(a[i].status, b[i].status);
+        }
+    }
+
+
+    #[test]
+    fn tasks_status_many_running_to_finished() {
+        let mut a = Tasks::new();
+        let mut b = Tasks::new();
+
+        for i in 0..20000 {
+            let mut t = Task::new_blender_single(i, "PNG", "id");
+            t.status = Status::Running;
+            a.push_front(t.clone());
+            t.status = Status::Finished;
+            b.push_front(t);
+        }
+
+        a.merge(&b);
+
+        assert_eq!(a.len(), b.len());
+        for i in 0..20000 {
+            assert_eq!(a[i].status, b[i].status);
+        }
+    }
+
+    #[test]
+    fn initial_status() {
+        let t = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
+        assert_eq!(t.status, Status::Waiting);
+        assert_eq!(t.time.start, None);
+        assert_eq!(t.time.finish, None);
+        assert_eq!(t.time.error, None);
+    }
+
+    #[test]
+    fn serialize_deserialize() {
+        let t1 = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
+        match t1.serialize(){
+            Ok(serialized) => {
+                if let Ok(t2) = Task::deserialize(serialized) {
+                    assert_eq!(t1, t2);
+                }
+            },
+            Err(e) => println!("Error: {}", e)
+        }
+    }
+
+    #[test]
+    fn serialize_deserialze_u8() {
+        let t1 = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
+        match t1.serialize_to_u8(){
+            Ok(serialized) => {
+                if let Ok(t2) = Task::deserialize_from_u8(&serialized) {
+                    assert_eq!(t1, t2);
+                }
+            },
+            Err(e) => println!("Error: {}", e)
+        }
+    }
+
+    #[test]
+    fn is_blender(){
+        let t = Task::new_blender_single(121, "PNG", "55067970443c49eaafdb60541fbde157");
+        assert_eq!(t.is_blender(), true);
+        let t = Task::new_basic("ls -a", "55067970443c49eaafdb60541fbde157");
+        assert_eq!(t.is_blender(), false);
+    }
+
+    // ------------------------------ Merge Waiting --------------------------
+    #[test]
+    fn merge_waiting_with_queued() {
+        let mut old = Status::Waiting;
+        let new = Status::Queued;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_waiting_with_running() {
+        let mut old = Status::Waiting;
+        let new = Status::Running;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_waiting_with_finished() {
+        let mut old = Status::Waiting;
+        let new = Status::Finished;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_waiting_with_errored() {
+        let mut old = Status::Waiting;
+        let new = Status::Errored;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_waiting_with_aborted() {
+        let mut old = Status::Waiting;
+        let new = Status::Aborted;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_waiting_with_paused() {
+        let mut old = Status::Waiting;
+        let new = Status::Paused;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // ------------------------------ Merge Queued --------------------------
+    #[test]
+    fn merge_queued_with_waiting() {
+        let mut old = Status::Queued;
+        let new = Status::Waiting;
+        old.merge(&new);
+        assert_eq!(old, Status::Queued);
+    }
+
+    #[test]
+    fn merge_queued_with_running() {
+        let mut old = Status::Queued;
+        let new = Status::Running;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_queued_with_finished() {
+        let mut old = Status::Queued;
+        let new = Status::Finished;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_queued_with_errored() {
+        let mut old = Status::Queued;
+        let new = Status::Errored;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_queued_with_aborted() {
+        let mut old = Status::Queued;
+        let new = Status::Aborted;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_queued_with_paused() {
+        let mut old = Status::Queued;
+        let new = Status::Paused;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // ------------------------------ Merge Running --------------------------
+    #[test]
+    fn merge_running_with_waiting() {
+        let mut old = Status::Running;
+        let new = Status::Waiting;
+        old.merge(&new);
+        assert_eq!(old, Status::Running);
+    }
+
+    #[test]
+    fn merge_running_with_queued() {
+        let mut old = Status::Running;
+        let new = Status::Queued;
+        old.merge(&new);
+        assert_eq!(old, Status::Running);
+    }
+
+    #[test]
+    fn merge_running_with_finished() {
+        let mut old = Status::Running;
+        let new = Status::Finished;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_running_with_errored() {
+        let mut old = Status::Running;
+        let new = Status::Errored;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_running_with_aborted() {
+        let mut old = Status::Running;
+        let new = Status::Aborted;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_running_with_paused() {
+        let mut old = Status::Running;
+        let new = Status::Paused;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // ------------------------------ Merge Finished --------------------------
+    #[test]
+    fn merge_finished_with_waiting() {
+        let mut old = Status::Finished;
+        let new = Status::Waiting;
+        old.merge(&new);
+        assert_eq!(old, Status::Finished);
+    }
+
+    #[test]
+    fn merge_finished_with_queued() {
+        let mut old = Status::Finished;
+        let new = Status::Queued;
+        old.merge(&new);
+        assert_eq!(old, Status::Finished);
+    }
+
+    #[test]
+    fn merge_finished_with_running() {
+        let mut old = Status::Finished;
+        let new = Status::Running;
+        old.merge(&new);
+        assert_eq!(old, Status::Finished);
+    }
+
+    #[test]
+    fn merge_finished_with_errored() {
+        let mut old = Status::Finished;
+        let new = Status::Errored;
+        old.merge(&new);
+        assert_eq!(old, Status::Finished);
+    }
+
+    #[test]
+    fn merge_finished_with_aborted() {
+        let mut old = Status::Finished;
+        let new = Status::Aborted;
+        old.merge(&new);
+        assert_eq!(old, Status::Finished);
+    }
+
+    #[test]
+    fn merge_finished_with_paused() {
+        let mut old = Status::Finished;
+        let new = Status::Paused;
+        old.merge(&new);
+        assert_eq!(old, Status::Finished);
+    }
+
+    // ------------------------------ Merge Errored --------------------------
+    #[test]
+    fn merge_errored_with_waiting() {
+        let mut old = Status::Errored;
+        let new = Status::Waiting;
+        old.merge(&new);
+        assert_eq!(old, Status::Errored);
+    }
+
+    #[test]
+    fn merge_errored_with_queued() {
+        let mut old = Status::Errored;
+        let new = Status::Queued;
+        old.merge(&new);
+        assert_eq!(old, Status::Errored);
+    }
+
+    #[test]
+    fn merge_errored_with_running() {
+        let mut old = Status::Errored;
+        let new = Status::Running;
+        old.merge(&new);
+        assert_eq!(old, Status::Errored);
+    }
+
+    #[test]
+    fn merge_errored_with_finished() {
+        let mut old = Status::Errored;
+        let new = Status::Finished;
+        old.merge(&new);
+        assert_eq!(old, Status::Errored);
+    }
+
+    #[test]
+    fn merge_errored_with_aborted() {
+        let mut old = Status::Errored;
+        let new = Status::Aborted;
+        old.merge(&new);
+        assert_eq!(old, Status::Errored);
+    }
+
+    #[test]
+    fn merge_errored_with_paused() {
+        let mut old = Status::Errored;
+        let new = Status::Paused;
+        old.merge(&new);
+        assert_eq!(old, Status::Errored);
+    }
+
+    // ------------------------------ Merge Aborted --------------------------
+    #[test]
+    fn merge_aborted_with_waiting() {
+        let mut old = Status::Aborted;
+        let new = Status::Waiting;
+        old.merge(&new);
+        assert_eq!(old, Status::Aborted);
+    }
+
+    #[test]
+    fn merge_aborted_with_queued() {
+        let mut old = Status::Aborted;
+        let new = Status::Queued;
+        old.merge(&new);
+        assert_eq!(old, Status::Aborted);
+    }
+
+    #[test]
+    fn merge_aborted_with_running() {
+        let mut old = Status::Aborted;
+        let new = Status::Running;
+        old.merge(&new);
+        assert_eq!(old, Status::Aborted);
+    }
+
+    #[test]
+    fn merge_aborted_with_finished() {
+        let mut old = Status::Aborted;
+        let new = Status::Finished;
+        old.merge(&new);
+        assert_eq!(old, Status::Aborted);
+    }
+
+    #[test]
+    fn merge_aborted_with_errored() {
+        let mut old = Status::Aborted;
+        let new = Status::Errored;
+        old.merge(&new);
+        assert_eq!(old, Status::Aborted);
+    }
+
+    #[test]
+    fn merge_aborted_with_paused() {
+        let mut old = Status::Aborted;
+        let new = Status::Paused;
+        old.merge(&new);
+        assert_eq!(old, Status::Aborted);
+    }
+
+    // ------------------------------ Merge Paused --------------------------
+    #[test]
+    fn merge_paused_with_waiting() {
+        let mut old = Status::Paused;
+        let new = Status::Waiting;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_paused_with_queued() {
+        let mut old = Status::Paused;
+        let new = Status::Queued;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_paused_with_running() {
+        let mut old = Status::Paused;
+        let new = Status::Running;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_paused_with_finished() {
+        let mut old = Status::Paused;
+        let new = Status::Finished;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_paused_with_errored() {
+        let mut old = Status::Paused;
+        let new = Status::Errored;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_paused_with_aborted() {
+        let mut old = Status::Paused;
+        let new = Status::Aborted;
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+}
