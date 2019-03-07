@@ -75,12 +75,10 @@ impl Status{
     pub fn format_secondary(&self) -> String{
         match self{
             Status::Request(secondary) => {
-                let s = format!("{:?}", secondary).to_lowercase();
-                s
+                format!("{:?}", secondary).to_lowercase()
             },
             Status::Job(secondary) => {
-                let s = format!("{:?}", secondary).to_lowercase();
-                s
+                format!("{:?}", secondary).to_lowercase()
             }
         }
     }
@@ -105,12 +103,13 @@ impl Status{
             Status::Request(request_status) =>{
                 match request_status{
                     RequestStatus::Untouched    => true,
-                    RequestStatus::Invalid       => false,
+                    RequestStatus::Invalid      => false,
                     RequestStatus::Errored      => false,
                     RequestStatus::Checked      => {
                         match other{
                             Status::Request(RequestStatus::Scanned)  => true,
                             Status::Request(RequestStatus::Atomized) => true,
+                            Status::Request(RequestStatus::Errored)  => true,
                             Status::Job(_)               => true,
                             _ => false                        
                         }
@@ -118,12 +117,14 @@ impl Status{
                     RequestStatus::Scanned      => {
                         match other{
                             Status::Request(RequestStatus::Atomized) => true,
+                            Status::Request(RequestStatus::Errored)  => true,
                             Status::Job(_)               => true,
                             _ => false                        
                         }
                     },
                     RequestStatus::Atomized     => {
                         match other{
+                            Status::Request(RequestStatus::Errored) => true,
                             Status::Job(_) => true,
                             _ => false                        
                         }
@@ -379,4 +380,950 @@ impl Status{
     pub fn reset(&mut self){
         *self = Status::Request(RequestStatus::Untouched)
     }
+}
+
+
+
+
+
+
+
+// /// Describes the States a Request can have
+// #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+// pub enum RequestStatus{
+//     Untouched,
+//     Invalid,
+//     Errored,
+//     Checked,
+//     Scanned,
+//     Atomized
+// }
+
+// /// Describes the States a Job can have
+// #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+// pub enum JobStatus{
+//     Queued,
+//     Running,
+//     Canceled,
+//     Errored,
+//     Finished
+// }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // --------------------- Merge Request Untouched --------------------------
+    #[test]
+    fn merge_request_untouched_with_invalid() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_errored() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_checked() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_scanned() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_atomized() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_jobqueued() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_jobrunning() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Job(JobStatus::Running);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_jobcanceled() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_joberrored() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_untouched_with_jobfinished() {
+        let mut old = Status::Request(RequestStatus::Untouched);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // --------------------- Merge Request Invalid ----------------------------
+    // Should always stay invalid
+
+    #[test]
+    fn merge_request_invalid_with_untouched() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_errored() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_checked() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_scanned() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_atomized() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_jobqueued() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_jobrunning() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Job(JobStatus::Running);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_jobcanceled() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_joberrored() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    #[test]
+    fn merge_request_invalid_with_jobfinished() {
+        let mut old = Status::Request(RequestStatus::Invalid);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Invalid));
+    }
+
+    // --------------------- Merge Request Errored ----------------------------
+    // Should always stay errored
+
+    #[test]
+    fn merge_request_errored_with_untouched() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_invalid() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_checked() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_scanned() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_atomized() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_jobqueued() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_jobrunning() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Job(JobStatus::Running);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_jobcanceled() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_joberrored() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_errored_with_jobfinished() {
+        let mut old = Status::Request(RequestStatus::Errored);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+
+    // --------------------- Merge Request Checked ----------------------------
+    // Should update on all stati that are more advanced
+
+    #[test]
+    fn merge_request_checked_with_untouched() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Checked));
+    }
+
+    #[test]
+    fn merge_request_checked_with_invalid() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Checked));
+    }
+
+    #[test]
+    fn merge_request_checked_with_errored() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Errored));
+    }
+
+    #[test]
+    fn merge_request_checked_with_scanned() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Scanned));
+    }
+
+    #[test]
+    fn merge_request_checked_with_atomized() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Atomized));
+    }
+
+    #[test]
+    fn merge_request_checked_with_jobqueued() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_checked_with_jobrunning() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Job(JobStatus::Running);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_checked_with_jobcanceled() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_checked_with_joberrored() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_checked_with_jobfinished() {
+        let mut old = Status::Request(RequestStatus::Checked);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // --------------------- Merge Request Scanned ----------------------------
+    // Should update on all stati that are more advanced
+
+    #[test]
+    fn merge_request_scanned_with_untouched() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Scanned));
+    }
+
+    #[test]
+    fn merge_request_scanned_with_invalid() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Scanned));
+    }
+
+    #[test]
+    fn merge_request_scanned_with_errored() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_scanned_with_checked() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Scanned));
+    }
+
+    #[test]
+    fn merge_request_scanned_with_atomized() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Atomized));
+    }
+
+    #[test]
+    fn merge_request_scanned_with_jobqueued() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_scanned_with_jobrunning() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Job(JobStatus::Running);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_scanned_with_jobcanceled() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_scanned_with_joberrored() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_scanned_with_jobfinished() {
+        let mut old = Status::Request(RequestStatus::Scanned);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // --------------------- Merge Request Atomized ---------------------------
+    // Should update on all stati that are more advanced
+
+    #[test]
+    fn merge_request_atomized_with_untouched() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Atomized));
+    }
+
+    #[test]
+    fn merge_request_atomized_with_invalid() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Atomized));
+    }
+
+    #[test]
+    fn merge_request_atomized_with_errored() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_atomized_with_checked() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Atomized));
+    }
+
+    #[test]
+    fn merge_request_atomized_with_scanned() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Request(RequestStatus::Atomized));
+    }
+
+    #[test]
+    fn merge_request_atomized_with_jobqueued() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_atomized_with_jobrunning() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Job(JobStatus::Running);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_atomized_with_jobcanceled() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_atomized_with_joberrored() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_request_atomized_with_jobfinished() {
+        let mut old = Status::Request(RequestStatus::Atomized);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // --------------------- Merge Job Queued ---------------------------
+    // Should update on all stati that are more advanced
+
+    #[test]
+    fn merge_job_queued_with_untouched() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Queued));
+    }
+
+    #[test]
+    fn merge_job_queued_with_invalid() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Queued));
+    }
+
+    #[test]
+    fn merge_job_queued_with_errored() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Queued));
+    }
+
+    #[test]
+    fn merge_job_queued_with_checked() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Queued));
+    }
+
+    #[test]
+    fn merge_job_queued_with_scanned() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Queued));
+    }
+
+    #[test]
+    fn merge_job_queued_with_atomized() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Queued));
+    }
+
+    #[test]
+    fn merge_job_queued_with_jobrunning() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Job(JobStatus::Running);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_job_queued_with_jobcanceled() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_job_queued_with_joberrored() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_job_queued_with_jobfinished() {
+        let mut old = Status::Job(JobStatus::Queued);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // --------------------- Merge Job Running ---------------------------
+    // Should update on all stati that are more advanced
+
+    #[test]
+    fn merge_job_running_with_untouched() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Running));
+    }
+
+    #[test]
+    fn merge_job_running_with_invalid() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Running));
+    }
+
+    #[test]
+    fn merge_job_running_with_errored() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Running));
+    }
+
+    #[test]
+    fn merge_job_running_with_checked() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Running));
+    }
+
+    #[test]
+    fn merge_job_running_with_scanned() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Running));
+    }
+
+    #[test]
+    fn merge_job_running_with_atomized() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Running));
+    }
+
+    #[test]
+    fn merge_job_running_with_jobqueued() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Running));
+    }
+
+    #[test]
+    fn merge_job_running_with_jobcanceled() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_job_running_with_joberrored() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    #[test]
+    fn merge_job_running_with_jobfinished() {
+        let mut old = Status::Job(JobStatus::Running);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, new);
+    }
+
+    // --------------------- Merge Job Canceled ---------------------------
+    // Should update on all stati that are more advanced
+
+    #[test]
+    fn merge_job_canceled_with_untouched() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_invalid() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_errored() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_checked() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_scanned() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_atomized() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_jobqueued() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_jobrunning() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_joberrored() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    #[test]
+    fn merge_job_canceled_with_jobfinished() {
+        let mut old = Status::Job(JobStatus::Canceled);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Canceled));
+    }
+
+    // --------------------- Merge Job Errored ---------------------------
+    // Should update on all stati that are more advanced
+
+    #[test]
+    fn merge_job_errored_with_untouched() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_invalid() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_errored() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_checked() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_scanned() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_atomized() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_jobqueued() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_jobrunning() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_jobcanceled() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+    #[test]
+    fn merge_job_errored_with_jobfinished() {
+        let mut old = Status::Job(JobStatus::Errored);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Errored));
+    }
+
+// --------------------- Merge Job Finished ---------------------------
+    // Should update on all stati that are more advanced
+
+    #[test]
+    fn merge_job_finished_with_untouched() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Request(RequestStatus::Untouched);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_invalid() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Request(RequestStatus::Invalid);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_errored() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Request(RequestStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_checked() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Request(RequestStatus::Checked);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_scanned() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Request(RequestStatus::Scanned);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_atomized() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Request(RequestStatus::Atomized);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_jobqueued() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Job(JobStatus::Queued);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_jobrunning() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Job(JobStatus::Finished);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_jobcanceled() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Job(JobStatus::Canceled);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
+    #[test]
+    fn merge_job_finished_with_joberrored() {
+        let mut old = Status::Job(JobStatus::Finished);
+        let new = Status::Job(JobStatus::Errored);
+        old.merge(&new);
+        assert_eq!(old, Status::Job(JobStatus::Finished));
+    }
+
 }
