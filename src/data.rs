@@ -64,7 +64,7 @@ impl Frames {
 
     // Return a Vec of frame numbers. This honors the step size specified in the blend
     pub fn as_vec(&self) -> Vec<usize> {
-        (self.start..self.end+1).step_by(self.step).collect()
+        (self.start..=self.end).step_by(self.step).collect()
     }
 
     /// Return true if self has still the default value

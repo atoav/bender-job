@@ -53,7 +53,7 @@ mod gaffer{
         let render = Render{
             renderer: "CYCLES".to_string(),
             cuda: false,
-            device: "CPU".to_string(),
+            device: "GPU".to_string(),
             image_format: "PNG".to_string(),
             uses_compositing: true
         };
