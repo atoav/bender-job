@@ -41,40 +41,38 @@ impl Gaffer for Job{
                     // Run Blend with Python
                     match Self::run_with_python(self.paths.blend.as_str(), python_path.as_str()){
                         Ok(output) =>{
-                            println!("\n         /--[scan: Miscinfo::deserialize  -> start]");
                             // Deserialize from blender output
                             match MiscInfo::deserialize(&output[..]){
                                 Ok(info) => {
                                     self.incorporate_info(info);
-                                    println!("         |--[scan: self.set_scan()  -> start]");
                                     self.set_scan();
                                 },
                                 Err(err) => {
                                     let error_message = format!("failed to deserialize output to MiscInfo in gaffer: {}\nOutput was: \"{}\"", err, output);
-                                    println!("Error: {}", error_message);
+                                    eprintln!("Error: {}", error_message);
                                     self.set_error(error_message);
                                 }
                             }
                         },
                         Err(err) =>{
                             let error_message = format!("while running with {}: {}", python_path, err);
-                            println!("Error: {}", error_message);
+                            eprintln!("Error: {}", error_message);
                             self.set_error(error_message);
                         }
                     }
                 }else{
                     let error_message = "Warning: Couldn't scan_and_optimize() with gaffer because job wasn't validated".to_string();
-                    println!("{}", error_message);
+                    eprintln!("{}", error_message);
                     self.set_error(error_message);
                 }
             }else{
                 let error_message = format!("Didn't find optimize_blend.py for gaffer at {}\nYou might try to reinstall bender-job.", python_path);
-                println!("Error: {}", error_message); 
+                eprintln!("Error: {}", error_message); 
                 self.set_error(error_message);
             }
         }else{
             let error_message = format!("Didn't find blendfile at {}", self.paths.blend);
-            println!("Error: {}", error_message); 
+            eprintln!("Error: {}", error_message); 
             self.set_error(error_message);
         }
     }
@@ -86,7 +84,6 @@ impl Gaffer for Job{
     /// blender -b myfile.blend --disable-autoexec --python path/to/optimize_blend.py
     /// ```
     fn run_with_python<S>(path: S, python_path: S) -> GenResult<String>where S: Into<String>{
-        println!("         |--[scan: run_with_python  -> start]");
         let path = path.into();
         let python_path = python_path.into();
 
@@ -119,7 +116,7 @@ impl Gaffer for Job{
                     let mut permissions = meta.permissions();
                     permissions.set_mode(0o775);
                     match fs::set_permissions(&path, permissions){
-                        Ok(_) => println!("         |--[scan: set blendfile permissions to 775]"),
+                        Ok(_) => (),
                         Err(err) => eprintln!("Error: failed to set permissions to 775: {}", err)
                     }
                 },
@@ -133,7 +130,6 @@ impl Gaffer for Job{
     /// Integrates the MiscInfo deserialized from the optimize_blend.py output
     /// into the Job's fields'
     fn incorporate_info(&mut self, info: MiscInfo){
-        println!("         |--[scan: incorporate_info  -> start]");
         self.render = info.render.clone();
         self.frames = info.frames.clone();
         self.resolution = info.resolution.clone();
