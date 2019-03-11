@@ -154,7 +154,7 @@ impl Job{
         // or None when there was no value, let's use that
         let value = value.into();
         match self.data.insert(key.into(), value.clone()){
-            Some(oldvalue) => {
+            Some(_oldvalue) => {
                 Ok(())
             },
             None => Ok(())
