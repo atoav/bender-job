@@ -4,6 +4,54 @@
 use ::*;
 use std::fmt;
 
+
+
+
+// ===========================================================================
+//                              RequestStatus
+// ===========================================================================
+
+/// Describes the States a Request can have
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum RequestStatus{
+    Untouched,
+    Invalid,
+    Errored,
+    Checked,
+    Scanned,
+    Atomized
+}
+
+impl fmt::Display for RequestStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Request ({:?})", self)
+    }
+}
+
+
+
+
+// ===========================================================================
+//                                JobStatus
+// ===========================================================================
+
+/// Describes the States a Job can have
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum JobStatus{
+    Queued,
+    Running,
+    Canceled,
+    Errored,
+    Finished
+}
+
+
+
+
+// ===========================================================================
+//                                 Status
+// ===========================================================================
+
 /// Describes the Lifecycle of a Request/Job. Set a Status
 /// via it's methods:
 /// ```
@@ -18,33 +66,7 @@ pub enum Status{
     Job(JobStatus)
 }
 
-/// Describes the States a Request can have
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum RequestStatus{
-    Untouched,
-    Invalid,
-    Errored,
-    Checked,
-    Scanned,
-    Atomized
-}
 
-/// Describes the States a Job can have
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum JobStatus{
-    Queued,
-    Running,
-    Canceled,
-    Errored,
-    Finished
-}
-
-
-impl fmt::Display for RequestStatus {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Request ({:?})", self)
-    }
-}
 
 
 impl fmt::Display for Status {
@@ -61,6 +83,9 @@ impl fmt::Display for Status {
         }
     }
 }
+
+
+
 
 impl Status{
     /// Returns a String describing the primary status (e.g. "Job" or "Request")
@@ -84,11 +109,15 @@ impl Status{
     }
 }
 
+
+
+
 impl Default for Status {
     fn default() -> Status {
         Status::new()
     }
 }
+
 
 
 
@@ -388,26 +417,11 @@ impl Status{
 
 
 
-// /// Describes the States a Request can have
-// #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-// pub enum RequestStatus{
-//     Untouched,
-//     Invalid,
-//     Errored,
-//     Checked,
-//     Scanned,
-//     Atomized
-// }
 
-// /// Describes the States a Job can have
-// #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-// pub enum JobStatus{
-//     Queued,
-//     Running,
-//     Canceled,
-//     Errored,
-//     Finished
-// }
+
+// ===========================================================================
+//                                UNIT TESTS
+// ===========================================================================
 
 
 #[cfg(test)]

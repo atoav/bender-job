@@ -8,18 +8,12 @@ use chrono::Duration;
 use chrono_humanize::{Accuracy, HumanTime, Tense};
 
 
-/// JobTime is used by Job to timestamp different important timestamps throughout the life of a request
-/// Times can be updated with `JobTime::create()`, `JobTime::finish()`, and `JobTime::error()`
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct JobTime {
-    pub creation: Option<DateTime<Utc>>,
-    pub queued: Option<DateTime<Utc>>,
-    pub start: Option<DateTime<Utc>>,
-    pub finish: Option<DateTime<Utc>>,
-    pub error: Option<DateTime<Utc>>,
-    pub abort: Option<DateTime<Utc>>,
-    pub pause: Option<DateTime<Utc>>
-}
+
+
+// ===========================================================================
+//                           ASSOCIATED FUNCTIONS
+// ===========================================================================
+
 
 /// Associated function that handles the logic of mergin one Option<DateTime<Utc>>
 /// into another
@@ -42,6 +36,27 @@ fn merge_date(this: Option<DateTime<Utc>>, that: Option<DateTime<Utc>>) -> Optio
 
 
 
+
+// ===========================================================================
+//                                JobTime
+// ===========================================================================
+
+/// JobTime is used by Job to timestamp different important timestamps throughout the life of a request
+/// Times can be updated with `JobTime::create()`, `JobTime::finish()`, and `JobTime::error()`
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct JobTime {
+    pub creation: Option<DateTime<Utc>>,
+    pub queued: Option<DateTime<Utc>>,
+    pub start: Option<DateTime<Utc>>,
+    pub finish: Option<DateTime<Utc>>,
+    pub error: Option<DateTime<Utc>>,
+    pub abort: Option<DateTime<Utc>>,
+    pub pause: Option<DateTime<Utc>>
+}
+
+
+
+
 #[allow(dead_code)]
 impl JobTime{
 
@@ -61,7 +76,7 @@ impl JobTime{
     pub fn new_deterministic_for_test() -> Self{
         JobTime{ 
             creation: Some(Utc.ymd(2018, 8, 23)
-                .and_hms_micro(13, 48, 40, 176598)), 
+                .and_hms_micro(13, 48, 40, 176_598)), 
             queued: None,
             start: None,
             finish: None, 
@@ -259,7 +274,10 @@ impl JobTime{
             None => "Not started".to_string()
         }
     }
+
 }
+
+
 
 
 // String formatting for JobTime

@@ -5,6 +5,11 @@
 use ::*;
 
 
+
+// ===========================================================================
+//                                JobPaths
+// ===========================================================================
+
 /// A JobPath Struct holds all path-related data for the Job
 /// It can be created from a uploadfolder
 /// ```no run
@@ -20,6 +25,9 @@ pub struct JobPaths{
     pub frames:    String,
     pub filename:  String
 }
+
+
+
 
 impl JobPaths{
 
@@ -81,7 +89,7 @@ impl JobPaths{
         JobPaths{
             upload: uploadfolder.into_os_string().into_string().unwrap(),
             data: data.into_os_string().into_string().unwrap(),
-            blend: blend,
+            blend,
             frames: frames.into_os_string().into_string().unwrap(),
             filename: filename.to_os_string().into_string().unwrap()
         }
@@ -125,6 +133,9 @@ impl JobPaths{
     }
 
 }
+
+
+
 
 /// String formatting for JobPaths
 impl fmt::Display for JobPaths {

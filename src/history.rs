@@ -3,11 +3,12 @@
 use ::*;
 
 
-
+// ===========================================================================
+//                                History
+// ===========================================================================
 
 pub type History = BTreeMap<DateTime<Utc>, String>;
 
-pub type Event = (DateTime<Utc>, String);
 
 
 pub trait HistoryMethods{
@@ -15,6 +16,8 @@ pub trait HistoryMethods{
     fn format_last(&self) -> String;
     fn last_message(&self) -> String;
 }
+
+
 
 impl HistoryMethods for History{
     fn last(&self) -> Option<Event>{
@@ -38,10 +41,20 @@ impl HistoryMethods for History{
     }
 }
 
+
+// ===========================================================================
+//                                Event
+// ===========================================================================
+
+pub type Event = (DateTime<Utc>, String);
+
+
+
 pub trait EventMethods{
     fn format(&self) -> String;
     fn message(&self) -> String;
 }
+
 
 
 impl EventMethods for Event{

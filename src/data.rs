@@ -4,6 +4,14 @@
 use ::*;
 
 
+
+
+
+// ===========================================================================
+//                                data::Render
+// ===========================================================================
+
+
 /// The Render struct stores the render related data of a [Job](struct.Job.html). \
 /// Typically it is deserialized by the Job with empty default values until \
 /// the information is read via the Jobs [gaffer](trait.Gaffer.html) trait using \
@@ -39,10 +47,18 @@ impl Render{
     }
 }
 
-/// The Frames struct stores frame related data of a [Job](struct.Job.html) (like start, end, current, step and fps). \
-/// Typically it is deserialized by the Job with empty default values until \
-/// the information is read via the Jobs [gaffer](trait.Gaffer.html) trait using \
-/// its scan_and_optimize() method.
+
+
+
+
+// ===========================================================================
+//                                data::Frames
+// ===========================================================================
+
+/// The Frames struct stores frame related data of a [Job](struct.Job.html) \
+/// (like start, end, current, step and fps). Typically it is deserialized by \
+/// the Job with empty default values until the information is read via the \
+/// Jobs [gaffer](trait.Gaffer.html) trait using its scan_and_optimize() method.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct Frames {
     pub start: usize,
@@ -53,7 +69,8 @@ pub struct Frames {
 }
 
 impl Frames {
-    /// Return the number of frames in total. This honors the step size specified in the blend
+    /// Return the number of frames in total. This honors the step size \
+    /// specified in the blend
     pub fn count(&self) -> usize {
         if self.is_default(){
             0
@@ -62,7 +79,8 @@ impl Frames {
         }
     }
 
-    // Return a Vec of frame numbers. This honors the step size specified in the blend
+    /// Return a Vec of frame numbers. This honors the step size specified \
+    ///in the blend
     pub fn as_vec(&self) -> Vec<usize> {
         (self.start..=self.end).step_by(self.step).collect()
     }
@@ -84,10 +102,17 @@ impl Frames {
 }
 
 
-/// The Resolution struct stores and calculates resolution related data of a [Job](struct.Job.html). \
-/// Typically it is deserialized by the Job with empty default values until \
-/// the information is read via the Jobs [gaffer](trait.Gaffer.html) trait using \
-/// its scan_and_optimize() method.
+
+
+
+// ===========================================================================
+//                              data::Resolution
+// ===========================================================================
+
+/// The Resolution struct stores and calculates resolution related data of a \
+/// [Job](struct.Job.html). Typically it is deserialized by the Job with empty \
+/// default values until the information is read via the Jobs \
+/// [gaffer](trait.Gaffer.html) trait using its scan_and_optimize() method.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct Resolution {
     pub x: usize,
@@ -127,11 +152,18 @@ impl Resolution {
 
 
 
-/// Represents any Resource (Objects, Textures, Materials, ...) in the blendfile that
-/// have been removed because they were unused. This is ultimately stored in a [Job](struct.Job.html). \
-/// Typically it is deserialized by the Job with empty default values until \
-/// the information is read via the Jobs [gaffer](trait.Gaffer.html) trait using \
-/// its scan_and_optimize() method.
+
+
+// ===========================================================================
+//                                 data::Resource
+// ===========================================================================
+
+/// Represents any Resource (Objects, Textures, Materials, ...) in the \
+/// blendfile that have been removed because they were unused. This is \
+/// ultimately stored in a [Job](struct.Job.html). Typically it is \
+/// deserialized by the Job with empty default values until the information \
+/// is read via the Jobs [gaffer](trait.Gaffer.html) trait using its \
+/// `scan_and_optimize()` method.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Resource {
     pub n: usize,
@@ -143,7 +175,12 @@ pub struct Resource {
 
 
 
-// ================================ TEST RENDER ================================
+
+// ===========================================================================
+//                                  UNIT TESTS
+// ===========================================================================
+
+// ================================ TEST RENDER ==============================
 #[cfg(test)]
 mod render {
     use ::*;
@@ -175,7 +212,8 @@ mod render {
     }
 }
 
-// ================================ TEST FRAMES ================================
+
+// ================================ TEST FRAMES ==============================
 #[cfg(test)]
 mod frames {
     use ::*;
@@ -248,7 +286,7 @@ mod frames {
 
 }
 
-// ============================== TEST RESOLUTION ==============================
+// ============================== TEST RESOLUTION ============================
 #[cfg(test)]
 mod resolution {
     use ::*;
@@ -290,7 +328,7 @@ mod resolution {
 
 
 
-
+// =============================== TEST RESOURCE =============================
 
 #[cfg(test)]
 mod resource{

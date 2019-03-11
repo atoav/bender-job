@@ -13,6 +13,13 @@ use std::path::Path;
 use std::os::unix::fs::PermissionsExt;
 
 
+
+
+
+// ===========================================================================
+//                                  Gaffer
+// ===========================================================================
+
 /// A thing that implements the Gaffer trait can scan and optimize its own job \
 /// run a path with a python file and incorporate the gathered info in it self. \
 /// The most important struct implementing this trait is the [Job](struct;Job.html).
@@ -27,6 +34,7 @@ pub trait Gaffer{
 /// about resolution, frames and renderer by executing the blendfile with \
 /// a python script (optimize_blend.py)
 impl Gaffer for Job{
+
     /// Execute the jobs blendfile with optimize_blend.py, gather data and optimize settings.
     fn scan_and_optimize(&mut self){
         // Use the local file for debug builds, use the installed file for release builds
@@ -142,13 +150,17 @@ impl Gaffer for Job{
 
 
 
-// ============================== MISCINFO STRUCT ==============================
+
+// ===========================================================================
+//                                MiscInfo
+// ===========================================================================
 
 /// This represents the info of the blendfile. In the optimize_blend() function
-/// we run the blendfile with the optimize_blend.py as a argument. The optimize_blend.py
-/// will gather some data, put it into a python dict, serialize it to JSON and print
-/// it back to be read for the optimize_blend() function. This is the Rust equivalent
-/// to that python dict and needs to mimic it exactly.
+/// we run the blendfile with the optimize_blend.py as a argument. The \
+/// optimize_blend.py will gather some data, put it into a python dict, \
+/// serialize it to JSON and print it back to be read for the optimize_blend() \
+/// function. This is the Rust equivalent to that python dict and needs to \
+/// mimic it exactly.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct MiscInfo {
     pub valid_format: bool,
@@ -189,6 +201,9 @@ impl MiscInfo {
 
 
 
+// ===========================================================================
+//                               UNIT TESTS
+// ===========================================================================
 
 #[cfg(test)]
 mod miscinfo{

@@ -7,8 +7,9 @@ use std::io::Write;
 use std::os::unix::fs::PermissionsExt;
 
 
-
-/* --------------------------------[ Job ]-------------------------------- */
+// ===========================================================================
+//                                   Job
+// ===========================================================================
 
 /// The Job struct holds all information about a job request for rendering
 /// it gets created simply by reading from its `data.json`.
@@ -154,7 +155,7 @@ impl Job{
         let value = value.into();
         match self.data.insert(key.into(), value.clone()){
             Some(oldvalue) => {
-                if value != oldvalue { Ok(()) } else { Ok(()) }
+                Ok(())
             },
             None => Ok(())
         }

@@ -7,19 +7,24 @@ use chrono::Duration;
 use common::random_id;
 
 
-
+// ===========================================================================
+//                                   Task
+// ===========================================================================
 
 /// A Task is what gets passed from qu to worker. Tasks are essentially atomic \
 /// units of work, broken down so they can be fairly managed by the queue.
 ///
-/// This is basically a wrapper around a command, that allows us to keep track of
-/// a Tasks status, its start and end times etc. It consists of:
-/// - a [Status](task/enum.Status.html) which manages the States of a Task and the allowed transitions between it \
-/// (e.g. a finished task cannot be aborted, a errored task cannot start etc.)
-/// - a [JobTime](jobtime/struct.JobTime.html) which allows to keep track of _when_ a certain state change has occured, as \
-/// well as the calculation of durations (the same construct is used for [Job](struct.Job.html))
-/// - a [Command](command/enum.Command.html) which allows to abstract CLI commands to be executed on the worker machines \
-/// in such way, that we don't need to know input and output paths beforehand
+/// This is basically a wrapper around a command, that allows us to keep track \
+/// of a Tasks status, its start and end times etc. It consists of:
+/// - a [Status](task/enum.Status.html) which manages the States of a Task and \
+/// the allowed transitions between it (e.g. a finished task cannot be aborted,\
+/// a errored task cannot start etc.)
+/// - a [JobTime](jobtime/struct.JobTime.html) which allows to keep track of \
+/// _when_ a certain state change has occured, as well as the calculation of \
+/// durations (the same construct is used for [Job](struct.Job.html))
+/// - a [Command](command/enum.Command.html) which allows to abstract CLI \
+/// commands to be executed on the worker machines in such way, that we don't \
+/// need to know input and output paths beforehand
 /// 
 /// Construct a new basic task like this:
 /// ```
@@ -255,6 +260,11 @@ impl fmt::Display for Task {
 
 
 
+
+// ===========================================================================
+//                                Task.status
+// ===========================================================================
+
 // Methods dealing with Task.status
 impl Task{
     /// Queue the task (only if the task is waiting) and log the time of this call
@@ -419,6 +429,11 @@ impl Task{
 
 
 
+
+// ===========================================================================
+//                                  Status
+// ===========================================================================
+
 /// A Tasks Status describes the different states a [Task](struct.Task.html) can be in and allows
 /// the Task to manage all possible transitions between them. Invalid transitions
 /// are just ignored.
@@ -487,7 +502,9 @@ impl Status{
 
 
 
-
+// ===========================================================================
+//                                  Tasks
+// ===========================================================================
 
 pub type Tasks = VecDeque<Task>;
 
@@ -654,8 +671,6 @@ pub trait TaskQueue{
     /// Merge Tasks one by one
     fn merge(&mut self, other: &Self);
 }
-
-
 
 
 
@@ -1052,8 +1067,14 @@ impl TaskQueue for Tasks{
 
 
 
+
+
+// ===========================================================================
+//                                 UNIT TESTS
+// ===========================================================================
+
 #[cfg(test)]
-mod tests {
+mod test {
     use super::*;
 
     #[test]
