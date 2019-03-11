@@ -477,6 +477,37 @@ impl Frame{
         Ok(self.hash.clone().unwrap())
     }
 
+    /// Compare the filesize of this Frame to the filesize read from the reader\
+    /// and return true if they are the same. Error if the read fails or there \
+    /// is no filesize value set yet.
+    pub fn same_filesize<R: Read>(&mut self, mut reader: R) -> GenResult<bool>{
+        match self.get_filesize(){
+            Some(this) => {
+                let mut buffer = Vec::new();
+                let that = reader.read_to_end(&mut buffer)?;
+                Ok(this == that)
+            }
+            None => Err(From::from("Error: Couldn't compare to Frame's filesize, because the Frame's filesize was not set."))
+        }
+    }
+
+    /// Compare the hash of this Frame to the hash generated from the reader\
+    /// and return true if they are the same. Error if the read fails or there \
+    /// is no hash value set yet for the Frame.
+    pub fn same_hash<R: Read>(&mut self, mut reader: R) -> GenResult<bool>{
+        match self.get_hash(){
+            Some(this) => {
+                let mut buffer = Vec::new();
+                reader.read_to_end(&mut buffer)?;
+                let mut hasher = Blake2b::new();
+                hasher.input(buffer);
+                let that = format!("{:x}", hasher.result());
+                Ok(this == &*that)
+            }
+            None => Err(From::from("Error: Couldn't compare to Frame's hash, because the Frame's hash was not set."))
+        }
+    }
+
 }
 
 
@@ -557,9 +588,52 @@ mod frame {
         let b = "12345678".as_bytes();
         let x = f.hash_from_file(b);
 
-        println!("{:#?}",x);
         assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
         assert_eq!(f.get_hash().unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4");
+    }
+
+    #[test]
+    fn same_filesize() {
+        let mut f = Frame::new();
+        let b = "12345678".as_bytes();
+        let x = f.filesize_from_file(b);
+
+        assert_eq!(x.unwrap(), 8);
+        assert!(f.same_filesize(b).unwrap());
+    }
+
+    #[test]
+    fn same_hash() {
+        let mut f = Frame::new();
+        let b = "12345678".as_bytes();
+        let x = f.hash_from_file(b);
+
+        assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
+        assert!(f.same_hash(b).unwrap());
+    }
+
+    #[test]
+    fn same_filesize_negative() {
+        let mut f = Frame::new();
+        let b = "12345678".as_bytes();
+        let other = "and now for something completely different".as_bytes();
+        let x = f.filesize_from_file(b);
+
+        assert_eq!(x.unwrap(), 8);
+        assert!(f.same_filesize(b).unwrap());
+        assert_eq!(f.same_filesize(other).unwrap(), false);
+    }
+
+    #[test]
+    fn same_hash_negative() {
+        let mut f = Frame::new();
+        let b = "12345678".as_bytes();
+        let other = "and now for something completely different".as_bytes();
+        let x = f.hash_from_file(b);
+
+        assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
+        assert!(f.same_hash(b).unwrap());
+        assert_eq!(f.same_hash(other).unwrap(), false);
     }
 }
 
