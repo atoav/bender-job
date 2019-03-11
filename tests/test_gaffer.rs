@@ -5,7 +5,7 @@ extern crate chrono;
 
 /// Test the Gaffer trait
 mod gaffer{
-    use bender_job::{Gaffer, Render, Frames, Resolution, common};
+    use bender_job::{Gaffer, Render, data, Resolution, common};
 
     /// Test if scan_and_optimize() errors when passed a unverified job
     #[test]
@@ -42,7 +42,7 @@ mod gaffer{
     /// 5873c0033e78b222bec2cb2a221487cf/untitled.blend
     #[test]
     fn checkinfo() {
-        let frames = Frames{
+        let frames = data::Frames{
             start: 1,
             end: 250,
             step: 1,

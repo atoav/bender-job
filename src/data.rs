@@ -181,20 +181,20 @@ mod frames {
     use ::*;
     #[test]
     fn is_default() {
-        let f = Frames::default();
+        let f = data::Frames::default();
         assert_eq!(f.is_default(), true);
     }
 
     #[test]
     fn is_not_default() {
-        let mut f = Frames::default();
+        let mut f = data::Frames::default();
         f.end = 100;
         assert_eq!(f.is_default(), false);
     }
 
     #[test]
     fn basic_count() {
-        let f = Frames{
+        let f = data::Frames{
             start: 1,
             end: 100,
             current: 2,
@@ -208,7 +208,7 @@ mod frames {
 
     #[test]
     fn stepped_count() {
-        let f = Frames{
+        let f = data::Frames{
             start: 1,
             end: 100,
             current: 2,
@@ -220,7 +220,7 @@ mod frames {
 
     #[test]
     fn as_vec_length() {
-        let f = Frames{
+        let f = data::Frames{
             start: 0,
             end: 100,
             current: 2,
@@ -234,7 +234,7 @@ mod frames {
 
     #[test]
     fn as_vec_steps() {
-        let f = Frames{
+        let f = data::Frames{
             start: 0,
             end: 100,
             current: 2,

@@ -47,7 +47,7 @@ use std::os::unix::fs::PermissionsExt;
 /// - `Job::history: History` a ordered Treemap that acts as a timestampable Log for each Job.
 /// - `Job::resolution: Resolution` stores x and y size, as well as the scale of the scene
 /// - `Job::render: Render` stores general values about the renderer, such as fps etc
-/// - `Job::frames: Frames` stores data related to the frame range
+/// - `Job::frames: data::Frames` stores data related to the frame range
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Job {
     pub id: String,
@@ -65,7 +65,7 @@ pub struct Job {
     #[serde(default)]
     pub render: Render,
     #[serde(default)]
-    pub frames: Frames,
+    pub frames: data::Frames,
     #[serde(default)]
     pub tasks: Tasks
 }
@@ -284,7 +284,7 @@ impl Job{
             history: History::new(),
             resolution: Resolution::default(),
             render: Render::default(),
-            frames: Frames::default(),
+            frames: data::Frames::default(),
             tasks: VecDeque::<Task>::new()
         }
     }

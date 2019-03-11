@@ -156,7 +156,7 @@ pub struct MiscInfo {
     pub materials: Resource,
     pub objects: Resource,
     pub textures: Resource,
-    pub frames: Frames,
+    pub frames: data::Frames,
     pub resolution: Resolution,
     pub history: History
 }

@@ -40,6 +40,7 @@ extern crate chrono;
 extern crate chrono_humanize;
 extern crate regex;
 extern crate atomicwrites;
+extern crate blake2;
 
 extern crate bender_bouncer;
 
@@ -68,7 +69,7 @@ pub mod status;
 pub use status::{Status, JobStatus, RequestStatus};
 
 pub mod data;
-pub use data::{Render, Frames, Resolution};
+pub use data::{Render, Resolution};
 
 pub mod gaffer;
 pub use gaffer::{Gaffer};
@@ -89,6 +90,9 @@ pub mod common;
 
 pub mod job;
 pub use job::Job;
+
+pub mod frames;
+pub use frames::{Frame, FrameMap};
 
 
 // Generic Error Types
