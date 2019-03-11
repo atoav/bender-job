@@ -129,6 +129,16 @@ pub trait FrameMap{
     /// bytes read by the reader (anything that implements the Read trait).\
     /// Return the resulting hash if the read has been sucessful
     fn hash_from_file<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<String>;
+
+    /// Compare a Frame's filesize against a file. Return true if it matches, 
+    /// false if it differs and return Error if the read fails or the 
+    /// framenumber is out of bounds or not contained within Frames
+    fn same_filesize<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<bool>;
+
+    /// Compare a Frame's hash against a file. Return true if it matches, false\
+    /// if it differs and return Error if the read fails or the framenumber is \
+    /// out of bounds or not contained within Frames
+    fn same_hash<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<bool>;
 }
 
 
@@ -326,6 +336,26 @@ impl FrameMap for Frames{
             Some(frame) => Ok(frame.hash_from_file(reader)?),
             None => {
                 let errmessage = format!("Error: Couldn't hash_from_file() for frame {}. Frame not contained in this Task.", framenumber);
+                Err(From::from(&*errmessage))
+            }
+        }
+    }
+
+    fn same_filesize<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<bool>{
+        match self.get_mut(&framenumber){
+            Some(frame) => Ok(frame.same_filesize(reader)?),
+            None => {
+                let errmessage = format!("Error: Couldn't same_filesize() for frame {}. Frame not contained in this Task.", framenumber);
+                Err(From::from(&*errmessage))
+            }
+        }
+    }
+
+    fn same_hash<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<bool>{
+        match self.get_mut(&framenumber){
+            Some(frame) => Ok(frame.same_hash(reader)?),
+            None => {
+                let errmessage = format!("Error: Couldn't same_hash() for frame {}. Frame not contained in this Task.", framenumber);
                 Err(From::from(&*errmessage))
             }
         }
@@ -804,6 +834,52 @@ mod frames {
 
         println!("{:#?}",x);
         assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
+    }
+
+    #[test]
+    fn same_filesize() {
+        let mut f = frames::Frames::new_single(66);
+        let b = "12345678".as_bytes();
+        let x = f.filesize_from_file(66, b);
+
+        assert_eq!(x.unwrap(), 8);
+        assert!(f.same_filesize(66, b).unwrap());
+    }
+
+    #[test]
+    fn same_hash() {
+        let mut f = frames::Frames::new_single(66);
+        let b = "12345678".as_bytes();
+        let x = f.hash_from_file(66, b);
+
+        println!("{:#?}",x);
+        assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
+        assert!(f.same_hash(66, b).unwrap());
+    }
+
+    #[test]
+    fn same_filesize_negative() {
+        let mut f = frames::Frames::new_single(66);
+        let b = "12345678".as_bytes();
+        let other = "And now for sth completely different".as_bytes();
+        let x = f.filesize_from_file(66, b);
+
+        assert_eq!(x.unwrap(), 8);
+        assert!(f.same_filesize(66, b).unwrap());
+        assert_eq!(f.same_filesize(66, other).unwrap(), false);
+    }
+
+    #[test]
+    fn same_hash_negative() {
+        let mut f = frames::Frames::new_single(66);
+        let b = "12345678".as_bytes();
+        let other = "And now for sth completely different".as_bytes();
+        let x = f.hash_from_file(66, b);
+
+        println!("{:#?}",x);
+        assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
+        assert!(f.same_hash(66, b).unwrap());
+        assert_eq!(f.same_hash(66, other).unwrap(), false);
     }
 
 }
