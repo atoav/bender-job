@@ -52,7 +52,7 @@ use common::random_id;
 /// // This yields following strings as a result:
 /// assert_eq!(basic_command, "ls -a".to_string());
 /// assert_eq!(single_frame_command, "blender -b --disable-autoexec my/blend/file.blend -o some/out/folder/######.png -F PNG -f 121".to_string());
-/// assert_eq!(range_frame_command, "blender -b --disable-autoexec my/blend/file.blend -o some/out/folder/######.png -F PNG -s 1 -e 250 -j 1".to_string());
+/// assert_eq!(range_frame_command, "blender -b --disable-autoexec my/blend/file.blend -o some/out/folder/######.png -F PNG -s 1 -e 250".to_string());
 /// ```
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Task{
