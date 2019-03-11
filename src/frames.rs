@@ -119,6 +119,16 @@ pub trait FrameMap{
 
     /// Return true if any of the frames has been uploaded
     fn any_uploaded(&self) -> bool;
+
+    /// Set the filesize for a given Frame to the number of bytes read from the\
+    /// reader (anything that implements the Read trait). Return the resulting \
+    /// bytes if the read was sucessful
+    fn filesize_from_file<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<usize>;
+
+    /// Generate and set the Blake2b hash for a given Frame by hashing the \
+    /// bytes read by the reader (anything that implements the Read trait).\
+    /// Return the resulting hash if the read has been sucessful
+    fn hash_from_file<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<String>;
 }
 
 
@@ -299,6 +309,26 @@ impl FrameMap for Frames{
 
     fn any_uploaded(&self) -> bool{
         self.iter().any(|(_, frame)| frame.is_uploaded())
+    }
+
+    fn filesize_from_file<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<usize>{
+        match self.get_mut(&framenumber){
+            Some(frame) => Ok(frame.filesize_from_file(reader)?),
+            None => {
+                let errmessage = format!("Error: Couldn't filesize_from_file() for frame {}. Frame not contained in this Task.", framenumber);
+                Err(From::from(&*errmessage))
+            }
+        }
+    }
+
+    fn hash_from_file<R: Read>(&mut self, framenumber: usize, reader: R) -> GenResult<String>{
+        match self.get_mut(&framenumber){
+            Some(frame) => Ok(frame.hash_from_file(reader)?),
+            None => {
+                let errmessage = format!("Error: Couldn't hash_from_file() for frame {}. Frame not contained in this Task.", framenumber);
+                Err(From::from(&*errmessage))
+            }
+        }
     }
 
 }
@@ -683,7 +713,24 @@ mod frames {
         assert_eq!(f.all_uploaded(), false);
     }
 
+    #[test]
+    fn filesize_from_file() {
+        let mut f = frames::Frames::new_single(66);
+        let b = "12345678".as_bytes();
+        let x = f.filesize_from_file(66, b);
 
+        assert_eq!(x.unwrap(), 8);
+    }
+
+    #[test]
+    fn hash_from_file() {
+        let mut f = frames::Frames::new_single(66);
+        let b = "12345678".as_bytes();
+        let x = f.hash_from_file(66, b);
+
+        println!("{:#?}",x);
+        assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
+    }
 
 }
 
