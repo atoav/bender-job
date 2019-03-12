@@ -64,6 +64,10 @@ pub trait FrameMap{
     /// a String of "-s 1 -e 250 -j 2"
     fn to_flags(&self) -> String;
 
+    /// Merge the Frames stored in self with the Frames stored in other. This \
+    /// only updates values set in other which are not set in self
+    fn merge(&mut self, other: &Self);
+
     /// Set the filesize for a given frame, return Ok if this suceeds and 
     /// Err if this fails
     fn set_filesize(&mut self, framenumber: usize, filesize: usize) -> GenResult<()>;
@@ -212,6 +216,15 @@ impl FrameMap for Frames{
                 _ => format!("-s {} -e {} -j {}", self.start(), self.end(), step)
             }
         }
+    }
+
+    fn merge(&mut self, other: &Self){
+        self.iter_mut()
+            .for_each(|(i, frame)| {
+                if let Some(other_frame) = other.get(&i) { 
+                    frame.merge(&other_frame)
+                }
+            })
     }
 
     fn set_filesize(&mut self, framenumber: usize, filesize: usize) -> GenResult<()>{
@@ -950,6 +963,40 @@ mod frames {
         assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
         assert!(f.same_hash(66, b).unwrap());
         assert_eq!(f.same_hash(66, other).unwrap(), false);
+    }
+
+    #[test]
+    fn merge() {
+        let mut this = frames::Frames::new_single(66);
+        let mut other = frames::Frames::new_single(66);
+        let b = "12345678".as_bytes();
+        other.filesize_from_file(66, b).unwrap();
+        other.hash_from_file(66, b).unwrap();
+        other.set_uploaded(66).unwrap();
+
+        assert_ne!(this, other);
+
+        this.merge(&other);
+
+        assert_eq!(this, other);
+    }
+
+    #[test]
+    fn merge_negative() {
+        let mut this = frames::Frames::new_single(66);
+        let other = frames::Frames::new_single(66);
+        let b = "12345678".as_bytes();
+        this.filesize_from_file(66, b).unwrap();
+        this.hash_from_file(66, b).unwrap();
+        this.set_uploaded(66).unwrap();
+
+        assert_ne!(this, other);
+
+        let duplicate = this.clone();
+
+        this.merge(&other);
+
+        assert_eq!(this, duplicate);
     }
 
 }
