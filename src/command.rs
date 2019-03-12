@@ -72,10 +72,8 @@ impl Command{
         let commands = (self, other);
 
         // Only unconstructed Blender commands from constructed ones
-        if let (Command::Blender(a), Command::Blender(b)) = commands {
-            if b.is_constructed() || !a.is_constructed(){
-                *a = b.clone();
-            }
+        if let (Command::Blender(this), Command::Blender(other)) = commands {
+            this.merge(&other);
         }
     }
 
@@ -256,6 +254,25 @@ impl BlenderCommand{
             out=out, 
             format=self.image_format,
             f=framestring));
+    }
+
+    /// Merge one BlenderCommand into another based on its values
+    pub fn merge(&mut self, other: &Self){
+        self.frame.merge(&other.frame);
+
+        if self.image_format != other.image_format { self.image_format = other.image_format.clone(); }
+
+        if self.blendfile.is_none() && other.blendfile.is_some(){
+            self.blendfile = other.blendfile.clone();
+        }
+
+        if self.outpath.is_none() && other.outpath.is_some(){
+            self.outpath = other.outpath.clone();
+        }
+
+        if self.command.is_none() && other.command.is_some(){
+            self.command = other.command.clone();
+        }
     }
 
     /// Return true if the blendfile has been constructed
