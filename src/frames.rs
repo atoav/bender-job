@@ -401,6 +401,22 @@ impl Frame{
         }
     }
 
+    /// merge one Frame into another frame, overwriting existing fields only, \
+    /// if they are None or false in self, and Some(_) or true in other
+    pub fn merge(&mut self, other: &Self){
+        if self.filesize.is_none() && other.filesize.is_some(){
+            self.filesize = other.filesize;
+        }
+
+        if self.hash.is_none() && other.hash.is_some(){
+            self.hash = other.hash.clone();
+        }
+
+        // If either is uploaded, set to true
+        self.uploaded = self.uploaded || other.uploaded
+
+    }
+
     /// Set the Frame's filesize
     pub fn set_filesize(&mut self, filesize: usize){
         self.filesize = Some(filesize)
@@ -664,6 +680,60 @@ mod frame {
         assert_eq!(x.unwrap(), "f5560c3296de4e0ef868574bf96fc778bc580931a8cae2d2631de27ba055db1be2afd769d658c684d8bc5ee0c1b2a7583ec862d5e994b806c6fa2ab4d54cd7f4".to_string());
         assert!(f.same_hash(b).unwrap());
         assert_eq!(f.same_hash(other).unwrap(), false);
+    }
+
+    #[test]
+    fn merge_with_some() {
+        let mut this = Frame::new();
+        let mut other = Frame::new();
+        let b = "12345678".as_bytes();
+
+        // Apply to other
+        other.filesize_from_file(b).unwrap();
+        other.hash_from_file(b).unwrap();
+        other.set_uploaded();
+
+        // Test the assumptions before merging
+        assert_ne!(this, other);
+        assert_eq!(this.filesize, None);
+        assert_eq!(this.hash, None);
+        assert_eq!(this.uploaded, false);
+
+        // Merge
+        this.merge(&other);
+
+        // Test after merging
+        assert_eq!(this.filesize, other.filesize);
+        assert_eq!(this.hash, other.hash);
+        assert_eq!(this.uploaded, other.uploaded);
+    }
+
+    #[test]
+    fn merge_with_none() {
+        let mut this = Frame::new();
+        let other = Frame::new();
+        let b = "12345678".as_bytes();
+
+        // Apply to this
+        this.filesize_from_file(b).unwrap();
+        this.hash_from_file(b).unwrap();
+        this.set_uploaded();
+
+        // Test the assumptions before merging
+        assert_ne!(this, other);
+        assert_eq!(other.filesize, None);
+        assert_eq!(other.hash, None);
+        assert_eq!(other.uploaded, false);
+
+        let duplicate = this.clone();
+
+        // Merge
+        this.merge(&other);
+
+        // Test after merging
+        assert_eq!(this.filesize, duplicate.filesize);
+        assert_eq!(this.hash, duplicate.hash);
+        assert_eq!(this.uploaded, duplicate.uploaded);
     }
 }
 
