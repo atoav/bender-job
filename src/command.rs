@@ -388,7 +388,6 @@ impl BlenderCommand{
         self.frame.iter()
                   .inspect(|(x, _)| println!("{:?}", *x))
                   .for_each(|(i, _)|{
-                    dbg!(&i);
                     framepaths.insert(*i, self.path_for_frame(*i));
                   });
 
