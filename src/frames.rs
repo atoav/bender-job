@@ -88,7 +88,7 @@ pub trait FrameMap{
     /// Returns the hash of the given frame as a String if it has been \
     /// rendered. If the frame hasn't been rendered or is out of bounds, \
     /// return None
-    fn get_hash(&self, framenumber: usize) -> Option<&str>;
+    fn get_hash(&self, framenumber: usize) -> Option<String>;
 
     /// Returns true if the given frame ihas been rendered. If the frame hasn't\
     /// been rendered or is out of bounds, return false
@@ -275,11 +275,13 @@ impl FrameMap for Frames{
         }
     }
 
-    fn get_hash(&self, framenumber: usize) -> Option<&str>{
+    fn get_hash(&self, framenumber: usize) -> Option<String>{
         match self.get(&framenumber){
             Some(frame) => frame.get_hash(),
             None => None
         }
+
+
     }
 
     fn get_uploaded(&self, framenumber: usize) -> bool{
@@ -454,10 +456,10 @@ impl Frame{
         }
     }
 
-    /// Get a Option<&str> of the Frame's hash 
-    pub fn get_hash(&self) -> Option<&str>{
+    /// Get a Option<String> of the Frame's hash 
+    pub fn get_hash(&self) -> Option<String>{
         match self.hash{
-            Some(ref h) => Some(&*h),
+            Some(ref h) => Some(h.clone()),
             None => None
         }
     }
@@ -561,7 +563,7 @@ impl Frame{
                 let mut hasher = Blake2b::new();
                 hasher.input(buffer);
                 let that = format!("{:x}", hasher.result());
-                Ok(this == &*that)
+                Ok(this == *that)
             }
             None => Err(From::from("Error: Couldn't compare to Frame's hash, because the Frame's hash was not set."))
         }
