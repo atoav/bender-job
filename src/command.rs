@@ -2,7 +2,7 @@
 //! or a BlenderCommand. For details check the Command Enum documentation.
 
 use ::*;
-
+use reqwest::{header::USER_AGENT, multipart};
 
 
 
@@ -144,6 +144,35 @@ impl Command{
             Ok(blender_command.frame.all_hash())
         }else{
             Err(From::from("Couldn't check if all frames have a hash, because the Command was not a BlenderCommand"))
+        }
+    }
+
+    /// Post the frame in self to flaskbender via http
+    pub fn post_frames<S>(&self, bender_url: S) -> GenResult<Vec<String>> where S: Into<String>{
+        let bender_url = bender_url.into();
+        let mut v = Vec::new();
+
+        match self{
+            Command::Blender(ref blender_command) => {
+                for (i, frame) in blender_command.frame.iter(){
+                    let path = blender_command.path_for_frame(*i);
+                    let form = multipart::Form::new()
+                                        .text("filesize", frame.get_filesize().unwrap().to_string())
+                                        .text("hash", frame.get_hash().unwrap().clone())
+                                        .file("file", &*path)?;
+
+                    let client = reqwest::Client::new();
+                    println!(" @ [WORKER] Uploading frame from {}", &*path.to_string_lossy());
+                    let res = client.post(&*bender_url)
+                        .header(USER_AGENT, "bender-worker")
+                        .multipart(form)
+                        .send()?
+                        .text()?;
+                    v.push(res);
+                }
+                Ok(v)
+            },
+            _ => Err(From::from("The Command was not a blender command"))
         }
     }
 
@@ -310,7 +339,6 @@ impl BlenderCommand{
             })
             .collect()
     }
-
 
     /// Return the path for a constructed frame
     pub fn path_for_frame(&self, framenumber: usize) -> PathBuf{

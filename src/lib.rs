@@ -39,6 +39,7 @@ extern crate serde_json;
 extern crate chrono;
 extern crate chrono_humanize;
 extern crate regex;
+extern crate reqwest;
 extern crate atomicwrites;
 extern crate blake2;
 
