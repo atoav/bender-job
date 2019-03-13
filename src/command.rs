@@ -168,6 +168,7 @@ impl Command{
                     println!(" @ [WORKER] Uploading frame from {}", &*path.to_string_lossy());
                     let res = client.post(&*bender_url)
                                     .header(USER_AGENT, "bender-worker")
+                                    .header("X-CSRFToken", "foo")
                                     .multipart(form)
                                     .send()?;
                     v.push(res);
