@@ -172,6 +172,8 @@ impl Command{
             },
             _ => Err(From::from("The Command was not a blender command"))
         }
+
+        thread::sleep(Duration::from_millis(2000));
     }
 
 }
