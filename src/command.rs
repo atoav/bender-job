@@ -2,7 +2,7 @@
 //! or a BlenderCommand. For details check the Command Enum documentation.
 
 use ::*;
-use reqwest::{header::USER_AGENT};
+use reqwest::{header::USER_AGENT, multipart};
 use std::thread;
 use std::time::Duration;
 
@@ -158,16 +158,18 @@ impl Command{
             Command::Blender(ref blender_command) => {
                 for (i, frame) in blender_command.frame.iter(){
                     let path = blender_command.path_for_frame(*i);
-                    let file = fs::File::open(&*path)?;
+
+                    let form = multipart::Form::new()
+                                    .text("filesize", frame.get_filesize().unwrap().to_string())
+                                    .text("hash", frame.get_hash().unwrap().to_string())
+                                    .file("file", &*path)?;
 
                     let client = reqwest::Client::new();
                     println!(" @ [WORKER] Uploading frame from {}", &*path.to_string_lossy());
                     let res = client.post(&*bender_url)
-                        .header(USER_AGENT, "bender-worker")
-                        .header("filesize", frame.get_filesize().unwrap().to_string().as_str())
-                        .header("hash", frame.get_hash().unwrap().to_string().as_str())
-                        .body(file)
-                        .send()?;
+                                    .header(USER_AGENT, "bender-worker")
+                                    .multipart(form)
+                                    .send()?;
                     v.push(res);
                 }
                 thread::sleep(Duration::from_millis(2000));
