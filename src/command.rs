@@ -351,7 +351,6 @@ impl BlenderCommand{
         // Collect the paths where the frame should be rendered first
         let mut framepaths = HashMap::new(); 
         self.frame.iter()
-                  .inspect(|(x, _)| println!("{:?}", *x))
                   .for_each(|(i, _)|{
                     framepaths.insert(*i, self.path_for_frame(*i));
                   });
@@ -386,7 +385,6 @@ impl BlenderCommand{
         // Collect the paths where the frame should be rendered first
         let mut framepaths = HashMap::new(); 
         self.frame.iter()
-                  .inspect(|(x, _)| println!("{:?}", *x))
                   .for_each(|(i, _)|{
                     framepaths.insert(*i, self.path_for_frame(*i));
                   });
