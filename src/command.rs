@@ -127,22 +127,23 @@ impl Command{
 
 
     /// Return true if all frames of the underlying BlenderCommand have a \
-    /// filesize. If the command is _not_ a BlenderCommand, return false.
-    pub fn all_filesize(&self) -> bool{
+    /// filesize. If the command is _not_ a BlenderCommand, return Error.
+    pub fn all_filesize(&self) -> GenResult<bool>{
         if let Command::Blender(blender_command)  = self{
-            !blender_command.frame.all_filesize()
+            Ok(blender_command.frame.all_filesize())
         }else{
-            false
+            Err(From::from("Couldn't check if all frames have a filesize, because the Command was not a BlenderCommand"))
         }
     }
 
+
     /// Return true if all frames of the underlying BlenderCommand have been \
-    /// hashed. If the command is _not_ a BlenderCommand, return false.
-    pub fn all_hashed(&self) -> bool{
+    /// hashed. If the command is _not_ a BlenderCommand, return Error.
+    pub fn all_hashed(&self) -> GenResult<bool>{
         if let Command::Blender(blender_command)  = self{
-            !blender_command.frame.all_hash()
+            Ok(blender_command.frame.all_hash())
         }else{
-            false
+            Err(From::from("Couldn't check if all frames have a hash, because the Command was not a BlenderCommand"))
         }
     }
 
