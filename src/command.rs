@@ -148,7 +148,7 @@ impl Command{
     }
 
     /// Post the frame in self to flaskbender via http
-    pub fn post_frames<S>(&self, bender_url: S) -> GenResult<Vec<String>> where S: Into<String>{
+    pub fn post_frames<S>(&self, bender_url: S) -> GenResult<Vec<reqwest::Response>> where S: Into<String>{
         let bender_url = bender_url.into();
         let mut v = Vec::new();
 
@@ -166,8 +166,7 @@ impl Command{
                     let res = client.post(&*bender_url)
                         .header(USER_AGENT, "bender-worker")
                         .multipart(form)
-                        .send()?
-                        .text()?;
+                        .send()?;
                     v.push(res);
                 }
                 Ok(v)
