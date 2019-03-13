@@ -289,38 +289,63 @@ impl BlenderCommand{
             .collect()
     }
 
+
     /// Return the path for a constructed frame
     pub fn path_for_frame(&self, framenumber: usize) -> PathBuf{
         let s = self.outpath.clone().unwrap()+"/"+&format!("{:06}", framenumber)+"."+&self.image_format.to_lowercase();
-        PathBuf::from(s)
+        PathBuf::from(s.clone())
     }
 
-    /// Generate and set a rendered Frame's filesize
-    pub fn read_frame_filesize(&mut self, framenumber: usize) -> GenResult<usize>{
-        let framepath = self.path_for_frame(framenumber);
-        if framepath.exists(){
-            let file = std::fs::File::open(&framepath)?;
-            Ok(self.frame.filesize_from_file(framenumber, file)?)
-        }else{
-            let message = format!("Couldn't filesize Frame {}, because the file doesn't exist: {}", 
-                framenumber, 
-                framepath.to_string_lossy());
-            Err(From::from(message))
-        }
+    /// Read and set the filesizes for all rendered frames
+    pub fn get_frame_filesizes(&mut self) -> GenResult<()>{
+        // Collect the paths where the frame should be rendered first
+        let framepaths: Vec<PathBuf> = 
+        self.frame.iter()
+                  .map(|(i, _)|{
+                    self.path_for_frame(*i)
+                  })
+                  .collect();
+
+        let _v: GenResult<Vec<usize>> = 
+        self.frame.iter_mut()
+                  .map(|(i, frame)|{
+                    if framepaths[*i].exists(){
+                        let file = std::fs::File::open(&framepaths[*i])?;
+                        Ok(frame.filesize_from_file(file)?)
+                    }else{
+                        let message = format!("Couldn't filesize Frame {}, because the file doesn't exist: {}", 
+                            i, framepaths[*i].to_string_lossy());
+                        Err(From::from(message))
+                    }
+                  })
+                  .collect();
+        Ok(())
     }
 
-    /// Generate and set a rendered Frame's hash
-    pub fn generate_frame_hash(&mut self, framenumber: usize) -> GenResult<String>{
-        let framepath = self.path_for_frame(framenumber);
-        if framepath.exists(){
-            let file = std::fs::File::open(&framepath)?;
-            Ok(self.frame.hash_from_file(framenumber, file)?)
-        }else{
-            let message = format!("Couldn't hash Frame {}, because the file doesn't exist: {}", 
-                framenumber, 
-                framepath.to_string_lossy());
-            Err(From::from(message))
-        }
+    /// Generate and set the hashes for all rendered frames
+    pub fn get_frame_hashes(&mut self) -> GenResult<()>{
+        // Collect the paths where the frame should be rendered first
+        let framepaths: Vec<PathBuf> = 
+        self.frame.iter()
+                  .map(|(i, _)|{
+                    self.path_for_frame(*i)
+                  })
+                  .collect();
+
+        let _v: GenResult<Vec<String>> = 
+        self.frame.iter_mut()
+                  .map(|(i, frame)|{
+                    if framepaths[*i].exists(){
+                        let file = std::fs::File::open(&framepaths[*i])?;
+                        Ok(frame.hash_from_file(file)?)
+                    }else{
+                        let message = format!("Couldn't hash Frame {}, because the file doesn't exist: {}", 
+                            i, framepaths[*i].to_string_lossy());
+                        Err(From::from(message))
+                    }
+                  })
+                  .collect();
+        Ok(())
     }
 
     /// Set a rendered Frame's uploaded flag
