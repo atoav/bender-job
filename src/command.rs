@@ -349,7 +349,6 @@ impl BlenderCommand{
     /// Read and set the filesizes for all rendered frames
     pub fn get_frame_filesizes(&mut self) -> GenResult<()>{
         // Collect the paths where the frame should be rendered first
-
         let mut framepaths = HashMap::new(); 
         self.frame.iter()
                   .for_each(|(i, _)|{
@@ -359,13 +358,22 @@ impl BlenderCommand{
         let _v: GenResult<Vec<usize>> = 
         self.frame.iter_mut()
                   .map(|(i, frame)|{
-                    if framepaths[i].exists(){
-                        let file = std::fs::File::open(&&framepaths[i])?;
-                        Ok(frame.filesize_from_file(file)?)
-                    }else{
-                        let message = format!("Couldn't filesize Frame {}, because the file doesn't exist: {}", 
-                            i, &framepaths[i].to_string_lossy());
-                        Err(From::from(message))
+                    match framepaths.get(i){
+                        Some(path) => {
+                            if path.exists(){
+                                let file = std::fs::File::open(&path)?;
+                                Ok(frame.filesize_from_file(file)?)
+                            }else{
+                                let message = format!("Couldn't filesize Frame {}, because the file doesn't exist: {}", 
+                                    i, &path.to_string_lossy());
+                                Err(From::from(message))
+                            }
+                        },
+                        None => {
+                            let message = format!("Couldn't filesize Frame {} because the index is out of bounds", 
+                                    i);
+                                Err(From::from(message))
+                        }
                     }
                   })
                   .collect();
@@ -385,13 +393,22 @@ impl BlenderCommand{
         let _v: GenResult<Vec<String>> = 
         self.frame.iter_mut()
                   .map(|(i, frame)|{
-                    if framepaths[i].exists(){
-                        let file = std::fs::File::open(&&framepaths[i])?;
-                        Ok(frame.hash_from_file(file)?)
-                    }else{
-                        let message = format!("Couldn't hash Frame {}, because the file doesn't exist: {}", 
-                            i, &framepaths[i].to_string_lossy());
-                        Err(From::from(message))
+                    match framepaths.get(i){
+                        Some(path) => {
+                            if path.exists(){
+                                let file = std::fs::File::open(&path)?;
+                                Ok(frame.hash_from_file(file)?)
+                            }else{
+                                let message = format!("Couldn't hash Frame {}, because the file doesn't exist: {}", 
+                                    i, &path.to_string_lossy());
+                                Err(From::from(message))
+                            }
+                        },
+                        None => {
+                            let message = format!("Couldn't hash Frame {} because the index is out of bounds", 
+                                    i);
+                                Err(From::from(message))
+                        }
                     }
                   })
                   .collect();
