@@ -349,22 +349,22 @@ impl BlenderCommand{
     /// Read and set the filesizes for all rendered frames
     pub fn get_frame_filesizes(&mut self) -> GenResult<()>{
         // Collect the paths where the frame should be rendered first
-        let framepaths: Vec<PathBuf> = 
+
+        let mut framepaths = HashMap::new(); 
         self.frame.iter()
-                  .map(|(i, _)|{
-                    self.path_for_frame(*i)
-                  })
-                  .collect();
+                  .for_each(|(i, _)|{
+                    framepaths.insert(*i, self.path_for_frame(*i));
+                  });
 
         let _v: GenResult<Vec<usize>> = 
         self.frame.iter_mut()
                   .map(|(i, frame)|{
-                    if framepaths[*i].exists(){
-                        let file = std::fs::File::open(&framepaths[*i])?;
+                    if framepaths[i].exists(){
+                        let file = std::fs::File::open(&&framepaths[i])?;
                         Ok(frame.filesize_from_file(file)?)
                     }else{
                         let message = format!("Couldn't filesize Frame {}, because the file doesn't exist: {}", 
-                            i, framepaths[*i].to_string_lossy());
+                            i, &framepaths[i].to_string_lossy());
                         Err(From::from(message))
                     }
                   })
@@ -375,22 +375,22 @@ impl BlenderCommand{
     /// Generate and set the hashes for all rendered frames
     pub fn get_frame_hashes(&mut self) -> GenResult<()>{
         // Collect the paths where the frame should be rendered first
-        let framepaths: Vec<PathBuf> = 
+        let mut framepaths = HashMap::new(); 
         self.frame.iter()
-                  .map(|(i, _)|{
-                    self.path_for_frame(*i)
-                  })
-                  .collect();
+                  .for_each(|(i, _)|{
+                    dbg!(&i);
+                    framepaths.insert(*i, self.path_for_frame(*i));
+                  });
 
         let _v: GenResult<Vec<String>> = 
         self.frame.iter_mut()
                   .map(|(i, frame)|{
-                    if framepaths[*i].exists(){
-                        let file = std::fs::File::open(&framepaths[*i])?;
+                    if framepaths[i].exists(){
+                        let file = std::fs::File::open(&&framepaths[i])?;
                         Ok(frame.hash_from_file(file)?)
                     }else{
                         let message = format!("Couldn't hash Frame {}, because the file doesn't exist: {}", 
-                            i, framepaths[*i].to_string_lossy());
+                            i, &framepaths[i].to_string_lossy());
                         Err(From::from(message))
                     }
                   })
