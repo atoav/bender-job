@@ -168,12 +168,13 @@ impl Command{
                         .send()?;
                     v.push(res);
                 }
+                thread::sleep(Duration::from_millis(2000));
                 Ok(v)
             },
             _ => Err(From::from("The Command was not a blender command"))
         }
 
-        thread::sleep(Duration::from_millis(2000));
+
     }
 
 }
