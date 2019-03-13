@@ -125,6 +125,27 @@ impl Command{
         }
     }
 
+
+    /// Return true if all frames of the underlying BlenderCommand have a \
+    /// filesize. If the command is _not_ a BlenderCommand, return false.
+    pub fn all_filesize(&self) -> bool{
+        if let Command::Blender(blender_command)  = self{
+            !blender_command.frame.all_filesize()
+        }else{
+            false
+        }
+    }
+
+    /// Return true if all frames of the underlying BlenderCommand have been \
+    /// hashed. If the command is _not_ a BlenderCommand, return false.
+    pub fn all_hashed(&self) -> bool{
+        if let Command::Blender(blender_command)  = self{
+            !blender_command.frame.all_hash()
+        }else{
+            false
+        }
+    }
+
 }
 
 
