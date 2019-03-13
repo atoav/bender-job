@@ -156,16 +156,15 @@ impl Command{
             Command::Blender(ref blender_command) => {
                 for (i, frame) in blender_command.frame.iter(){
                     let path = blender_command.path_for_frame(*i);
-                    let form = multipart::Form::new()
-                                        .text("filesize", frame.get_filesize().unwrap().to_string())
-                                        .text("hash", frame.get_hash().unwrap().clone())
-                                        .file("file", &*path)?;
+                    let file = File::open(&*path)?;
 
                     let client = reqwest::Client::new();
                     println!(" @ [WORKER] Uploading frame from {}", &*path.to_string_lossy());
                     let res = client.post(&*bender_url)
                         .header(USER_AGENT, "bender-worker")
-                        .multipart(form)
+                        .header("filesize", frame.get_filesize().unwrap().to_string())
+                        .header("hash", &*path)
+                        .file(file)
                         .send()?;
                     v.push(res);
                 }
