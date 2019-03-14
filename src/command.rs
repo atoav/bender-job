@@ -165,8 +165,9 @@ impl Command{
                                     .file("file", &*path)?;
 
                     let client = reqwest::Client::new();
-                    println!(" @ [WORKER] Uploading frame from {} to {}", &*path.to_string_lossy(), bender_url.as_str());
-                    let res = client.post(bender_url.as_str())
+                    let url    = reqwest::Url::parse(bender_url.as_str())?;
+                    println!(" @ [WORKER] Uploading frame from {} to {}", &*path.to_string_lossy(), url);
+                    let res = client.post(url)
                                     .header(USER_AGENT, "bender-worker")
                                     .multipart(form)
                                     .send()?;
