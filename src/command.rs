@@ -161,7 +161,7 @@ impl Command{
 
                     let form = multipart::Form::new()
                                     .text("filesize", frame.get_filesize().unwrap().to_string())
-                                    .text("hash", frame.get_hash().unwrap().to_string())
+                                    .text("filehash", frame.get_hash().unwrap().to_string())
                                     .file("file", &*path)?;
 
                     let client = reqwest::Client::new();
