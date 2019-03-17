@@ -13,7 +13,8 @@ use std::path::Path;
 use std::os::unix::fs::PermissionsExt;
 
 
-
+/// The script to be run by Blender
+static OPTIMIZE_BLEND: &'static str = include_str!("optimize_blend.py");
 
 
 // ===========================================================================
@@ -104,7 +105,7 @@ impl Gaffer for Job{
                 .arg("--disable-autoexec")
                 .arg("--python")
                 .arg(python_path)
-                .env("BENDER_OVERRIDEFORMAT", "PNG")
+                .env("BENDER_OVERRIDEFORMAT", "PNG") // use only if format was not allowed
                 .output()?;
 
         // Collect all lines starting with "{" for JSON
