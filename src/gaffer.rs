@@ -7,8 +7,10 @@
 //! 3. deserialize the received json into Rust structs and incorporate it into the Job
 
 use ::*;
+use std::io;
+use common::tempfile::NamedTempFile;
 use data::Resource;
-use std::process::Command;
+use std::process::{ Command };
 use std::path::Path;
 use std::os::unix::fs::PermissionsExt;
 
@@ -26,7 +28,7 @@ static OPTIMIZE_BLEND: &'static str = include_str!("optimize_blend.py");
 /// The most important struct implementing this trait is the [Job](struct;Job.html).
 pub trait Gaffer{
     fn scan_and_optimize(&mut self);
-    fn run_with_python<S>(path: S, python_path: S) -> GenResult<String>where S: Into<String>;
+    fn run_with_python<S>(path: S, pythonpath: S) -> GenResult<String>where S: Into<String>;
     fn incorporate_info(&mut self, info: MiscInfo);
 }
 
@@ -38,47 +40,46 @@ impl Gaffer for Job{
 
     /// Execute the jobs blendfile with optimize_blend.py, gather data and optimize settings.
     fn scan_and_optimize(&mut self){
-        // Use the local file for debug builds, use the installed file for release builds
-        let python_path = if cfg!(debug_assertions) {
-            format!("{}/src/optimize_blend.py", env!("CARGO_MANIFEST_DIR"))
-        }else{
-            "/usr/local/lib/optimize_blend.py".to_string()
-        };
         if Path::new(&self.paths.blend).exists(){
-            if Path::new(&python_path).exists(){
                 if self.status.is_validated(){
                     // Run Blend with Python
-                    match Self::run_with_python(self.paths.blend.as_str(), python_path.as_str()){
-                        Ok(output) =>{
-                            // Deserialize from blender output
-                            match MiscInfo::deserialize(&output[..]){
-                                Ok(info) => {
-                                    self.incorporate_info(info);
-                                    self.set_scan();
+                    match NamedTempFile::new(){
+                        Ok(mut tempfile) => {
+                            match io::copy(&mut OPTIMIZE_BLEND.as_bytes(), &mut tempfile){
+                                Ok(_) => {
+                                    let path = tempfile.path();
+                                    match Self::run_with_python(self.paths.blend.as_str(), &path.to_string_lossy()){
+                                        Ok(output) =>{
+                                            // Deserialize from blender output
+                                            match MiscInfo::deserialize(&output[..]){
+                                                Ok(info) => {
+                                                    self.incorporate_info(info);
+                                                    self.set_scan();
+                                                },
+                                                Err(err) => {
+                                                    let error_message = format!("failed to deserialize output to MiscInfo in gaffer: {}\nOutput was: \"{}\"", err, output);
+                                                    eprintln!("Error: {}", error_message);
+                                                    self.set_error(error_message);
+                                                }
+                                            }
+                                        },
+                                        Err(err) =>{
+                                            let error_message = format!("while running with optimize_blend.py: {}",  err);
+                                            eprintln!("Error: {}", error_message);
+                                            self.set_error(error_message);
+                                        }
+                                    }
                                 },
-                                Err(err) => {
-                                    let error_message = format!("failed to deserialize output to MiscInfo in gaffer: {}\nOutput was: \"{}\"", err, output);
-                                    eprintln!("Error: {}", error_message);
-                                    self.set_error(error_message);
-                                }
+                                Err(err) => eprintln!("Error: Failed to copy optimize_blend.py to tempfile: {}", err)
                             }
                         },
-                        Err(err) =>{
-                            let error_message = format!("while running with {}: {}", python_path, err);
-                            eprintln!("Error: {}", error_message);
-                            self.set_error(error_message);
-                        }
+                        Err(err) => eprintln!("Error: Couldn't create tempfile: {}", err)
                     }
                 }else{
                     let error_message = "Warning: Couldn't scan_and_optimize() with gaffer because job wasn't validated".to_string();
                     eprintln!("{}", error_message);
                     self.set_error(error_message);
                 }
-            }else{
-                let error_message = format!("Didn't find optimize_blend.py for gaffer at {}\nYou might try to reinstall bender-job.", python_path);
-                eprintln!("Error: {}", error_message); 
-                self.set_error(error_message);
-            }
         }else{
             let error_message = format!("Didn't find blendfile at {}", self.paths.blend);
             eprintln!("Error: {}", error_message); 
@@ -92,9 +93,9 @@ impl Gaffer for Job{
     /// ```text
     /// blender -b myfile.blend --disable-autoexec --python path/to/optimize_blend.py
     /// ```
-    fn run_with_python<S>(path: S, python_path: S) -> GenResult<String>where S: Into<String>{
+    fn run_with_python<S>(path: S, pythonpath: S) -> GenResult<String>where S: Into<String>{
         let path = path.into();
-        let python_path = python_path.into();
+        let pythonpath = pythonpath.into();
 
         // Pass variables as environment variables, let blender run optimize_blend.py
         // to set some things straight and save a new file
@@ -104,7 +105,7 @@ impl Gaffer for Job{
                 .arg(&path)
                 .arg("--disable-autoexec")
                 .arg("--python")
-                .arg(python_path)
+                .arg(pythonpath)
                 .env("BENDER_OVERRIDEFORMAT", "PNG") // use only if format was not allowed
                 .output()?;
 

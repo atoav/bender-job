@@ -4,7 +4,7 @@
 use ::*;
 extern crate chrono;
 extern crate rand;
-extern crate tempfile;
+pub extern crate tempfile;
 
 
 /// Commonly used functions
