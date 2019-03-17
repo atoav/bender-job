@@ -81,7 +81,7 @@ mod gaffer{
         let (mut j, tempdir) = common::get_random_job();
         j.validate();
         assert_eq!(j.status.is_validated(), true);
-        j.scan_and_optimize();
+        j.scan_and_optimize(true);
         assert_eq!(j.history.iter().any(|(_, value)| value.starts_with("optimize_blend.py")), true);
         tempdir.close().expect("Couldn't close tempdir");
     }

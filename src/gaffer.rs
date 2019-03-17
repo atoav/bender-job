@@ -27,7 +27,7 @@ static OPTIMIZE_BLEND: &'static str = include_str!("optimize_blend.py");
 /// run a path with a python file and incorporate the gathered info in it self. \
 /// The most important struct implementing this trait is the [Job](struct;Job.html).
 pub trait Gaffer{
-    fn scan_and_optimize(&mut self);
+    fn scan_and_optimize(&mut self, scan: bool);
     fn run_with_python<S>(path: S, pythonpath: S) -> GenResult<String>where S: Into<String>;
     fn incorporate_info(&mut self, info: MiscInfo);
 }
@@ -39,7 +39,7 @@ pub trait Gaffer{
 impl Gaffer for Job{
 
     /// Execute the jobs blendfile with optimize_blend.py, gather data and optimize settings.
-    fn scan_and_optimize(&mut self){
+    fn scan_and_optimize(&mut self, scan: bool){
         if Path::new(&self.paths.blend).exists(){
                 if self.status.is_validated(){
                     // Run Blend with Python
@@ -54,7 +54,7 @@ impl Gaffer for Job{
                                             match MiscInfo::deserialize(&output[..]){
                                                 Ok(info) => {
                                                     self.incorporate_info(info);
-                                                    self.set_scan();
+                                                    if scan{ self.set_scan() }
                                                 },
                                                 Err(err) => {
                                                     let error_message = format!("failed to deserialize output to MiscInfo in gaffer: {}\nOutput was: \"{}\"", err, output);

@@ -546,7 +546,7 @@ impl Job {
     }
 
     pub fn scan(&mut self){
-        self.scan_and_optimize();
+        self.scan_and_optimize(true);
     }
 
     pub fn atomize(&mut self){
