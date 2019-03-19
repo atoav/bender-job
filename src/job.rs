@@ -4,6 +4,8 @@ use ::*;
 use std::path::Path;
 use atomicwrites::{AtomicFile, AllowOverwrite};
 use std::io::Write;
+
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
 
@@ -206,9 +208,12 @@ impl Job{
         try!(atomicfile.write(|f| {
             match f.metadata(){
                 Ok(meta) => {
-                    // Set the permissions to 775
                     let mut permissions = meta.permissions();
+
+                    // Set the permissions to 775
+                    #[cfg(unix)]
                     permissions.set_mode(0o775);
+                    
                     match f.set_permissions(permissions){
                         Ok(_) => (),
                         Err(err) => eprintln!("Error: write_to_file failed to set file permissions to 775: {}", err)

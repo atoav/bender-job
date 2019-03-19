@@ -12,6 +12,8 @@ use common::tempfile::NamedTempFile;
 use data::Resource;
 use std::process::{ Command };
 use std::path::Path;
+
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
 
@@ -122,9 +124,12 @@ impl Gaffer for Job{
             // Set permissions
             match fs::metadata(&path){
                 Ok(meta) => {
-                    // Set the permissions to 775
                     let mut permissions = meta.permissions();
+
+                    // Set the permissions to 775
+                    #[cfg(unix)]
                     permissions.set_mode(0o775);
+                    
                     match fs::set_permissions(&path, permissions){
                         Ok(_) => (),
                         Err(err) => eprintln!("Error: failed to set permissions to 775: {}", err)
