@@ -4,7 +4,7 @@
 //! It can be loaded into a rust project via git by putting this in your Cargo.toml:  
 //! ```text
 //! [dependencies]
-//! bender-job = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-job.git" }
+//! bender-job = { git = "https://github.com/atoav/bender-job.git" }
 //! ```
 //! To update this run
 //! ```text
