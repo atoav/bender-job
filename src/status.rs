@@ -400,8 +400,7 @@ impl Status{
     /// Set to canceled only if self is a queued or running job
     pub fn cancel(&mut self) -> GenResult<()>{
         match self{
-            Status::Job(JobStatus::Queued) => { *self = Status::Job(JobStatus::Canceled); Ok(()) },
-            Status::Job(JobStatus::Running) => { *self = Status::Job(JobStatus::Canceled); Ok(()) },
+            Status::Job(_) => { *self = Status::Job(JobStatus::Canceled); Ok(()) },
             _ => Err(From::from("Couldn't Status::cancel(): was not a queued or running request"))
         }
     }

@@ -525,7 +525,7 @@ impl Job{
 
     /// Return true if self is aborted
     pub fn is_canceled(&self) -> bool{
-        self.status.is_canceled() || self.is_user_canceled()
+        self.status.is_canceled()
     }
 
     /// Return true if self is running
