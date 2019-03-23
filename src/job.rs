@@ -109,7 +109,7 @@ impl Job{
 
     /// Check if the user canceled the job, set the
     pub fn is_user_canceled(&self) -> bool{
-        println!("DEBUG: checking if is_user_canceled(): {}", format!("{}/canceled", self.paths.blend))
+        println!("DEBUG: checking if is_user_canceled(): {}", format!("{}/canceled", self.paths.blend));
         PathBuf::from(format!("{}/canceled", self.paths.blend)).exists()
     }
 
