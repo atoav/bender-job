@@ -577,7 +577,9 @@ impl Job {
     }
 
     pub fn cancel(&mut self){
-        self.set_cancel();
+        if !self.is_canceled(){
+            self.set_cancel();
+        }
     }
 }
 
