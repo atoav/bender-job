@@ -243,7 +243,6 @@ impl Job{
         let mut job = Self::deserialize_from_u8(bytes)?;
         if job.is_user_canceled() { 
             job.cancel();
-            println!("CANCELED THE FFFN JOB");
             assert!(job.is_canceled());
             Ok(job)
         }else{
@@ -374,6 +373,7 @@ impl Job{
     pub fn update_from_disk_conservatively(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let on_disk = Self::from_datajson(datapath)?;
+        dbg!(&on_disk);
         self.merge(&on_disk);
         Ok(())
     }
