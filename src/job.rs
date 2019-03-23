@@ -375,7 +375,6 @@ impl Job{
         let datapath = self.paths.data.clone();
         let on_disk = Self::from_datajson(datapath)?;
         self.merge(&on_disk);
-        println!("DEBUG: this {:?} <---> {:?}", self.status, on_disk.status);
         Ok(())
     }
 
