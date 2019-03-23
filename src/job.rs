@@ -104,13 +104,18 @@ impl Job{
 
     /// Check if the frames have been downloaded
     pub fn is_downloaded(&self) -> bool{
-        PathBuf::from(format!("{}/downloaded", self.paths.blend)).exists()
+        let mut path = PathBuf::from(self.paths.blend.clone());
+        path.pop();
+        path.push("downloaded");
+        path.exists()
     }
 
     /// Check if the user canceled the job, set the
     pub fn is_user_canceled(&self) -> bool{
-        println!("DEBUG: checking if is_user_canceled(): {}", format!("{}/canceled", self.paths.blend));
-        PathBuf::from(format!("{}/canceled", self.paths.blend)).exists()
+        let mut path = PathBuf::from(self.paths.blend.clone());
+        path.pop();
+        path.push("canceled");
+        path.exists()
     }
 
     /// Add to the history of a Job
