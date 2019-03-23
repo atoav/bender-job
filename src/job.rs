@@ -241,8 +241,12 @@ impl Job{
         let p = p.into();
         let bytes = &fs::read(p)?;
         let mut job = Self::deserialize_from_u8(bytes)?;
-        if job.is_user_canceled() { job.cancel(); }
-        Ok(job)
+        if job.is_user_canceled() { 
+            job.cancel();
+            Ok(job)
+        }else{
+            Ok(job)
+        }
     }
 
     /// Convenience Function to create a Job from the path of a blend file.
