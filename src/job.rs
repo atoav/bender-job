@@ -246,6 +246,7 @@ impl Job{
             assert!(job.is_canceled());
             Ok(job)
         }else{
+            println!("DEBUG: ELSE");
             Ok(job)
         }
     }
@@ -373,7 +374,6 @@ impl Job{
     pub fn update_from_disk_conservatively(&mut self) -> GenResult<()>{
         let datapath = self.paths.data.clone();
         let on_disk = Self::from_datajson(datapath)?;
-        dbg!(&on_disk);
         self.merge(&on_disk);
         Ok(())
     }
