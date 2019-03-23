@@ -244,6 +244,7 @@ impl Job{
         if job.is_user_canceled() { 
             job.cancel();
             assert!(job.is_canceled());
+            println!("Job is canceled: {:?}", job.status);
             Ok(job)
         }else{
             Ok(job)
