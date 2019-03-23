@@ -107,6 +107,7 @@ impl Job{
         let mut path = PathBuf::from(self.paths.blend.clone());
         path.pop();
         path.push("downloaded");
+        println!("DEBUG: is_downloaded: {} -> {}", path.to_string_lossy(), path.exists());
         path.exists()
     }
 
@@ -115,6 +116,7 @@ impl Job{
         let mut path = PathBuf::from(self.paths.blend.clone());
         path.pop();
         path.push("canceled");
+        println!("DEBUG: is_user_canceled: {} -> {}", path.to_string_lossy(), path.exists());
         path.exists()
     }
 
